@@ -4,6 +4,12 @@
     <feature name="CorHttpd">
         <param name="android-package" value="com.rjfun.cordova.httpd.CorHttpd" />
     </feature>
+    <feature name="UDPTransmit">
+        <param name="android-package" value="edu.uic.udptransmit.UDPTransmit" />
+    </feature>
+    <feature name="Accelerometer">
+        <param name="android-package" value="org.apache.cordova.devicemotion.AccelListener" />
+    </feature>
     <name>Looper</name>
     <description>
         Hello World sample application that responds to the deviceready event.

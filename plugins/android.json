@@ -11,6 +11,14 @@
                         {
                             "xml": "<feature name=\"CorHttpd\"><param name=\"android-package\" value=\"com.rjfun.cordova.httpd.CorHttpd\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"UDPTransmit\"><param name=\"android-package\" value=\"edu.uic.udptransmit.UDPTransmit\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Accelerometer\"><param name=\"android-package\" value=\"org.apache.cordova.devicemotion.AccelListener\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -33,6 +41,12 @@
     },
     "installed_plugins": {
         "com.rjfun.cordova.httpd": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "edu.uic.travelmidwest.cordova.udptransmit": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "org.apache.cordova.device-motion": {
             "PACKAGE_NAME": "com.phonegap.helloworld"
         }
     },

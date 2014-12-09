@@ -59,8 +59,15 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/img/logo.png \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/index.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd/www \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd/www/CorHttpd.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit/www \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit/www/udptransmit.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www/Acceleration.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www/accelerometer.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/res/icon \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/res/screen \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/res/icon/android \
