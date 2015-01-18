@@ -8,7 +8,7 @@ showPalette = false;
 * super simple carousel
 * animation between panes happens with css transitions
 */
-function Carousel(element) {
+function Carousel (element) {
     var self = this;
     element = $(element);
 
@@ -93,12 +93,12 @@ function Carousel(element) {
 
 
 
-    function handleHammer(ev) {
+    function handleHammer (ev) {
         // console.log(ev);
         // disable browser scrolling
         ev.gesture.preventDefault();
 
-        if (!disableEventCreate) {
+        if (!disableEventCreate && !looper.getCurrentDevice().processing.draggingCanvas) {
 
             switch(ev.type) {
                 case 'dragright':
@@ -189,10 +189,13 @@ function setupGestures (device) {
 
         for (var i = 0; i < interfaces.length; i++) {
             console.log(interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY));
-            // if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-            // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-            // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-            if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+
+            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2)) - device.processing.yOffset;
+
+            //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+            if (interfaces[i].touches(newX, newY)) {
                 interfaces[i].events.tap();
                 break;
             }
@@ -205,7 +208,20 @@ function setupGestures (device) {
     $(currentCanvas).hammer({ drag_max_touches: 0 }).on ("touch", function(ev) {
         console.log("'touch' event!");
 
+        device.processing.processGesture (ev);
+
         var touches = ev.gesture.touches;
+
+        console.log (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+        console.log (device.processing.mouseY);
+
+        // Save mouse touch location
+        device.processing.mouse_x = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+        device.processing.mouse_y = device.processing.mouseY;
+
+        // Store previous offset
+        device.processing.xOffsetPrevious = device.processing.xOffset;
+        device.processing.yOffsetPrevious = device.processing.yOffset;
 
         // Update the previous touch state history
         // device.touch = { touching: true, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, touch: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
@@ -214,19 +230,34 @@ function setupGestures (device) {
         device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
         device.touch.touch = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
-        // console.log ("here!!");
-        // console.log (((ev.gesture.center.pageX - device.processing.centerX) / device.processing.scaleFactor) + device.processing.previousCenterX);
+        device.processing.draggingCanvas = false; // device.touch.draggingCanvas = false;
+
+        var touchingCanvas = true;
 
         // Check for interaction with interfaces
         for (var i = 0; i < interfaces.length; i++) {
             console.log(interfaces[i]);
-            // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-            // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-            if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+
+            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+
+            //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+            if (interfaces[i].touches (newX, newY)) {
                 interfaces[i].events.touch();
+                touchingCanvas = false; // Flag that an interface is being touched
                 break;
             }
         }
+
+        // Uncomment to enable dragging canvas:
+        // if (touchingCanvas) {
+        //     //device.touch.draggingCanvas = true;
+        //     device.processing.draggingCanvas = true;
+        // }
+
+
+
 
         // if (!disableEventCreate) {
         //     disableEventCreate = true;
@@ -261,7 +292,23 @@ function setupGestures (device) {
     $(currentCanvas).hammer({ drag_max_touches: 0 }).on("release", function(ev) {
         console.log("'release' event!");
 
+        device.processing.processGesture (ev);
+        // i.e., save, process
+
         var touches = ev.gesture.touches;
+
+        if (device.processing.draggingCanvas == true) {
+            //device.touch.draggingCanvas = true;
+            device.processing.draggingCanvas = false;
+
+            // Save mouse touch location
+            var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+            var currentMouseY = device.processing.mouseY;
+
+            // Store previous offset
+            device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
+            device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
+        }
 
         // Update the previous touch state history
         // device.touch = { touching: false, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, release: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
@@ -273,10 +320,12 @@ function setupGestures (device) {
         // Check for touches on interfaces
         for (var i = 0; i < interfaces.length; i++) {
             console.log(interfaces[i]);
-            // if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-            // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-            // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-            if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+
+            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+
+            if (interfaces[i].touches(newX, newY)) {
                 interfaces[i].events.release();
                 break;
             }
@@ -299,18 +348,48 @@ function setupGestures (device) {
     $(currentCanvas).hammer ({ drag_max_touches: 0, hold_timeout: 200 }).on ("hold", function (ev) {
         console.log("'hold' event!");
 
+        device.processing.processGesture (ev);
+
+        var touches = ev.gesture.touches;
+
+        console.log ("Processing (mouseX, mouseY): " + device.processing.mouseX + ", " + device.processing.mouseY);
+
+        if (device.processing.draggingCanvas == true) {
+            //device.touch.draggingCanvas = true;
+            device.processing.draggingCanvas = false;
+
+            // Save mouse touch location
+            var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+            var currentMouseY = device.processing.mouseY;
+
+            // Store previous offset
+            device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
+            device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
+        }
+
+
+
+
         // Update the previous touch state history
         // device.touch = { touching: true, holding: true, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
         device.touch.touching = true;
         device.touch.holding = true;
         device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
+        // If the canvas is being dragged, cancel the drag since a hold is detected
+        if (device.processing.draggingCanvas) {
+            device.processing.draggingCanvas = false;
+        }
+
         for (var i = 0; i < interfaces.length; i++) {
             console.log(interfaces[i]);
-            // if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-            // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-            // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-            if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+
+            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+
+            //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+            if (interfaces[i].touches(newX, newY)) {
                 //looper.interfaces[i].events.hold();
                 interfaces[i].events.release ();
                 break;
@@ -326,15 +405,22 @@ function setupGestures (device) {
             var touches = ev.gesture.touches;
 
             if (device.processing.behaviorPalette == null) {
-                console.log("looperInstance = ");
-                console.log(device.processing.looperInstance);
+                // console.log("looperInstance = ");
+                // console.log(device.processing.looperInstance);
                 device.processing.behaviorPalette = new BehaviorPalette ({ superstructure: device });
-                // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-                // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-                device.processing.behaviorPalette.setPosition(ev.gesture.center.pageX, ev.gesture.center.pageY);
-                device.processing.behaviorPalette.updatePosition();
-                device.processing.setupBehaviorPalette();
-                console.log(device.processing.behaviorPalette);
+                
+                device.processing.behaviorPalette.setPosition (device.processing.zoomedCanvasMouseX, device.processing.zoomedCanvasMouseY);
+                device.processing.behaviorPalette.updatePosition ();
+                device.processing.setupBehaviorPalette ();
+                // console.log (device.processing.behaviorPalette);
+
+                // Zoom into behavior palette
+                device.processing.stackedZoomedCanvasMouseX = device.processing.xOffset;
+                device.processing.stackedZoomedCanvasMouseY = device.processing.yOffset;
+                device.processing.stackedScaleFactor = device.processing.zoomFactor;
+                // TODO: Uncomment to enable panning and scaling perspective on behavior selector
+                // device.processing.scaleTo (1.0);
+                // device.processing.panTo (device.processing.zoomedCanvasMouseX, -1 * device.processing.zoomedCanvasMouseY);
 
                 // Center behavior palette on screen and zoom in on it
                 // looper.zoomIn ({ x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, factor: 2.0 });
@@ -458,68 +544,53 @@ function Looper (options) {
         return currentLooper.getInterface (options);
     }
 
-    this.zoomIn = function (options) {
+    // this.zoomIn = function (options) {
 
-        // var looper = this.getCurrentDevice ();
-        // looper.processing.zoomFactor = options['factor']; // Math.pow(options['factor'], 1);
-        // // looper.processing.previousCenterX = looper.processing.centerX;
-        // // looper.processing.previousCenterY = looper.processing.centerY;
-        // // looper.processing.centerX = options['x'];
-        // // looper.processing.centerY = options['y'];
+    //     // var looper = this.getCurrentDevice ();
+    //     // looper.processing.zoomFactor = options['factor']; // Math.pow(options['factor'], 1);
+    //     // // looper.processing.previousCenterX = looper.processing.centerX;
+    //     // // looper.processing.previousCenterY = looper.processing.centerY;
+    //     // // looper.processing.centerX = options['x'];
+    //     // // looper.processing.centerY = options['y'];
 
-        // // looper.processing.unscaleFactor = looper.processing.unscaleFactor * looper.processing.zoomFactor;
+    //     // // looper.processing.unscaleFactor = looper.processing.unscaleFactor * looper.processing.zoomFactor;
 
-        // looper.processing.translate (looper.processing.xOrigin, looper.processing.yOrigin);
+    //     // looper.processing.translate (looper.processing.xOrigin, looper.processing.yOrigin);
 
-        // looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
+    //     // looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
 
-        // var xTranslate = -( options['x'] / looper.processing.scaleFactor + looper.processing.xOrigin - options['x'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ));
-        // var yTranslate = -( options['y'] / looper.processing.scaleFactor + looper.processing.yOrigin - options['y'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ));
-        // looper.processing.translate (xTranslate, yTranslate);
+    //     // var xTranslate = -( options['x'] / looper.processing.scaleFactor + looper.processing.xOrigin - options['x'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ));
+    //     // var yTranslate = -( options['y'] / looper.processing.scaleFactor + looper.processing.yOrigin - options['y'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ));
+    //     // looper.processing.translate (xTranslate, yTranslate);
 
-        // looper.processing.xOrigin = ( options['x'] / looper.processing.scaleFactor + looper.processing.xOrigin - options['x'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ) );
-        // looper.processing.yOrigin = ( options['y'] / looper.processing.scaleFactor + looper.processing.yOrigin - options['y'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ) );
-        // looper.processing.scaleFactor = looper.processing.scaleFactor * looper.processing.zoomFactor;
+    //     // looper.processing.xOrigin = ( options['x'] / looper.processing.scaleFactor + looper.processing.xOrigin - options['x'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ) );
+    //     // looper.processing.yOrigin = ( options['y'] / looper.processing.scaleFactor + looper.processing.yOrigin - options['y'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ) );
+    //     // looper.processing.scaleFactor = looper.processing.scaleFactor * looper.processing.zoomFactor;
 
-        var looper = this.getCurrentDevice ();
-        looper.processing.zoomFactor = Math.pow(options['factor'], 1);
-        looper.processing.previousCenterX = looper.processing.centerX;
-        looper.processing.previousCenterY = looper.processing.centerY;
-        looper.processing.centerX = options['x'];
-        looper.processing.centerY = options['y'];
-
-        looper.processing.unscaleFactor = looper.processing.unscaleFactor * looper.processing.zoomFactor;
-
-        looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
-        // this.translate (this.screenWidth / 2, this.screenHeight / 2);
-        looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
-        looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
-    }
-
-    this.zoomOut = function (options) {
-        var looper = this.getCurrentDevice ();
-
-        looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
-        // this.translate (this.screenWidth / 2, this.screenHeight / 2);
-        //looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
-        looper.processing.scale (0.5);
-        looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
-        
-    }
-
-    // this.zoomOut = function (options) {
     //     var looper = this.getCurrentDevice ();
-    //     looper.processing.zoomFactor = Math.pow(options['factor'], -1); // looper.processing.scaleFactor / options['factor'];
+    //     looper.processing.zoomFactor = Math.pow(options['factor'], 1);
     //     looper.processing.previousCenterX = looper.processing.centerX;
     //     looper.processing.previousCenterY = looper.processing.centerY;
     //     looper.processing.centerX = options['x'];
     //     looper.processing.centerY = options['y'];
 
-    //     // Math.pow(scaleFactor,clicks);
+    //     looper.processing.unscaleFactor = looper.processing.unscaleFactor * looper.processing.zoomFactor;
+
     //     looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
     //     // this.translate (this.screenWidth / 2, this.screenHeight / 2);
     //     looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
     //     looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
+    // }
+
+    // this.zoomOut = function (options) {
+    //     var looper = this.getCurrentDevice ();
+
+    //     looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
+    //     // this.translate (this.screenWidth / 2, this.screenHeight / 2);
+    //     //looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
+    //     looper.processing.scale (0.5);
+    //     looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
+        
     // }
 }
 
@@ -683,12 +754,6 @@ function Behavior (options) {
     this.stop = function () {
         this.going = false;
     }
-
-
-
-    // console.log ("BLEH!");
-    // console.log (options.superstructure);
-    // console.log (this.superstructure);
 
     //this.looperInstance = options.looperInstance;
     this.superstructure = options.superstructure; // The superstructure is the structure that semantically contains this structure as a component. The superstructure may also contain structure other this one.
@@ -1058,8 +1123,15 @@ function BehaviorPalette (options) {
             yTarget: options.y,
 
             touches: function (x, y) {
+                console.log ("touches");
+                console.log ("x: " + x + ", y: " + y);
+                console.log ("x': " + (x - $(window).width() / 2) + ", y': " + (y - ($(window).height() / 2)));
+                console.log ("this.x: " + this.x + ", this.y: " + this.y);
                 var radius = 50;
                 console.log(x, y, this.x, this.y);
+                console.log ("structure:");
+                console.log (this.structure);
+                console.log (this.structure.superstructure);
                 if ((this.x - radius < x && this.x + radius > x) && (this.y - radius < y && this.y + radius > y)) {
                 // if ((x - radius < this.processing.behaviorPalette.x + this.x && this.processing.behaviorPalette.x + this.x < x + radius)
                 //     && (y - radius < this.processing.behaviorPalette.y + this.y && this.processing.behaviorPalette.y + this.y < y + radius)) {
@@ -1090,7 +1162,50 @@ function BehaviorPalette (options) {
                 // Update the behavior's position if it's moving
                 if (behavior.state === 'MOVING') {
 
-                    var nearestPosition = behavior.interface.processing.getNearestPositionOnEventLoop (behavior.interface.processing.mouseX, behavior.interface.processing.mouseY);
+                    currentMouseX = (behavior.interface.processing.screenWidth * (behavior.interface.processing.deviceCount + 1) + behavior.interface.processing.mouseX) - (behavior.interface.processing.screenWidth / 2);
+                    currentMouseY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
+
+                    // console.log ("MIXEE");
+                    // console.log (behavior.interface.processing.mouseX);
+                    // console.log (behavior.interface.processing.mouseY);
+
+                    behavior.interface.processing.zoomedCanvasMouseX = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
+                    behavior.interface.processing.zoomedCanvasMouseY = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
+
+                    // console.log ("Processing (mouseX, mouseY): " + processing.mouseX + ", " + processing.mouseY);
+
+                    // console.log (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
+                    // console.log (processing.mouseY);
+
+                    // // { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() }
+                    // processing.screenMouseX = event.gesture.center.pageX; // ((looper.getCurrentPane() + 1) * processing.screenWidth) + processing.mouseX;
+                    // processing.screenMouseY = event.gesture.center.pageY; // processing.mouseY;
+                    // console.log ("Screen (mouseX, mouseY), calculated: " + processing.screenMouseX + ", " + processing.screenMouseY);
+
+                    // processing.canvasMouseX = processing.screenMouseX - processing.xOffsetOrigin; // ((looper.getCurrentPane()) * processing.screenWidth) + processing.mouseX + (processing.xOffsetOrigin);
+                    // processing.canvasMouseY = processing.screenMouseY - processing.yOffsetOrigin; // processing.mouseY - (processing.yOffsetOrigin);
+                    // console.log ("Canvas (mouseX, mouseY), calculated: " + processing.canvasMouseX + ", " + processing.canvasMouseY);
+
+                    // // console.log ("zoomFactor: " + processing.zoomFactor);
+                    // processing.pannedCanvasMouseX = processing.canvasMouseX - processing.xOffset; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
+                    // processing.pannedCanvasMouseY = processing.canvasMouseY - processing.yOffset; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
+                    // console.log ("Panned canvas (mouseX, mouseY), calculated (no zooming): " + processing.pannedCanvasMouseX + ", " + processing.pannedCanvasMouseY);
+
+                    // // Calculate canvas coordinates of panned and zoomed point
+                    // // var inverseZoom = (1 + (1 - processing.zoomFactor));
+                    // // console.log ("inverseZoom: " + inverseZoom);
+                    // processing.zoomedCanvasMouseX = (processing.canvasMouseX - processing.xOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
+                    // processing.zoomedCanvasMouseY = (processing.canvasMouseY - processing.yOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
+
+
+
+
+                    // TODO: Update zoomedCanvasMouseX and zoomedCanvasMouseY
+                    var mouseX = behavior.interface.processing.zoomedCanvasMouseX; // behavior.interface.processing.mouseX - (behavior.interface.processing.screenWidth / 2); // - behavior.interface.processing.xOffset;
+                    var mouseY = behavior.interface.processing.zoomedCanvasMouseY; // behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2); // - behavior.interface.processing.yOffset;
+                    var nearestPosition = behavior.interface.processing.getNearestPositionOnEventLoop (mouseX, mouseY);
+
+                    console.log ("Nearest Position: " + nearestPosition.x + ", " + nearestPosition.y);
                     
                     behavior.interface.xTarget = nearestPosition.x;
                     behavior.interface.yTarget = nearestPosition.y;
@@ -1148,9 +1263,19 @@ function BehaviorPalette (options) {
                     if (behavior.state === 'MOVING') {
 
                         // Standard update for a moving event
-                        currentMouseX = behavior.interface.processing.screenWidth * (behavior.interface.processing.deviceCount + 1) + behavior.interface.processing.mouseX;
-                        behavior.interface.x = currentMouseX;
-                        behavior.interface.y = behavior.interface.processing.mouseY;
+                        // TODO: Update this code to use existing calculated mouse coordinates
+                        currentMouseX = (behavior.interface.processing.screenWidth * (behavior.interface.processing.deviceCount + 1) + behavior.interface.processing.mouseX) - (behavior.interface.processing.screenWidth / 2);
+                        currentMouseY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
+
+                        behavior.interface.processing.zoomedCanvasMouseX = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
+                        behavior.interface.processing.zoomedCanvasMouseY = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
+
+                        // console.log ("MIXEE");
+                        // console.log (behavior.interface.processing.mouseX);
+                        // console.log (behavior.interface.processing.mouseY);
+
+                        behavior.interface.x = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
+                        behavior.interface.y = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
 
                         // behavior.interface.x = ((behavior.interface.x - behavior.interface.processing.previousCenterX) / behavior.interface.processing.scaleFactor) + behavior.interface.processing.centerX;
                         // behavior.interface.y = ((behavior.interface.y - behavior.interface.processing.previousCenterY) / behavior.interface.processing.scaleFactor) + behavior.interface.processing.centerY;
@@ -1160,12 +1285,14 @@ function BehaviorPalette (options) {
                         // console.log ('behavior.interface.y:');
                         // console.log (behavior.interface.y);
 
-                        deltaX = currentMouseX - (behavior.interface.processing.screenWidth / 2);
-                        deltaY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
-                        angleInDegrees = Math.atan2(deltaY, deltaX);
+                        // deltaX = behavior.interface.x - 0; // deltaX = currentMouseX - (behavior.interface.processing.screenWidth / 2);
+                        // deltaY = behavior.interface.y - 0; // deltaY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
+                        // console.log ('DELTAX = ' + deltaX);
+                        // console.log ('DELTAY = ' + deltaY);
+                        // angleInDegrees = Math.atan2(deltaY, deltaX);
 
-                        behavior.interface.xTarget = behavior.interface.processing.screenWidth / 2 + (400 / 2) * Math.cos(angleInDegrees);
-                        behavior.interface.yTarget = behavior.interface.processing.screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
+                        // behavior.interface.xTarget = behavior.interface.x + (400 / 2) * Math.cos(angleInDegrees);
+                        // behavior.interface.yTarget = behavior.interface.y + (400 / 2) * Math.sin(angleInDegrees);
 
                         // this.processing.behaviorPalette.updatePosition();
                         // this.processing.updatePosition(behavior);
@@ -1173,7 +1300,7 @@ function BehaviorPalette (options) {
                         // Check if under certain distance from the circle (and attach to)
                         // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
                         // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-                        var distance = this.processing.lineDistance(this.x, this.y, this.xTarget, this.yTarget);
+                        var distance = this.processing.lineDistance (this.x, this.y, this.xTarget, this.yTarget);
 
                         // console.log("distance = ");
                         // console.log(distance);
@@ -1318,15 +1445,6 @@ function BehaviorPalette (options) {
 
                     disableEventCreate = true;
 
-                //     //loopBehavior.visible = false;
-                // loopBehavior.state = 'MOVING';
-                // disableEventCreate = true;
-
-                // // Invoke behavior's "on click" behavior.
-                // loopBehavior.onClick();
-
-                // console.log("\tevent " + i);
-
                     if (behavior.state === 'PROTOTYPE') {
 
                         // console.log("touched PROTOTYPE Behavior. Setting to MOVING.");
@@ -1365,6 +1483,12 @@ function BehaviorPalette (options) {
                             // Destroy behavior palette!
                             // TODO: Make sure deleting the behavior palette doesn't ruin the structure/substructure tree.
                             behavior.interface.processing.behaviorPalette = null;
+
+                            // Return to previous perspective
+                            behavior.interface.processing.zoomedCanvasMouseX = behavior.interface.processing.stackedZoomedCanvasMouseX;
+                            behavior.interface.processing.zoomedCanvasMouseY = behavior.interface.processing.stackedZoomedCanvasMouseY;
+                            behavior.interface.processing.zoomFactor = behavior.interface.processing.stackedScaleFactor;
+                            behavior.interface.processing.panScale (behavior.interface.processing.zoomedCanvasMouseX, -1 * behavior.interface.processing.zoomedCanvasMouseY, behavior.interface.processing.zoomFactor);
                         }
 
                         if (behavior.interface.processing.behaviorPalette === null) {
@@ -1391,37 +1515,6 @@ function BehaviorPalette (options) {
                         // }
 
                     }
-
-                    // var distance = Math.sqrt ( Math.pow ((looper.getCurrentDevice ().touch.current.x) - (looper.getCurrentDevice ().touch.touch.x), 2) + Math.pow ((looper.getCurrentDevice ().touch.current.y) - (looper.getCurrentDevice ().touch.touch.y), 2) );
-                        
-                    // if (distance > 25) {
-                    //     behavior.state = 'MOVING';
-                    // }
-
-                    // if (behavior.state === 'MOVING') {
-
-                    //     var nearestPosition = behavior.interface.processing.getNearestPositionOnEventLoop(behavior.interface.processing.mouseX, behavior.interface.processing.mouseY);
-                        
-                    //     behavior.interface.xTarget = nearestPosition.x;
-                    //     behavior.interface.yTarget = nearestPosition.y;
-
-                    //     // behavior.interface.processing.updatePosition(behavior);
-
-                    //     // // Standard update for a moving event
-                    //     // currentMouseX = behavior.interface.processing.screenWidth * (behavior.interface.processing.deviceCount + 1) + behavior.interface.processing.mouseX;
-                    //     // behavior.interface.x = currentMouseX;
-                    //     // behavior.interface.y = behavior.interface.processing.mouseY;
-
-                    //     // deltaX = currentMouseX - (behavior.interface.processing.screenWidth / 2);
-                    //     // deltaY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
-                    //     // angleInDegrees = Math.atan2(deltaY, deltaX);
-
-                    //     // behavior.interface.xTarget = behavior.interface.processing.screenWidth / 2 + (400 / 2) * Math.cos(angleInDegrees);
-                    //     // behavior.interface.yTarget = behavior.interface.processing.screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
-
-                    //     // behavior.state = 'MOVING';
-
-                    // }
                 },
 
                 hold: function() {
@@ -1450,21 +1543,18 @@ function BehaviorPalette (options) {
                         // x = screenWidth / 2 + (400 / 2) * Math.cos(angleInDegrees);
                         // y = screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
 
-                        console.log("MOVING PROTOTYPE!");
-                        console.log(behavior);
-                        console.log(behavior.interface.processing);
+                        // console.log("MOVING PROTOTYPE!");
+                        // console.log(behavior);
+                        // console.log(behavior.interface.processing);
                         var distance = behavior.interface.processing.getDistanceFromEventLoop(behavior.interface);
-                        console.log(distance);
+                        // console.log(distance);
 
                         if (distance < 110) {
 
-                            // Update position of the event node and set as "sequenced"
-                            //var nearestPosition = behavior.interface.processing.getNearestPositionOnEventLoop(behavior.interface.processing.mouseX, behavior.interface.processing.mouseY);
-                            //var nearestPosition = behavior.interface.processing.getNearestPositionOnEventLoop(behavior.interface.processing.mouseX, behavior.interface.processing.mouseY);
-                            // behavior.interface.x = nearestPosition.x;
-                            // behavior.interface.y = nearestPosition.y;
-                            behavior.interface.xTarget = behavior.interface.processing.screenWidth / 2 + (400 / 2) * Math.cos(angleInDegrees);
-                            behavior.interface.yTarget = behavior.interface.processing.screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
+                            // TODO: Green
+                            // TODO: Update position of the event node and set as "sequenced"
+                            // behavior.interface.xTarget = behavior.interface.processing.screenWidth / 2 + (400 / 2) * Math.cos(angleInDegrees);
+                            // behavior.interface.yTarget = behavior.interface.processing.screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
                             behavior.interface.x = behavior.interface.xTarget;
                             behavior.interface.y = behavior.interface.yTarget;
                             behavior.state = 'SEQUENCED';
@@ -1939,21 +2029,73 @@ function LooperInstance (options) {
             // });
         }
 
+        processing.keyPressed = function() {
+            // console.log ("keyPressed " + processing.key);
+
+            if (processing.key == 101) { // e
+                console.log ("zoom in");
+                processing.zoomFactor += 0.1;
+            } else if (processing.key == 113) { // q
+                console.log ("zoom out");
+                processing.zoomFactor -= 0.1;
+            } else if (processing.key == 119) { // w
+                console.log ("pan up");
+
+                // mouse = new PVector(mouseX, mouseY);
+                // poffset.set(offset);
+                processing.mouse_x = processing.mouseX;
+                processing.mouse_y = processing.mouseY;
+                processing.xOffsetPrevious = processing.xOffset;
+                processing.yOffsetPrevious = processing.yOffset;
+
+                // offset.x = mouseX - mouse.x + poffset.x;
+                // offset.y = mouseY - mouse.y + poffset.y;
+                processing.yOffset = 10 + processing.yOffsetPrevious;
+
+                console.log (processing.yOffset);
+
+            } else if (processing.key == 97) { // a
+                console.log ("pan left");
+            } else if (processing.key == 115) { // s
+                console.log ("pan down");
+
+                // mouse = new PVector(mouseX, mouseY);
+                // poffset.set(offset);
+                processing.mouse_x = processing.mouseX;
+                processing.mouse_y = processing.mouseY;
+                processing.xOffsetPrevious = processing.xOffset;
+                processing.yOffsetPrevious = processing.yOffset;
+
+                // offset.x = mouseX - mouse.x + poffset.x;
+                // offset.y = mouseY - mouse.y + poffset.y;
+                processing.yOffset = -10 + processing.yOffsetPrevious;
+            } else if (processing.key == 100) { // d
+                console.log ("pan right");
+            }
+        }
+
         /**
          * Override setup function.
          */
         processing.setup = function() {
-            this.size(this.screenWidth, this.screenHeight);
+            this.size (this.screenWidth, this.screenHeight);
 
             this.font = this.loadFont("/DidactGothic.ttf");
 
-            processing.xOrigin = 0.0;
-            processing.yOrigin = 0.0;
+            this.xOffsetOrigin = this.screenWidth / 2;
+            this.yOffsetOrigin = this.screenHeight / 2;
+
+            // processing.xOrigin = 0.0;
+            // processing.yOrigin = 0.0;
+            processing.xOffset = 0.0;
+            processing.yOffset = 0.0;
+            processing.xOffsetPrevious = 0.0;
+            processing.yOffsetPrevious = 0.0;
             // processing.translate (processing.xOrigin, processing.yOrigin);
             // processing.scale (processing.scaleOrigin);
 
             processing.scaleFactor = 1.0;
-            processing.zoomFactor = 1.0;
+            processing.zoomFactor = 0.6;
             // processing.previousCenterX = processing.xOrigin; // this.screenWidth / 2;
             // processing.previousCenterY = processing.yOrigin; // this.screenHeight / 2;
             // processing.centerX = processing.xOrigin; // this.screenWidth / 2;
@@ -1971,21 +2113,28 @@ function LooperInstance (options) {
 
         processing.drawLoop = function() {
 
-            this.pushMatrix();
-
-            // this.translate (0, 0);
+            // // Everything must be drawn relative to center
+            // this.translate (this.screenWidth / 2, this.screenHeight / 2);
+            // // Use scale for 2D "zoom"
+            // this.scale (this.zoomFactor);
+            // // The offset (note how we scale according to the zoom)
+            // this.translate (this.xOffset/this.zoomFactor, this.yOffset/this.zoomFactor);
 
             // var scale = 1.3;
             // this.scale(scale);
             // // console.log ((((this.screenWidth * scale) - this.screenWidth) / 2));
             // this.translate (((this.screenWidth - (this.screenWidth * scale)) / 2), 0);
 
+            this.pushMatrix();
+
             // Draw the loop
             this.strokeWeight (1.0);
             this.stroke (65, 65, 65);
             this.noFill ();
             this.smooth ();
-            this.arc (this.screenWidth / 2, this.screenHeight / 2, 400, 400, (-this.PI / 2) + 0.05 * this.PI, 1.45 * this.PI);
+            this.arc (0, 0, 400, 400, (-this.PI / 2) + 0.05 * this.PI, 1.45 * this.PI);
+
+            this.popMatrix();
 
             // Highlight a section of the arc
             /*
@@ -1998,10 +2147,12 @@ function LooperInstance (options) {
             processing.arc(processing.screenWidth / 2, processing.screenHeight / 2, 400, 400, (-processing.PI/2) + ((offset + 0.05) * processing.PI), (-processing.PI/2) + ((offset + 0.05 + length) * processing.PI));
             */
 
+            this.pushMatrix();
+
             // Draw the loop's arrowhead to indicate its sequence order
             this.strokeWeight(1.0);
             this.stroke(65, 65, 65);
-            this.translate(this.screenWidth / 2, this.screenHeight / 2);
+            // this.translate(this.screenWidth / 2, this.screenHeight / 2);
             this.translate(-29, -198);
             this.rotate(-0.05 * this.PI);
             this.line(0, 0, -16, 16);
@@ -2014,6 +2165,31 @@ function LooperInstance (options) {
          * Override draw function. By default, it will be called 60 times per second.
          */
         processing.draw = function() {
+
+            // Check if canvas is being dragged
+            // TODO: Move this into the canvas object's "on drag" callback (which has yet to be made)
+            if (this.draggingCanvas === true) {
+
+                // Save mouse touch location
+                var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + this.mouseX);
+                var currentMouseY = this.mouseY;
+
+                // Store previous offset
+                this.xOffset = currentMouseX - this.mouse_x + this.xOffsetPrevious;
+                this.yOffset = currentMouseY - this.mouse_y + this.yOffsetPrevious;
+            }
+
+
+
+
+            this.pushMatrix();
+
+            // Everything must be drawn relative to center
+            this.translate (this.xOffsetOrigin, this.yOffsetOrigin);
+            // Use scale for 2D "zoom"
+            this.scale (this.zoomFactor);
+            // The offset (note how we scale according to the zoom)
+            this.translate (this.xOffset/this.zoomFactor, this.yOffset/this.zoomFactor);
 
             // // Update the previous touch state history
             // console.log (looper.getCurrentDevice().touch.touch);
@@ -2028,16 +2204,6 @@ function LooperInstance (options) {
                 var mouseY = looper.getCurrentDevice ().processing.mouseY;
                 looper.getCurrentDevice ().touch.current = { x: mouseX, y: mouseY };
             }
-
-
-
-
-
-
-
-            this.xOrigin = 0;
-            this.yOrigin = 0;
-            this.translate (this.xOrigin, this.yOrigin);
 
             /**
              * Draw behaviors.
@@ -2158,7 +2324,7 @@ function LooperInstance (options) {
             /**
              * Get the angle.
              */
-            function getAngle(x, y) {
+            function getAngle (x, y) {
                 var deltaX = x - (processing.screenWidth / 2);
                 var deltaY = y - (processing.screenHeight / 2);
                 var angleInRadians = Math.atan2(deltaY, deltaX); // * 180 / PI;
@@ -2174,15 +2340,66 @@ function LooperInstance (options) {
             processing.getAngle = getAngle;
 
             /**
+             * Pans the perspective to the specified (x,y) position on the canvas.
+             */
+            function panTo (x, y) {
+
+                // Store previous offset
+                processing.xOffset = -x;
+                processing.yOffset = y;
+            }
+            processing.panTo = panTo;
+
+            /**
+             * Pans the perspective by the specified increments along the x and y axes.
+             */
+            function panBy (x, y) {
+
+                // Store previous offset
+                processing.xOffset = processing.xOffset - x;
+                processing.yOffset = processing.yOffset + y;
+            }
+            processing.panBy = panBy;
+
+            function scaleTo (factor) {
+
+                processing.zoomFactor = factor;
+            }
+            processing.scaleTo = scaleTo;
+
+            function panScale (x, y, factor) {
+
+                console.log ('PANSCALE');
+
+                // Store previous offset
+                processing.xOffset = -x;
+                processing.yOffset = y;
+
+                processing.zoomFactor = factor;
+            }
+            processing.panScale = panScale;
+
+            /**
              * Returns the coordinates for the point on the loop nearest to the specified point.
              */
-            function getNearestPositionOnEventLoop(x, y) {
-                var deltaX = x - (processing.screenWidth / 2);
-                var deltaY = y - (processing.screenHeight / 2);
-                var angleInDegrees = Math.atan2(deltaY, deltaX); // * 180 / PI;
+            processing.getNearestPositionOnEventLoop = function (x, y) {
+                // x = x + processing.screenWidth;
+                console.log ("Get nearest to: " + x + ", " + y);
 
-                var nearestX = processing.screenWidth / 2 + (400 / 2) * Math.cos (angleInDegrees);
-                var nearestY = processing.screenHeight / 2 + (400 / 2) * Math.sin (angleInDegrees);
+                var xPositionOfLoop = 0; // - processing.xOffset;
+                var yPositionOfLoop = 0; // - processing.yOffset;
+                console.log ("LOOP(x,y) = " + xPositionOfLoop + ", " + yPositionOfLoop);
+                var deltaX = x - xPositionOfLoop; // x difference between specified point and center of loop
+                var deltaY = y - yPositionOfLoop; // y difference between specified point and center of loop
+                console.log ("deltaX: " + deltaX);
+                console.log ("deltaY: " + deltaY);
+                var angleInDegrees = Math.atan2 (deltaY, deltaX); // * 180 / PI;
+                console.log ("angleInDegrees: " + angleInDegrees);
+
+                // var nearestX = processing.screenWidth / 2 + (400 / 2) * Math.cos (angleInDegrees);
+                // var nearestY = processing.screenHeight / 2 + (400 / 2) * Math.sin (angleInDegrees);
+                var nearestX = 0 + (400 / 2) * Math.cos (angleInDegrees);
+                var nearestY = 0 + (400 / 2) * Math.sin (angleInDegrees);
 
                 var nearestPosition = {
                     x: nearestX,
@@ -2190,16 +2407,67 @@ function LooperInstance (options) {
                 };
                 return nearestPosition;
             }
-            processing.getNearestPositionOnEventLoop = getNearestPositionOnEventLoop;
 
             /**
              * Get the distance to the loop from the given node.
              */
             processing.getDistanceFromEventLoop = function(loopBehavior) {
-                console.log("getDistanceFromEventLoop");
-                console.log(loopBehavior);
                 var distance = processing.lineDistance(loopBehavior.x, loopBehavior.y, loopBehavior.xTarget, loopBehavior.yTarget);
+                console.log ("Distance from loop: " + distance)
                 return distance;
+            }
+
+            // TODO: Rename to processScreenGesture
+            // TODO: Consider renaming to senseScreenGesture or something else replacing the word "process" to something more appropriate
+            processing.processGesture = function (event) {
+                console.log ("processGesture");
+
+                // TODO:
+                // Ensure the following exist:
+                //    processing.view = {}
+                //    processing.interactions
+
+                var touches = event.gesture.touches;
+
+                console.log ("Processing (mouseX, mouseY): " + processing.mouseX + ", " + processing.mouseY);
+
+                // console.log (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
+                // console.log (processing.mouseY);
+
+                // { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() }
+                processing.screenMouseX = event.gesture.center.pageX; // ((looper.getCurrentPane() + 1) * processing.screenWidth) + processing.mouseX;
+                processing.screenMouseY = event.gesture.center.pageY; // processing.mouseY;
+                console.log ("Screen (mouseX, mouseY), calculated: " + processing.screenMouseX + ", " + processing.screenMouseY);
+
+                processing.canvasMouseX = processing.screenMouseX - processing.xOffsetOrigin; // ((looper.getCurrentPane()) * processing.screenWidth) + processing.mouseX + (processing.xOffsetOrigin);
+                processing.canvasMouseY = processing.screenMouseY - processing.yOffsetOrigin; // processing.mouseY - (processing.yOffsetOrigin);
+                console.log ("Canvas (mouseX, mouseY), calculated: " + processing.canvasMouseX + ", " + processing.canvasMouseY);
+
+                // console.log ("zoomFactor: " + processing.zoomFactor);
+                processing.pannedCanvasMouseX = processing.canvasMouseX - processing.xOffset; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
+                processing.pannedCanvasMouseY = processing.canvasMouseY - processing.yOffset; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
+                console.log ("Panned canvas (mouseX, mouseY), calculated (no zooming): " + processing.pannedCanvasMouseX + ", " + processing.pannedCanvasMouseY);
+
+                // Calculate canvas coordinates of panned and zoomed point
+                // var inverseZoom = (1 + (1 - processing.zoomFactor));
+                // console.log ("inverseZoom: " + inverseZoom);
+                processing.zoomedCanvasMouseX = (processing.canvasMouseX - processing.xOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
+                processing.zoomedCanvasMouseY = (processing.canvasMouseY - processing.yOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
+                console.log ("Zoomed and panned canvas (mouseX, mouseY), calculated: " + processing.zoomedCanvasMouseX + ", " + processing.zoomedCanvasMouseY);
+
+                // if (processing.draggingCanvas == true) {
+                //     //touch.draggingCanvas = true;
+                //     processing.draggingCanvas = false;
+
+                //     // Save mouse touch location
+                //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
+                //     var currentMouseY = processing.mouseY;
+
+                //     // Store previous offset
+                //     processing.xOffset = currentMouseX - processing.mouse_x + processing.xOffsetPrevious;
+                //     processing.yOffset = currentMouseY - processing.mouse_y + processing.yOffsetPrevious;
+                // }
+
             }
 
             /**
@@ -2219,6 +2487,8 @@ function LooperInstance (options) {
             this.drawLoop(); // TODO: Make Interface for this! Then remove!
 
             drawInterfaces();
+
+            this.popMatrix();
         };
     });
 

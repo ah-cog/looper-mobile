@@ -38,6 +38,8 @@
     			} else {
     				document.getElementById('url').innerHTML = "server is down.";
     			}
+
+                document.getElementById('looper').innerHTML = "<a href='" + url + "/looper.html' target='_blank'>Looper</a>";
     		});
     		httpd.getLocalPath (function (path){
     			document.getElementById ('localpath').innerHTML = "<br/>localPath: " + path;
@@ -50,11 +52,9 @@
     function startServer (wwwroot) {
     	if (httpd) {
     	    httpd.getURL (function (url) {
-                alert ('url = ' + url);
+                // alert ('url = ' + url);
     	    	if (url.length > 0) {
     	    		document.getElementById('url').innerHTML = "server is up: <a href='" + url + "' target='_blank'>" + url + "</a>";
-
-                    document.getElementById('looper').innerHTML = "server is up: <a href='" + url + "/looper.html' target='_blank'>" + url + "</a>";
 
 	    	    } else {
     	    	    httpd.startServer ({
@@ -103,6 +103,7 @@
 
     }
 
+    // Documentation: http://plugins.cordova.io/#/package/org.apache.cordova.device-motion
     function getAccelerometerData () {
         function onSuccess(acceleration) {
             document.getElementById('acceleration').innerHTML = 
@@ -122,22 +123,24 @@
     </script>
 
     <div id="fullpage">
-        <p><strong>Looper</strong> (with CorHttpd Plugin)</p>
+        <h2>HTTP Server</h2>
 
         <p><button onclick="startServer('htdocs');">Start Httpd at www/htdocs</button></p>
         <p><button onclick="startServer('/');">Start Httpd at /</button></p>
         <p><button onclick="stopServer();">Stop Httpd</button></p>
         <p><button onclick="updateStatus();">Check Status</button></p>
 
-        <p><button onclick="udpBroadcast();">UDP Broadcast</button></p>
-
-        <p><button onclick="getAccelerometerData();">Accelerometer</button></p>
-
         <div id='location'></div>
         <div id='url'></div>
         <div id='localpath'></div>
 
-        <a id="looper" href="#">Looper</a>
+        <h2><div id="looper">Looper</div></h2>
+
+        <p><button onclick="udpBroadcast();">UDP Broadcast</button></p>
+
+        <!-- <h2>Accelerometer</h2> -->
+
+        <p><button onclick="getAccelerometerData();">Accelerometer</button></p>
 
         <p>Accelerometer:</p>
         <div id="acceleration"></div>

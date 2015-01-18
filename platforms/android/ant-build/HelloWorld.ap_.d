@@ -43,6 +43,7 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/icon.png \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/index.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/looper-old.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/looper.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/stylesheets \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/ga.js \
@@ -51,8 +52,10 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/jquery-1.9.1.min.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/jquery.hammer.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/jquery.hammer.min.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/looper-old.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/looper.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/modernizr.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/pixel-old.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/pixel.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/processing.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/stylesheets/style.css \
