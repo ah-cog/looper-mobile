@@ -63,7 +63,8 @@
     	    	    }, function (url) {
         	    		//document.getElementById('url').innerHTML = "server is started: <a href='" + url + "' target='_blank'>" + url + "</a>";
                         updateStatus();
-                        alert(url);
+                        // alert(url); // MG: Display URL on load
+                        g_deviceUrl = url;
     	    	    }, function (error) {
     	    	    	document.getElementById('url').innerHTML = 'failed to start server: ' + error;
     	    	    });
@@ -88,34 +89,56 @@
     	}
     }
 
-    function getRequest () {
-        if (httpd) {
-            httpd.getRequest (function (url) {
-                if(url.length > 0) {
-                    document.getElementById('url').innerHTML = "server is UP!: <a href='" + url + "' target='_blank'>" + url + "</a>";
-                } else {
-                    document.getElementById('url').innerHTML = "server is DOWN!";
-                }
+    // MG: Gets the list of Pixel modules are available
+    function getModulesHTTP () {
 
-                document.getElementById('looper').innerHTML = "<a href='" + url + "/looper.html' target='_blank'>Looper</a>";
+        var http = new XMLHttpRequest();
+        var url = g_deviceUrl.concat("/modules");
+        alert (url);
+        var params = "";
+        url = url.concat('?', params);
+
+        // alert ("2");
+        
+        http.open("GET", url, true);
+
+        // Send the proper header information along with the request
+        http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        // http.setRequestHeader('Access-Control-Allow-Origin', '*');
+        http.setRequestHeader('X-PINGOTHER', 'pingpong');
+        
+        http.onreadystatechange = function() { // Call a function when the state changes.
+            if(http.readyState == 4 && http.status == 200) {
+                // console.log("Behavior got successfully.");
+                alert(http.responseText);
+
+                // TODO: Update the behavior's state based on the response behavior data.
+
+                // if (callback !== undefined) {
+                //     callback(); // The callback function
+                // }
+            } else if(http.readyState == 4 && http.status == 404) {
+                alert ("fail");
+            }
+        }
+        http.send(params);
+    }
+
+    function getModules () {
+        if (httpd) {
+            httpd.getModules (function (modules) {
+                if(modules.length > 0) {
+                    alert (modules);
+                } else {
+                    alert ("getData fail");
+                }
             });
+            // httpd.getLocalPath (function (path){
+            //     document.getElementById ('localpath').innerHTML = "<br/>localPath: " + path;
+            // });
         } else {
             alert ('CorHttpd plugin not available/ready.');
         }
-
-
-        // if (httpd) {
-        //     httpd.getRequest(function(){
-        //         //document.getElementById ('url').innerHTML = 'server is stopped.';
-        //         // updateStatus();
-        //         alert ('getRequest Success');
-        //     }, function (error){
-        //         alert (error);
-        //         // document.getElementById ('url').innerHTML = 'failed to stop server' + error;
-        //     });
-        // } else {
-        //     alert ('CorHttpd plugin not available/ready.');
-        // }
     }
 
     function udpBroadcast () {
@@ -154,13 +177,14 @@
     </script>
 
     <div id="fullpage">
-        <h2>HTTP Server</h2>
+        <strong>HTTP Server</strong>
 
-        <p><button onclick="startServer('htdocs');">Start Httpd at www/htdocs</button></p>
-        <p><button onclick="startServer('/');">Start Httpd at /</button></p>
-        <p><button onclick="stopServer();">Stop Httpd</button></p>
-        <p><button onclick="updateStatus();">Check Status</button></p>
-        <p><button onclick="getRequest();">Get Request</button></p>
+        <p><button onclick="startServer('htdocs');">Start Httpd at www/htdocs</button>
+        <button onclick="startServer('/');">Start Httpd at /</button>
+        <button onclick="stopServer();">Stop Httpd</button>
+        <button onclick="updateStatus();">Check Status</button>
+        <button onclick="getModules();">Get Modules</button></p>
+        <button onclick="getModulesHTTP();">Get Modules (HTTP)</button></p>
 
         <div id='location'></div>
         <div id='url'></div>
@@ -168,9 +192,11 @@
 
         <h2><div id="looper">Looper</div></h2>
 
+        <strong>UDP Client</strong>
+
         <p><button onclick="udpBroadcast();">UDP Broadcast</button></p>
 
-        <!-- <h2>Accelerometer</h2> -->
+        <strong>Accelerometer</strong>
 
         <p><button onclick="getAccelerometerData();">Accelerometer</button></p>
 

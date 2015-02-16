@@ -29,13 +29,12 @@ corhttpd_exports.getURL = function(success, error) {
 	  exec(success, error, "CorHttpd", "getURL", []);
 };
 
-corhttpd_exports.getLocalPath = function(success, error) {
-	  exec(success, error, "CorHttpd", "getLocalPath", []);
+corhttpd_exports.getModules = function(success, error) {
+	  exec(success, error, "CorHttpd", "getModules", []);
 };
 
-// MG: Added this for handling HTTP requests
-corhttpd_exports.getRequest = function(success, error) {
-	  exec(success, error, "CorHttpd", "getRequest", []);
+corhttpd_exports.getLocalPath = function(success, error) {
+	  exec(success, error, "CorHttpd", "getLocalPath", []);
 };
 
 module.exports = corhttpd_exports;

@@ -74,6 +74,13 @@ import android.util.Log;
 @SuppressWarnings("unchecked")
 public class NanoHTTPD
 {
+	private String modules = "none";
+
+	public String getModules () {
+
+		return this.modules;
+	}
+
 	private final String LOGTAG = "NanoHTTPD";
 	
 	// ==================================================
@@ -96,30 +103,13 @@ public class NanoHTTPD
 	{
 		Log.i( LOGTAG, method + " '" + uri + "' " );
 
-		// Custom handlers
-		// TODO: Make these defineable in JavaScript!
+		if (uri.equalsIgnoreCase("/modules")) {
+			if (parms.getProperty ("ip") != null) {
+				modules = parms.getProperty ("ip");
+			}
 
-		if (uri.equalsIgnoreCase("/notify")) {
-
-			String response = "uri: " + uri + "\n";
-			response += "method: " + method + "\n";
-			response += "header: " + header.toString() + "\n";
-			response += "parms: " + parms.toString() + "\n";
-			response += "files: " + files.toString() + "\n";
-
-
-	        // Map<String, String> parms2 = session.getParms();
-	        // if (parms2.get("username") == null)
-	            // response +=
-	            //         "<form action='?' method='get'>\n" +
-	            //                 "  <p>Your name: <input type='text' name='username'></p>\n" +
-	            //                 "</form>\n";
-	        // else
-	        //     response += "<p>Hello, " + parms2.get("username") + "!</p>";
-
-	        return new NanoHTTPD.Response(HTTP_OK, MIME_PLAINTEXT, response);
-
-	    }
+			return new NanoHTTPD.Response( HTTP_OK, MIME_HTML, "{ modules: [ " + modules + " ] }" );
+		}
 
 /*
 		Enumeration e = header.propertyNames();
@@ -948,8 +938,22 @@ public class NanoHTTPD
 
 		AndroidFile f = new AndroidFile( homeDir, uri );
 		if ( res == null && !f.exists())
-			res = new Response( HTTP_NOTFOUND, MIME_PLAINTEXT,
-					"Error 404, file not found." );
+		{
+
+			// MG: <Custom Response Handers>
+			/*
+			if (uri.equalsIgnoreCase("/modules")) {
+				// parms.getProperty( value )
+				res = new Response( HTTP_OK, MIME_HTML, "{ modules: [ ] }" );
+			}
+			*/
+			// MG: </Custom Response Handers>
+
+			// else {
+				res = new Response( HTTP_NOTFOUND, MIME_PLAINTEXT,
+						"Error 404, file not found." );
+			// }
+		}
 
 		// List the directory, if necessary
 		if ( res == null && f.isDirectory())
