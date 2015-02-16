@@ -33,6 +33,11 @@ corhttpd_exports.getLocalPath = function(success, error) {
 	  exec(success, error, "CorHttpd", "getLocalPath", []);
 };
 
+// MG: Added this for handling HTTP requests
+corhttpd_exports.getRequest = function(success, error) {
+	  exec(success, error, "CorHttpd", "getRequest", []);
+};
+
 module.exports = corhttpd_exports;
 
 

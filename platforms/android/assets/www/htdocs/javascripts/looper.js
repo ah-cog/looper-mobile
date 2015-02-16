@@ -98,7 +98,7 @@ function Carousel (element) {
         // disable browser scrolling
         ev.gesture.preventDefault();
 
-        if (!disableEventCreate && !looper.getCurrentDevice().processing.draggingCanvas) {
+        if (!disableEventCreate) { // && !looper.getCurrentDevice().processing.draggingCanvas) {
 
             switch(ev.type) {
                 case 'dragright':
@@ -230,9 +230,9 @@ function setupGestures (device) {
         device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
         device.touch.touch = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
-        device.processing.draggingCanvas = false; // device.touch.draggingCanvas = false;
+        // device.processing.draggingCanvas = false; // device.touch.draggingCanvas = false;
 
-        var touchingCanvas = true;
+        // var touchingCanvas = true;
 
         // Check for interaction with interfaces
         for (var i = 0; i < interfaces.length; i++) {
@@ -245,7 +245,7 @@ function setupGestures (device) {
             //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
             if (interfaces[i].touches (newX, newY)) {
                 interfaces[i].events.touch();
-                touchingCanvas = false; // Flag that an interface is being touched
+                // touchingCanvas = false; // Flag that an interface is being touched
                 break;
             }
         }
@@ -297,18 +297,18 @@ function setupGestures (device) {
 
         var touches = ev.gesture.touches;
 
-        if (device.processing.draggingCanvas == true) {
-            //device.touch.draggingCanvas = true;
-            device.processing.draggingCanvas = false;
+        // if (device.processing.draggingCanvas == true) {
+        //     //device.touch.draggingCanvas = true;
+        //     device.processing.draggingCanvas = false;
 
-            // Save mouse touch location
-            var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
-            var currentMouseY = device.processing.mouseY;
+        //     // Save mouse touch location
+        //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+        //     var currentMouseY = device.processing.mouseY;
 
-            // Store previous offset
-            device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
-            device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
-        }
+        //     // Store previous offset
+        //     device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
+        //     device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
+        // }
 
         // Update the previous touch state history
         // device.touch = { touching: false, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, release: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
@@ -354,18 +354,18 @@ function setupGestures (device) {
 
         console.log ("Processing (mouseX, mouseY): " + device.processing.mouseX + ", " + device.processing.mouseY);
 
-        if (device.processing.draggingCanvas == true) {
-            //device.touch.draggingCanvas = true;
-            device.processing.draggingCanvas = false;
+        // if (device.processing.draggingCanvas == true) {
+        //     //device.touch.draggingCanvas = true;
+        //     device.processing.draggingCanvas = false;
 
-            // Save mouse touch location
-            var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
-            var currentMouseY = device.processing.mouseY;
+        //     // Save mouse touch location
+        //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+        //     var currentMouseY = device.processing.mouseY;
 
-            // Store previous offset
-            device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
-            device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
-        }
+        //     // Store previous offset
+        //     device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
+        //     device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
+        // }
 
 
 
@@ -377,9 +377,9 @@ function setupGestures (device) {
         device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
         // If the canvas is being dragged, cancel the drag since a hold is detected
-        if (device.processing.draggingCanvas) {
-            device.processing.draggingCanvas = false;
-        }
+        // if (device.processing.draggingCanvas) {
+        //     device.processing.draggingCanvas = false;
+        // }
 
         for (var i = 0; i < interfaces.length; i++) {
             console.log(interfaces[i]);
@@ -1485,10 +1485,11 @@ function BehaviorPalette (options) {
                             behavior.interface.processing.behaviorPalette = null;
 
                             // Return to previous perspective
-                            behavior.interface.processing.zoomedCanvasMouseX = behavior.interface.processing.stackedZoomedCanvasMouseX;
-                            behavior.interface.processing.zoomedCanvasMouseY = behavior.interface.processing.stackedZoomedCanvasMouseY;
-                            behavior.interface.processing.zoomFactor = behavior.interface.processing.stackedScaleFactor;
-                            behavior.interface.processing.panScale (behavior.interface.processing.zoomedCanvasMouseX, -1 * behavior.interface.processing.zoomedCanvasMouseY, behavior.interface.processing.zoomFactor);
+                            // TODO: Uncomment to return from palette perspective
+                            // behavior.interface.processing.zoomedCanvasMouseX = behavior.interface.processing.stackedZoomedCanvasMouseX;
+                            // behavior.interface.processing.zoomedCanvasMouseY = behavior.interface.processing.stackedZoomedCanvasMouseY;
+                            // behavior.interface.processing.zoomFactor = behavior.interface.processing.stackedScaleFactor;
+                            // behavior.interface.processing.panScale (behavior.interface.processing.zoomedCanvasMouseX, -1 * behavior.interface.processing.zoomedCanvasMouseY, behavior.interface.processing.zoomFactor);
                         }
 
                         if (behavior.interface.processing.behaviorPalette === null) {
@@ -2168,16 +2169,16 @@ function LooperInstance (options) {
 
             // Check if canvas is being dragged
             // TODO: Move this into the canvas object's "on drag" callback (which has yet to be made)
-            if (this.draggingCanvas === true) {
+            // if (this.draggingCanvas === true) {
 
-                // Save mouse touch location
-                var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + this.mouseX);
-                var currentMouseY = this.mouseY;
+            //     // Save mouse touch location
+            //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + this.mouseX);
+            //     var currentMouseY = this.mouseY;
 
-                // Store previous offset
-                this.xOffset = currentMouseX - this.mouse_x + this.xOffsetPrevious;
-                this.yOffset = currentMouseY - this.mouse_y + this.yOffsetPrevious;
-            }
+            //     // Store previous offset
+            //     this.xOffset = currentMouseX - this.mouse_x + this.xOffsetPrevious;
+            //     this.yOffset = currentMouseY - this.mouse_y + this.yOffsetPrevious;
+            // }
 
 
 

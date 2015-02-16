@@ -25,6 +25,7 @@ import java.util.TimeZone;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 
+import java.util.Map;
 import android.util.Log;
 
 /**
@@ -94,6 +95,32 @@ public class NanoHTTPD
 	public Response serve( String uri, String method, Properties header, Properties parms, Properties files )
 	{
 		Log.i( LOGTAG, method + " '" + uri + "' " );
+
+		// Custom handlers
+		// TODO: Make these defineable in JavaScript!
+
+		if (uri.equalsIgnoreCase("/notify")) {
+
+			String response = "uri: " + uri + "\n";
+			response += "method: " + method + "\n";
+			response += "header: " + header.toString() + "\n";
+			response += "parms: " + parms.toString() + "\n";
+			response += "files: " + files.toString() + "\n";
+
+
+	        // Map<String, String> parms2 = session.getParms();
+	        // if (parms2.get("username") == null)
+	            // response +=
+	            //         "<form action='?' method='get'>\n" +
+	            //                 "  <p>Your name: <input type='text' name='username'></p>\n" +
+	            //                 "</form>\n";
+	        // else
+	        //     response += "<p>Hello, " + parms2.get("username") + "!</p>";
+
+	        return new NanoHTTPD.Response(HTTP_OK, MIME_PLAINTEXT, response);
+
+	    }
+
 /*
 		Enumeration e = header.propertyNames();
 		while ( e.hasMoreElements())

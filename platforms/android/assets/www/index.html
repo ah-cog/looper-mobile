@@ -63,6 +63,7 @@
     	    	    }, function (url) {
         	    		//document.getElementById('url').innerHTML = "server is started: <a href='" + url + "' target='_blank'>" + url + "</a>";
                         updateStatus();
+                        alert(url);
     	    	    }, function (error) {
     	    	    	document.getElementById('url').innerHTML = 'failed to start server: ' + error;
     	    	    });
@@ -85,6 +86,36 @@
     	} else {
     		alert ('CorHttpd plugin not available/ready.');
     	}
+    }
+
+    function getRequest () {
+        if (httpd) {
+            httpd.getRequest (function (url) {
+                if(url.length > 0) {
+                    document.getElementById('url').innerHTML = "server is UP!: <a href='" + url + "' target='_blank'>" + url + "</a>";
+                } else {
+                    document.getElementById('url').innerHTML = "server is DOWN!";
+                }
+
+                document.getElementById('looper').innerHTML = "<a href='" + url + "/looper.html' target='_blank'>Looper</a>";
+            });
+        } else {
+            alert ('CorHttpd plugin not available/ready.');
+        }
+
+
+        // if (httpd) {
+        //     httpd.getRequest(function(){
+        //         //document.getElementById ('url').innerHTML = 'server is stopped.';
+        //         // updateStatus();
+        //         alert ('getRequest Success');
+        //     }, function (error){
+        //         alert (error);
+        //         // document.getElementById ('url').innerHTML = 'failed to stop server' + error;
+        //     });
+        // } else {
+        //     alert ('CorHttpd plugin not available/ready.');
+        // }
     }
 
     function udpBroadcast () {
@@ -129,6 +160,7 @@
         <p><button onclick="startServer('/');">Start Httpd at /</button></p>
         <p><button onclick="stopServer();">Stop Httpd</button></p>
         <p><button onclick="updateStatus();">Check Status</button></p>
+        <p><button onclick="getRequest();">Get Request</button></p>
 
         <div id='location'></div>
         <div id='url'></div>

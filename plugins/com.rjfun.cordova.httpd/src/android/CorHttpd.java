@@ -38,6 +38,7 @@ public class CorHttpd extends CordovaPlugin {
     private static final String ACTION_STOP_SERVER = "stopServer";
     private static final String ACTION_GET_URL = "getURL";
     private static final String ACTION_GET_LOCAL_PATH = "getLocalPath";
+    private static final String ACTION_GET_REQUEST = "getRequest"; // MG: Added for request handler
     
     private static final String OPT_WWW_ROOT = "www_root";
     private static final String OPT_PORT = "port";
@@ -65,6 +66,9 @@ public class CorHttpd extends CordovaPlugin {
             
         } else if (ACTION_GET_LOCAL_PATH.equals(action)) {
             result = getLocalPath(inputs, callbackContext);
+            
+        } else if (ACTION_GET_REQUEST.equals(action)) {
+            result = getRequest(inputs, callbackContext);
             
         } else {
             Log.d(LOGTAG, String.format("Invalid action passed: %s", action));
@@ -177,6 +181,14 @@ public class CorHttpd extends CordovaPlugin {
 		Log.w(LOGTAG, "getLocalPath");
 		
     	callbackContext.success( this.localPath );
+        return null;
+    }
+
+    // MG: Added for handling HTTP requests.
+    private PluginResult getRequest(JSONArray inputs, CallbackContext callbackContext) {
+        Log.w(LOGTAG, "getRequest");
+        
+        callbackContext.success( "some crazy request" );
         return null;
     }
 
