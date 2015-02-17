@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -74,11 +75,13 @@ import android.util.Log;
 @SuppressWarnings("unchecked")
 public class NanoHTTPD
 {
+	private Hashtable<String, String> moduleTable = new Hashtable<String, String> ();
 	private String modules = "none";
 
 	public String getModules () {
 
-		return this.modules;
+		// return this.modules;
+		return moduleTable.toString ();
 	}
 
 	private final String LOGTAG = "NanoHTTPD";
@@ -105,10 +108,13 @@ public class NanoHTTPD
 
 		if (uri.equalsIgnoreCase("/modules")) {
 			if (parms.getProperty ("ip") != null) {
-				modules = parms.getProperty ("ip");
+				// modules = parms.getProperty ("ip");
+				String moduleString = parms.getProperty ("ip");
+				moduleTable.put (moduleString, moduleString);
 			}
 
-			return new NanoHTTPD.Response( HTTP_OK, MIME_HTML, "{ modules: [ " + modules + " ] }" );
+			//return new NanoHTTPD.Response( HTTP_OK, MIME_HTML, "{ modules: [ " + modules + " ] }" );
+			return new NanoHTTPD.Response( HTTP_OK, MIME_HTML, "{ modules: [ " + moduleTable.toString () + " ] }" );
 		}
 
 /*

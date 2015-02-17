@@ -36,7 +36,7 @@ import android.util.Log;
 
 public class WebServer extends NanoHTTPD
 {
-	private Hashtable<String, String> modules2 = new Hashtable<String, String> ();
+	// private Hashtable<String, String> modules2 = new Hashtable<String, String> ();
 	// private String modules = "module-list-yeah";
 
 	public WebServer(InetSocketAddress localAddr, AndroidFile wwwroot) throws IOException {
