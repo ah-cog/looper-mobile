@@ -433,7 +433,7 @@ function Slider (options) {
 
                 // console.log ("DOWN");
 
-                currentMouseX = (this.processing.screenWidth * (this.processing.deviceCount + 1) + this.processing.mouseX) - (this.xOrigin);
+                currentMouseX = (this.processing.screenWidth * (this.processing.deviceCount + 1) + this.processing.mouseX) - (this.processing.screenWidth / 2) - (this.xOrigin);
                 console.log (currentMouseX);
                 if (currentMouseX < this.min) {
                     currentMouseX = this.min;

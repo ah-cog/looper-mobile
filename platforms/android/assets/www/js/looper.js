@@ -1494,13 +1494,10 @@ function BehaviorPalette (options) {
 
                 release: function() {
                     console.log("release Behavior");
-                    console.log(behavior);
 
                     if (behavior.state === 'PROTOTYPE') {
 
-                        console.log("RELEASING PROTOTYPE!");
-                        // behavior.state = 'MOVING';
-                        console.log(behavior.state);
+                        console.log("Releasing action prototype.");
 
                     }
 
@@ -1583,26 +1580,8 @@ function BehaviorPalette (options) {
                         if (!disableEventCreate) {
                             if (behavior.interface.processing.behaviorPalette != null) {
 
-                                // var behaviorCount = behavior.interface.processing.behaviorPalette.behaviors.length;
-                                // // var behaviorCount = behavior.interface.processing.loopSequence.behaviors.length;
-                                // console.log("behaviorCount = " + behaviorCount);
-                                // for (var i = 0; i < behaviorCount; ) {
-
-                                //     console.log(behavior.interface.processing.behaviorPalette.behaviors[i].state);
-
-                                //     if (behavior.interface.processing.behaviorPalette.behaviors[i].state === 'PROTOTYPE') {
-                                //         behavior.interface.processing.behaviorPalette.behaviors.splice(i, 1);
-                                //         behaviorCount--;
-                                //         console.log("removing...");
-                                //         continue;                                
-                                //     }
-
-                                //     i++;
-                                // }
-
                                 // Remove interfaces associated with the removed behaviors
                                 var interfaceCount = interfaces.length;
-                                // var interfaceCount = behavior.interface.processing.loopSequence.behaviors.length;
                                 console.log("interfaceCount = " + interfaceCount);
                                 for (var i = 0; i < interfaceCount; ) {
 
@@ -1619,7 +1598,7 @@ function BehaviorPalette (options) {
                                             // TODO: Clean this up so it's not a global array! Eliminate the global array!
                                             interfaces.splice (i, 1);
                                             interfaceCount--;
-                                            console.log("removing...");
+                                            console.log ("removing...");
                                             continue;                                
                                         }
                                     }
