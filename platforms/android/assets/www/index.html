@@ -328,7 +328,7 @@
     }
 
     void draw() {
-        background(#ffffff); // background(#F0F1F0);
+        background(#ffffff);
         primaryFont = createFont("DidactGothic.ttf", 32);
         textFont(primaryFont, 40);
         textAlign(CENTER);
@@ -341,9 +341,9 @@
     <script src="js/looper.js"></script>
     <script>
     looper = new Looper();
-    // looper.addDevice({ address: "192.168.1.13" });
-    // looper.addDevice({ address: "192.168.1.14" });
-    // looper.showDeviceByIndex(0);
+    looper.addDevice({ address: "192.168.1.13" });
+    looper.addDevice({ address: "192.168.1.14" });
+    looper.showDeviceByIndex(0);
     // erase();
 
 
