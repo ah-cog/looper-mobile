@@ -656,7 +656,7 @@ function Loop (options) {
         // Populate array for sorting
         for (var i = 0; i < eventCount; i++) {
             var loopBehavior = this.behaviors[i];
-            if (loopBehavior.state === 'SEQUENCED') {
+            if (loopBehavior.state === 'ENGAGED') {
                 behaviorSequence.push({
                     event: loopBehavior,
                     angle: getAngle(loopBehavior.x, loopBehavior.y)
@@ -715,7 +715,7 @@ function Behavior (options) {
         y: null,
         xTarget: null,
         yTarget: null,
-        state: 'PROTOTYPE', // NONE, PROTOTYPE, FLOATING, MOVING, ENTANGLED, SEQUENCED
+        state: 'PROTOTYPE', // NONE, PROTOTYPE, DISENGAGED, MOVING, ENTANGLED, ENGAGED
         //visible: true
         procedure: null,
         options: {},
@@ -948,7 +948,7 @@ function BehaviorPalette (options) {
         y: null,
         xTarget: null,
         yTarget: null,
-        // state: 'NONE', // NONE, FLOATING, MOVING, ENTANGLED, SEQUENCED
+        // state: 'NONE', // NONE, DISENGAGED, MOVING, ENTANGLED, ENGAGED
         //visible: true
         // go: null,
         // going: false,
@@ -1145,11 +1145,11 @@ function BehaviorPalette (options) {
 
             draw: function() {
 
-                // Check if the SEQUENCED action is being dragged off of the loop, and if it is, then set the state to MOVING
+                // Check if the ENGAGED action is being dragged off of the loop, and if it is, then set the state to MOVING
                 // TODO: Move this to a touch event handler
                 if (looper.getCurrentDevice ().touch.touching === true) {
                     if (looper.getCurrentDevice ().touch.behavior === behavior) {
-                        if (behavior.state === 'SEQUENCED') {
+                        if (behavior.state === 'ENGAGED') {
 
                             var distance = Math.sqrt ( Math.pow ((looper.getCurrentDevice ().touch.current.x) - (looper.getCurrentDevice ().touch.touch.x), 2) + Math.pow ((looper.getCurrentDevice ().touch.current.y) - (looper.getCurrentDevice ().touch.touch.y), 2) );
                                 
@@ -1221,7 +1221,7 @@ function BehaviorPalette (options) {
 
                     this.processing.popMatrix();
 
-                } else if (behavior.state === 'FLOATING') {
+                } else if (behavior.state === 'DISENGAGED') {
 
                     this.processing.fill(66, 214, 146, 50);
                     this.processing.ellipse(behavior.interface.x, behavior.interface.y, 70, 70);
@@ -1309,7 +1309,7 @@ function BehaviorPalette (options) {
 
                     this.processing.popMatrix();
 
-                    //if (behavior.state === 'SEQUENCED') {
+                    //if (behavior.state === 'ENGAGED') {
                     if (behavior.state === 'FOCUS') {
 
                         // TODO: Zoom in on behavior and lay out its properties on the side of it
@@ -1387,7 +1387,7 @@ function BehaviorPalette (options) {
                     //     processing.ellipse(behavior.x, behavior.y, 70, 70);
 
                     //     // Show the program counter
-                    //     if (behavior.state == 'SEQUENCED') {
+                    //     if (behavior.state == 'ENGAGED') {
                     //         var angle = getAngle(behavior.x, behavior.y);
                     //         var nearestX = processing.screenWidth / 2 + (500 / 2) * Math.cos(angle - Math.PI  / 2);
                     //         var nearestY = processing.screenHeight / 2 + (500 / 2) * Math.sin(angle - Math.PI  / 2);
@@ -1397,7 +1397,7 @@ function BehaviorPalette (options) {
                     //     processing.ellipse(behavior.x, behavior.y, 70, 70);
 
                     //     // // Draw options for the sequenced node
-                    //     // if (behavior.state == 'SEQUENCED') {
+                    //     // if (behavior.state == 'ENGAGED') {
                     //     //     processing.ellipse(behavior.x + 40, behavior.y - 40, 30, 30);
                     //     // }
                     // }
@@ -1473,11 +1473,11 @@ function BehaviorPalette (options) {
                         // Add behavior to the Looper
                         behavior.interface.processing.loopSequence.behaviors.push (behavior);
 
-                    } else if (behavior.state === 'FLOATING') {
+                    } else if (behavior.state === 'DISENGAGED') {
 
                         behavior.state = 'MOVING';
 
-                    } else if (behavior.state === 'SEQUENCED') {
+                    } else if (behavior.state === 'ENGAGED') {
 
                         // var distance = Math.sqrt ( Math.pow ((looper.getCurrentDevice ().touch.current.x) - (looper.getCurrentDevice ().touch.touch.x), 2) + Math.pow ((looper.getCurrentDevice ().touch.current.y) - (looper.getCurrentDevice ().touch.touch.y), 2) );
                         
@@ -1525,7 +1525,7 @@ function BehaviorPalette (options) {
                             // behavior.interface.yTarget = behavior.interface.processing.screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
                             behavior.interface.x = behavior.interface.xTarget;
                             behavior.interface.y = behavior.interface.yTarget;
-                            behavior.state = 'SEQUENCED';
+                            behavior.state = 'ENGAGED';
 
                             // Update loop ordering
                             // device.processing.loopSequence.updateOrdering();
@@ -1548,8 +1548,8 @@ function BehaviorPalette (options) {
 
                             console.log("DELETING");
 
-                            // Update position of the event node and set as "floating"
-                            behavior.state = 'FLOATING';
+                            // Update position of the event node and set as "disengaged"
+                            behavior.state = 'DISENGAGED';
 
                             console.log(behavior);
 
@@ -1622,7 +1622,7 @@ function BehaviorPalette (options) {
                             // }
                         }
 
-                    } else if (behavior.state === 'SEQUENCED') {
+                    } else if (behavior.state === 'ENGAGED') {
 
                         disableEventCreate = true;
                         behavior.state = 'FOCUS';
@@ -1630,7 +1630,7 @@ function BehaviorPalette (options) {
                     } else if (behavior.state === 'FOCUS') {
 
                         disableEventCreate = false;
-                        behavior.state = 'SEQUENCED';
+                        behavior.state = 'ENGAGED';
                     }
                 }
             }
@@ -2187,7 +2187,7 @@ function LooperInstance (options) {
                 // Populate array for sorting
                 for (var i = 0; i < eventCount; i++) {
                     var loopBehavior = processing.loopSequence.behaviors[i];
-                    if (loopBehavior.state === 'SEQUENCED') {
+                    if (loopBehavior.state === 'ENGAGED') {
                         
                         behaviorSequence.push({
                             event: loopBehavior,
