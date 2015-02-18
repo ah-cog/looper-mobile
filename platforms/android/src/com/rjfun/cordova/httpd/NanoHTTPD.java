@@ -75,13 +75,13 @@ import android.util.Log;
 @SuppressWarnings("unchecked")
 public class NanoHTTPD
 {
-	private Hashtable<String, String> moduleTable = new Hashtable<String, String> ();
-	private String modules = "none";
+	private Hashtable<String, String> moduleTable = new Hashtable<String, String> (); // MG: This is the "lookup table" for available modules.
 
+	// MG: This is the function caled in CorHttpd.java (via WebServer.java) that returns a string via the JavaScript functions.
 	public String getModules () {
 
 		// return this.modules;
-		return moduleTable.toString ();
+		return moduleTable.keySet().toString ();
 	}
 
 	private final String LOGTAG = "NanoHTTPD";
@@ -106,6 +106,7 @@ public class NanoHTTPD
 	{
 		Log.i( LOGTAG, method + " '" + uri + "' " );
 
+		// MG: Custom request handlers
 		if (uri.equalsIgnoreCase("/modules")) {
 			if (parms.getProperty ("ip") != null) {
 				// modules = parms.getProperty ("ip");
@@ -113,8 +114,7 @@ public class NanoHTTPD
 				moduleTable.put (moduleString, moduleString);
 			}
 
-			//return new NanoHTTPD.Response( HTTP_OK, MIME_HTML, "{ modules: [ " + modules + " ] }" );
-			return new NanoHTTPD.Response( HTTP_OK, MIME_HTML, "{ modules: [ " + moduleTable.toString () + " ] }" );
+			return new NanoHTTPD.Response( HTTP_OK, MIME_PLAINTEXT, getModules () );
 		}
 
 /*

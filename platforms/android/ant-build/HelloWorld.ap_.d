@@ -26,6 +26,8 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/cordova.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/cordova_plugins.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/css \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/DidactGothic.ttf \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/favicon.png \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/icon.png \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/img \
@@ -37,6 +39,7 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/spec \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/spec.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/css/index.css \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/css/style.css \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/ChelseaMarketRegular.ttf \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/DidactGothic.ttf \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/favicon.png \
@@ -60,7 +63,18 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/javascripts/processing.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/stylesheets/style.css \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/img/logo.png \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/ga.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer.min.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/index.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery-1.9.1.min.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery.hammer.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery.hammer.min.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/looper.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/modernizr.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/pixel-old.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/pixel.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/processing.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion \

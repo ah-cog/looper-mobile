@@ -10,9 +10,9 @@
     <feature name="Accelerometer">
         <param name="android-package" value="org.apache.cordova.devicemotion.AccelListener" />
     </feature>
-    <name>Looper</name>
+    <name>Pixel</name>
     <description>
-        Hello World sample application that responds to the deviceready event.
+        Graphical interface for Pixel.
     </description>
     <author email="mrgubbels@gmail.com" href="http://michaelgubbels.com">
         Michael Gubbels
