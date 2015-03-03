@@ -73,7 +73,7 @@
 
 // TODO: function pin(index, pin, operation, type, mode, value) { /* ... */ }
 //function pin(index, pin, operation, type, mode, value) {
-function message (options) { // function text (options) {
+function sendMessage (options) { // function text (options) {
     var defaults = {
         content: ""
     };
@@ -88,6 +88,8 @@ function message (options) { // function text (options) {
     url = url.concat ('?', params);
     
     http.open("POST", url, true);
+
+    // alert(url);
 
     // Send the proper header information along with the request
     http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

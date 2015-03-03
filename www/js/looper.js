@@ -718,6 +718,7 @@ function Behavior (options) {
         state: 'PROTOTYPE', // NONE, PROTOTYPE, DISENGAGED, MOVING, ENTANGLED, ENGAGED
         //visible: true
         procedure: null,
+        properties: [],
         options: {},
         going: false,
         label: '?',
@@ -728,6 +729,16 @@ function Behavior (options) {
     var options = $.extend({}, defaults, options);
 
     this.uuid = options.uuid;
+
+    this.properties = options.properties;
+
+    //  // Configure properties for behavior: Add properties to behavior (e.g., lightBehavior.red)
+    // for (var i = 0; i < this.properties.length; i++) {
+    //     var propertyName = this.properties[i].name;
+    //     // alert (propertyName);
+    //     // var defaultPropertyValue = 100;
+    //     // this[propertyName] = defaultPropertyValue;
+    // }
 
     this.procedure = options.procedure;
     this.options = options.options;
@@ -1070,7 +1081,9 @@ function BehaviorPalette (options) {
             label: 'none',
 
             procedure: null,
-            options: null
+            options: null,
+
+            properties: []
         };
         var options = options || {};
         var options = $.extend({}, defaults, options);
@@ -1099,6 +1112,8 @@ function BehaviorPalette (options) {
 
             procedure: options.procedure,
             options: options.options,
+
+            properties: options.properties, // Add properties to the behavior
 
             // TODO: Remove 'qualities'. Instead, make 'state' an object that can have multiple properties.
             //qualities: {}  // The "character" of the behavior based on it's type.
@@ -1213,7 +1228,7 @@ function BehaviorPalette (options) {
                     this.processing.fill(255, 255, 255);
                     this.processing.ellipse(this.x, this.y, 80, 80);
 
-                    primaryFont = this.processing.createFont("DidactGothic.ttf", 32);
+                    primaryFont = this.processing.createFont("Comfortaa-Regular.ttf", 32);
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
@@ -1301,7 +1316,7 @@ function BehaviorPalette (options) {
                     this.processing.fill(66, 214, 146);
                     this.processing.ellipse(this.x, this.y, 80, 80);
 
-                    primaryFont = this.processing.createFont("DidactGothic.ttf", 32);
+                    primaryFont = this.processing.createFont("Comfortaa-Regular.ttf", 32);
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
@@ -1309,37 +1324,16 @@ function BehaviorPalette (options) {
 
                     this.processing.popMatrix();
 
-                    //if (behavior.state === 'ENGAGED') {
                     if (behavior.state === 'FOCUS') {
 
                         // TODO: Zoom in on behavior and lay out its properties on the side of it
 
-                        behavior.properties = [
-                            {
-                                name: 'note',
-                                minimum: 31,
-                                maximum: 4978,
-                                callback: function () { 
-                                    console.log("NOTE");
-                                    console.log (this);
-                                    console.log (this.interface.value + " (scaled)");
-                                    updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                                }
-                            },
-                            {
-                                name: 'volume',
-                                minimum: 0,
-                                maximum: 100,
-                                callback: function () { 
-                                    console.log("VOLUME");
-                                    console.log (this);
-                                    console.log (this.interface.value + " (scaled)");
-                                    updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                                }
-                            }
-                        ];
+                        var sliderCount = behavior.properties.length;
+                        var sliderGapLength = 50;
+                        var sliderGroupLength = (sliderCount - 1) * sliderGapLength;
+                        var sliderOffsetY = -1 * (sliderGroupLength / 2);
 
-                        for (var i = 0; i < behavior.properties.length; i++) {
+                        for (var i = 0; i < sliderCount; i++) {
 
                             // slider = new Slider ({ superstructure: looper.getCurrentDevice() });
                             if (behavior.sliders === undefined || behavior.sliders === null) {
@@ -1351,7 +1345,7 @@ function BehaviorPalette (options) {
                                 // console.log (behavior);
                                 newSlider = new Slider ({ superstructure: behavior, xOrigin: behavior.interface.x, yOrigin: behavior.interface.y, properties: behavior.properties[i] });
                                 newSlider.x = 0;
-                                newSlider.yTarget = 0 + i * 50;
+                                newSlider.yTarget = sliderOffsetY + i * sliderGapLength;
                                 // behavior.sliders.push (newSlider);
                                 behavior.sliders[(behavior.properties[i].name)] = newSlider;
 
@@ -1890,18 +1884,58 @@ function LooperInstance (options) {
                     console.log('light on top level');
                     // setPin(options);
                     // createBehavior ({ type: 'output' });
-                    createBehavior (options);
+                    // createBehavior (options);
+                    sendMessage (options);
                     // TODO: Keep track of state... has this been sent yet?
                 },
                 options: {
-                    type: 'output'
+                    // type: 'output'
+                    content: "turn output on"
                     // index: -1, type: 'output', pin: 5, operation: 1, type: 0, mode: 1, value: 1
-                }
+                },
+                properties: [
+                    {
+                        name: 'note',
+                        minimum: 31,
+                        maximum: 4978,
+                        callback: function () { 
+                            console.log("NOTE");
+                            console.log (this);
+                            console.log (this.interface.value + " (scaled)");
+                            // alert (this.interface.value);
+                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                        }
+                    },
+                    {
+                        name: 'volume',
+                        minimum: 0,
+                        maximum: 100,
+                        callback: function () { 
+                            console.log("VOLUME");
+                            console.log (this);
+                            console.log (this.interface.value + " (scaled)");
+                            // alert (this.interface.value);
+                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                        }
+                    },
+                    {
+                        name: 'volume2',
+                        minimum: 0,
+                        maximum: 100,
+                        callback: function () { 
+                            console.log("VOLUME");
+                            console.log (this);
+                            console.log (this.interface.value + " (scaled)");
+                            // alert (this.interface.value);
+                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                        }
+                    }
+                ]
             });
 
             processing.behaviorPalette.addBehavior ({
-                type: 'time',
-                label: 'delay',
+                type: 'module',
+                label: 'sound',
 
                 x: processing.behaviorPalette.x + 100,
                 y: processing.behaviorPalette.y + 0,
@@ -1909,13 +1943,44 @@ function LooperInstance (options) {
                 procedure: function(options) {
                     console.log('time on top level');
                     // delay(options);
-                    createBehavior (options);
+                    // createBehavior (options);
+                    sendMessage (options);
                     // TODO: Keep track of state... has this been sent yet?
                 },
                 options: {
-                    type: 'delay', milliseconds: 1000
+                    // type: 'delay', milliseconds: 1000
+                    content: "play note 500 800"
                     // index: -1, type: 'delay', milliseconds: 1000
-                }
+                },
+                properties: [
+                    {
+                        name: 'note',
+                        minimum: 31,
+                        maximum: 4978,
+                        callback: function () { 
+                            // console.log("NOTE");
+                            // console.log (this);
+                            // console.log (this.interface.value + " (scaled)");
+                            var note = this.interface.structure.superstructure.sliders['note'].value; // this.interface.<slider>.<behavior node>
+                            var duration = this.interface.structure.superstructure.sliders['duration'].value; // this.interface.<slider>.<behavior node>
+                            sendMessage ({ content: "play note " + parseInt (note) + " " + parseInt (duration) });
+                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                            // sendMessage ({ content: "play sound 500 800" });
+                        }
+                    },
+                    {
+                        name: 'duration',
+                        minimum: 0,
+                        maximum: 1000,
+                        callback: function () {
+                            var note = this.interface.structure.superstructure.sliders['note'].value; // this.interface.<slider>.<behavior node>
+                            var duration = this.interface.structure.superstructure.sliders['duration'].value; // this.interface.<slider>.<behavior node>
+                            sendMessage ({ content: "play note " + parseInt (note) + " " + parseInt (duration) });
+                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                            // sendMessage ({ content: "play sound 500 800" });
+                        }
+                    }
+                ]
             });
 
             // processing.behaviorPalette.addBehavior ({
@@ -1949,14 +2014,31 @@ function LooperInstance (options) {
                     console.log('light off top level');
                     // setPin(options);
                     // createBehavior ({ type: 'output' });
-                    createBehavior (options);
+                    // createBehavior (options);
+                    sendMessage (options);
                     // TODO: Keep track of state... has this been sent yet?
                 },
                 options: {
-                    type: 'output',
-                    data: 'off'
+                    // type: 'output',
+                    // data: 'off'
+                    content: "turn light off"
                     // index: -1, type: 'output', pin: 5, operation: 1, type: 0, mode: 1, value: 1
-                }
+                },
+                properties: [
+                    {
+                        name: 'note',
+                        minimum: 31,
+                        maximum: 4978,
+                        callback: function () { 
+                            console.log("NOTE");
+                            console.log (this);
+                            console.log (this.interface.value + " (scaled)");
+                            // alert (this.interface.value);
+                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                            sendMessage ({ content: "turn light off" });
+                        }
+                    }
+                ]
             });
 
             // processing.behaviorPalette.addBehavior({
@@ -1977,6 +2059,85 @@ function LooperInstance (options) {
             //         // index: -1, pin: 5, operation: 1, type: 0, mode: 1, value: 0
             //     }
             // });
+
+            processing.behaviorPalette.addBehavior ({
+                type: 'module',
+                label: 'color',
+
+                x: processing.behaviorPalette.x + 0,
+                y: processing.behaviorPalette.y + 100,
+
+                procedure: function(options) {
+                    console.log('change color of module');
+                    // createBehavior (options);
+                    sendMessage (options);
+                },
+                options: {
+                    content: "change color to blue"
+                },
+                properties: [
+                    {
+                        name: 'red',
+                        minimum: 0,
+                        maximum: 255,
+                        callback: function () { 
+                            console.log("NOTE");
+                            console.log (this);
+                            console.log (this.value + " (scaled)");
+                            // alert (this.interface.value);
+                            // alert (this.interface.structure.value); // this.interface.<slider>.<behavior node>
+                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure.superstructure); // this.interface.<slider>.<behavior node>
+                            // // alert (this.interface.structure.superstructure.sliders); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure.superstructure.properties); // this.interface.<slider>.<behavior node>
+                            // // alert (this.interface.structure.superstructure.sliders.length); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure.superstructure.properties.length); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.value);
+                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                            // alert (this.values['red'] + ', ' + this.values['green'] + ', ' + this.values['blue']);
+                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            sendMessage ({ content: "change color to " + red + "," + green + "," + blue });
+                        }
+                    },
+                    {
+                        name: 'green',
+                        minimum: 0,
+                        maximum: 255,
+                        callback: function () { 
+                            console.log("NOTE");
+                            console.log (this);
+                            console.log (this.value + " (scaled)");
+                            // alert (this.interface.value);
+                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            sendMessage ({ content: "change color to " + red + "," + green + "," + blue });
+                        }
+                    },
+                    {
+                        name: 'blue',
+                        minimum: 0,
+                        maximum: 255,
+                        callback: function () { 
+                            console.log("NOTE");
+                            console.log (this);
+                            console.log (this.value + " (scaled)");
+                            // alert (this.interface.value);
+                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
+                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            sendMessage ({ content: "change color to " + red + "," + green + "," + blue });
+                        }
+                    }
+                ]
+            });
         }
 
         processing.keyPressed = function() {
@@ -2030,7 +2191,7 @@ function LooperInstance (options) {
         processing.setup = function() {
             this.size (this.screenWidth, this.screenHeight);
 
-            this.font = this.loadFont("DidactGothic.ttf");
+            this.font = this.loadFont("Comfortaa-Regular.ttf");
 
             this.xOffsetOrigin = this.screenWidth / 2;
             this.yOffsetOrigin = this.screenHeight / 2;
@@ -2454,11 +2615,11 @@ g_deviceUrl = "";
 moduleList = [];
 moduleObjects = {};
 
+// setInterval(function () {
+//     udpBroadcast ();
+// }, 5000);
+
 // Get modules every 5 seconds
 setInterval(function () {
     getModules ();
-}, 5000);
-
-setInterval(function () {
-    udpBroadcast ();
-}, 5000);
+}, 6000);
