@@ -8,7 +8,7 @@ Looper is a visual programming environment for mobile touchscreen devices includ
 
 Start by installing PhoneGap by following the [Install PhoneGap](http://phonegap.com/install/) tutorial.
 
-### Install PhoneGap Plugins
+### Install [PhoneGap Plugins](http://plugins.cordova.io/#/)
 
 Next, install the needed plugins by following the instructions below.
 
@@ -26,7 +26,7 @@ Next, install Accelerometer Plugin:
 
 Finally, verify plugins are installed:
 
-	sudo cordova plugin
+	sudo phonegap plugin
 
 The system should respond with a list of plugins similar to the following. The versions and formatting may vary.
 
@@ -36,18 +36,18 @@ The system should respond with a list of plugins similar to the following. The v
 
 ### Install [Android](http://phonegap.com/) Development Environment
 
-Follow the article [Install Apache Cordova on OS X Yosemite](http://whatdafox.com/install-apache-cordova-on-os-x-yosemite/).
+Follow the article [Install Apache Cordova on OS X Yosemite](http://whatdafox.com/install-apache-cordova-on-os-x-yosemite/) to develop Looper with Android.
 
 ## Configure for Development and Testing
 
-### Configure environment for Android
+### Configure for Android
 
     export ANDROID_HOME=/Applications/android-sdk-macosx/
     export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
 Read the official [Android Platform Guide](https://cordova.apache.org/docs/en/4.0.0/guide_platforms_android_index.md.html) for more detailed and up-to-date instructions.
 
-### Run Android Applicaiton
+#### Run on Android
 
 Plug in an Android phone and enter the following command:
 
