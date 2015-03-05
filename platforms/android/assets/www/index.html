@@ -15,6 +15,9 @@
             button { font-size: 18px; }
         </style>
 
+        <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="js/modernizr.js"></script>
+
         <script type="text/javascript" src="js/pixel.js"></script>
         <script type="text/javascript" src="js/looper.js"></script>
 
@@ -255,8 +258,8 @@
 
     <!-- NOTE: Hammer.js works without jQuery! -->
     <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script> -->
-    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="js/modernizr.js"></script>
+    <!-- <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script> -->
+    <!-- <script type="text/javascript" src="js/modernizr.js"></script> -->
 
     <!--<div id="debug">Log</div>-->
 
@@ -398,7 +401,7 @@
             touches: function (x, y) {
                 // alert (x, y, this.x, this.y);
                 var radius = 50;
-                console.log (x, y, this.x, this.y);
+                // DEBUG: console.log (x, y, this.x, this.y);
                 if (((this.xOrigin + this.x) - radius < x && (this.xOrigin + this.x) + radius > x) && ((this.yOrigin + this.y) - radius < y && (this.yOrigin + this.y) + radius > y)) {
                 // if ((x - radius < this.processing.behaviorPalette.x + this.x && this.processing.behaviorPalette.x + this.x < x + radius)
                 //     && (y - radius < this.processing.behaviorPalette.y + this.y && this.processing.behaviorPalette.y + this.y < y + radius)) {
@@ -424,8 +427,13 @@
 
                     // console.log ("DOWN");
 
-                    currentMouseX = (this.processing.screenWidth * (this.processing.deviceCount + 1) + this.processing.mouseX) - (this.processing.screenWidth / 2) - (this.xOrigin);
-                    console.log (currentMouseX);
+                    // currentMouseX = (this.processing.screenWidth * (this.processing.deviceCount + 1) + this.processing.mouseX) - (this.processing.screenWidth / 2) - (this.xOrigin);
+                    // console.log("currentMouseX: " + currentMouseX);
+                    // console.log("screenMouseX: " + this.processing.screenMouseX);
+                    // console.log("processing.zoomedCanvasMouseX: " + this.processing.zoomedCanvasMouseX);
+                    currentMouseX = this.processing.zoomedCanvasMouseX - (this.xOrigin);
+                    // currentMouseX = (this.processing.screenWidth * (this.processing.deviceCount + 1) + this.processing.mouseX) - (this.processing.screenWidth / 2) - (this.xOrigin);
+                    // DEBUG: console.log (currentMouseX);
                     if (currentMouseX < this.min) {
                         currentMouseX = this.min;
                     } else if (currentMouseX > this.max) {
@@ -516,7 +524,7 @@
                     this.interface.down = true;
 
                     // Hide the mouse cursor
-                    $('html').css('cursor', 'none');
+                    // $('html').css('cursor', 'none');
                 },
 
                 hold: function () {
@@ -533,8 +541,8 @@
                     this.interface.properties.interface = this.interface;
                     this.interface.properties.callback ();
 
-                    // // Show the mouse cursor
-                    $('html').css('cursor', 'auto');
+                    // Show the mouse cursor
+                    // $('html').css('cursor', 'auto');
                 }
             }
         });
