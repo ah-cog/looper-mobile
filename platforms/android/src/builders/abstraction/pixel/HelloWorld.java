@@ -17,7 +17,7 @@
        under the License.
  */
 
-package com.phonegap.helloworld;
+package builders.abstraction.pixel;
 
 import android.os.Bundle;
 import org.apache.cordova.*;

@@ -1,3 +1,7 @@
+//!
+//! 
+//!
+
 // devices = [];
 deviceCount = -1;
 
@@ -280,16 +284,16 @@ function setupGestures (device) {
         //     console.log(device.processing.behaviorPalette);
         // }
 
-        ev.gesture.preventDefault();
-        ev.stopPropagation();
-        ev.gesture.stopPropagation();
+        ev.gesture.preventDefault ();
+        ev.stopPropagation ();
+        ev.gesture.stopPropagation ();
         return;
     });
 
     /**
      * Detect "release" event.
      */
-    $(currentCanvas).hammer({ drag_max_touches: 0 }).on("release", function(ev) {
+    $(currentCanvas).hammer({ drag_max_touches: 0 }).on ("release", function (ev) {
         console.log("'release' event!");
 
         device.processing.processGesture (ev);
@@ -325,8 +329,8 @@ function setupGestures (device) {
             var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
             var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
 
-            if (interfaces[i].touches(newX, newY)) {
-                interfaces[i].events.release();
+            if (interfaces[i].touches (newX, newY)) {
+                interfaces[i].events.release ();
                 device.touch.behavior = null; // Free the behavior from touch history
                 break;
             }
@@ -353,7 +357,7 @@ function setupGestures (device) {
 
         var touches = ev.gesture.touches;
 
-        console.log ("Processing (mouseX, mouseY): " + device.processing.mouseX + ", " + device.processing.mouseY);
+        // console.log ("Processing (mouseX, mouseY): " + device.processing.mouseX + ", " + device.processing.mouseY);
 
         // if (device.processing.draggingCanvas == true) {
         //     //device.touch.draggingCanvas = true;
@@ -2540,7 +2544,7 @@ function LooperInstance (options) {
 
                 var touches = event.gesture.touches;
 
-                console.log ("Processing (mouseX, mouseY): " + processing.mouseX + ", " + processing.mouseY);
+                // console.log ("Processing (mouseX, mouseY): " + processing.mouseX + ", " + processing.mouseY);
 
                 // console.log (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
                 // console.log (processing.mouseY);

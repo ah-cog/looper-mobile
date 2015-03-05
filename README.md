@@ -1,6 +1,6 @@
 ## Looper (App) ##
 
-# Install Development Environment
+# Install Cordova/PhoneGap Development Environment
 
 ## Install HTTP Web Server:
 
@@ -13,6 +13,16 @@
 ## Install Accelerometer Plugin:
 
     sudo phonegap plugin add org.apache.cordova.device-motion
+
+## Verify plugins are installed:
+
+	sudo cordova plugin
+
+The system should respond with a list of plugins similar to the following. The versions and formatting may vary.
+
+	com.rjfun.cordova.httpd 0.9.2 "CorHttpd"
+	edu.uic.travelmidwest.cordova.udptransmit 0.0.1 "UDPTransmit"
+	org.apache.cordova.device-motion 0.2.10 "Device Motion"
 
 # Configure Development Environment
 
