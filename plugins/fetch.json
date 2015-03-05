@@ -1,0 +1,9 @@
+{
+    "com.rjfun.cordova.httpd": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/floatinghotpot/cordova-httpd.git",
+            "subdir": "."
+        }
+    }
+}
