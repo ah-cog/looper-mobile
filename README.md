@@ -1,5 +1,7 @@
 # Looper
 
+![Preview of Looper](https://raw.githubusercontent.com/mokogobo/looper-app/master/Preview.png)
+
 Looper is a visual programming environment for mobile touchscreen devices including smartphones and tablets.
 
 ## Install Development Environment
