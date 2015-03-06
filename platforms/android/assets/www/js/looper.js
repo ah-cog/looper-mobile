@@ -76,24 +76,24 @@ function Carousel (element) {
     function setContainerOffset(percent, animate) {
         container.removeClass("animate");
 
-        if(animate) {
-            container.addClass("animate");
+        if (animate) {
+            container.addClass ("animate");
         }
 
-        if(Modernizr.csstransforms3d) {
-            container.css("transform", "translate3d("+ percent +"%,0,0) scale3d(1,1,1)");
+        if (Modernizr.csstransforms3d) {
+            container.css ("transform", "translate3d("+ percent + "%,0,0) scale3d(1,1,1)");
         }
-        else if(Modernizr.csstransforms) {
-            container.css("transform", "translate("+ percent +"%,0)");
+        else if (Modernizr.csstransforms) {
+            container.css ("transform", "translate ("+ percent + "%,0)");
         }
         else {
             var px = ((pane_width*pane_count) / 100) * percent;
-            container.css("left", px+"px");
+            container.css ("left", px + "px");
         }
     }
 
-    this.next = function() { return this.showPane(current_pane+1, true); };
-    this.prev = function() { return this.showPane(current_pane-1, true); };
+    this.next = function () { return this.showPane (current_pane + 1, true); };
+    this.prev = function () { return this.showPane (current_pane - 1, true); };
 
 
 
@@ -113,39 +113,39 @@ function Carousel (element) {
                 case 'dragright':
                 case 'dragleft':
                     // stick to the finger
-                    var pane_offset = -(100/pane_count)*current_pane;
-                    var drag_offset = ((100/pane_width)*ev.gesture.deltaX) / pane_count;
+                    var pane_offset = -(100 / pane_count) * current_pane;
+                    var drag_offset = ((100 / pane_width) * ev.gesture.deltaX) / pane_count;
 
                     // slow down at the first and last pane
-                    if((current_pane == 0 && ev.gesture.direction == Hammer.DIRECTION_RIGHT) ||
+                    if ((current_pane == 0 && ev.gesture.direction == Hammer.DIRECTION_RIGHT) ||
                         (current_pane == pane_count-1 && ev.gesture.direction == Hammer.DIRECTION_LEFT)) {
                         drag_offset *= .4;
                     }
 
-                    setContainerOffset(drag_offset + pane_offset);
+                    setContainerOffset (drag_offset + pane_offset);
                     break;
 
                 case 'swipeleft':
-                    self.next();
-                    ev.gesture.stopDetect();
+                    self.next ();
+                    ev.gesture.stopDetect ();
                     break;
 
                 case 'swiperight':
-                    self.prev();
-                    ev.gesture.stopDetect();
+                    self.prev ();
+                    ev.gesture.stopDetect ();
                     break;
 
                 case 'release':
                     // more then 50% moved, navigate
-                    if(Math.abs(ev.gesture.deltaX) > pane_width/2) {
-                        if(ev.gesture.direction == 'right') {
+                    if (Math.abs (ev.gesture.deltaX) > pane_width / 2) {
+                        if (ev.gesture.direction == 'right') {
                             self.prev();
                         } else {
-                            self.next();
+                            self.next ();
                         }
                     }
                     else {
-                        self.showPane(current_pane, true);
+                        self.showPane (current_pane, true);
                     }
                     break;
             }
@@ -154,10 +154,10 @@ function Carousel (element) {
     }
 
     // Set up touch event handlers (with Hammer.js)
-    element.hammer({ drag_lock_to_axis: true }).on("release dragleft dragright swipeleft swiperight", handleHammer);
+    element.hammer ({ drag_lock_to_axis: true }).on ("release dragleft dragright swipeleft swiperight", handleHammer);
 }
 
-var carousel = new Carousel("#carousel");
+var carousel = new Carousel ("#carousel");
 carousel.setup();
 
 /**
@@ -175,39 +175,43 @@ function setupGestures (device) {
 
         var touches = ev.gesture.touches;
 
-        // Update the previous touch state history
-        // device.touch = { touching: true, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, touch: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
-        device.touch.touching = true;
-        device.touch.holding = false;
-        device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
-        device.touch.touch = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+        if (looper.hasCurrentDevice () === true) {
 
-        //
-        // Get the touched event node, if one exists
-        //
-        var eventCount = device.processing.loopSequence.behaviors.length;
+            // Update the previous touch state history
+            // device.touch = { touching: true, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, touch: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
+            device.touch.touching = true;
+            device.touch.holding = false;
+            device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+            device.touch.touch = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
-        for (var i = 0; i < eventCount; i++) {
-            var loopBehavior = device.processing.loopSequence.behaviors[i];
-            if ((ev.gesture.center.pageX - 50 < loopBehavior.x && loopBehavior.x < ev.gesture.center.pageX + 50)
-                && (ev.gesture.center.pageY - 50 < loopBehavior.y && loopBehavior.y < ev.gesture.center.pageY + 50)) {
+            //
+            // Get the touched event node, if one exists
+            //
+            var eventCount = device.processing.loopSequence.behaviors.length;
 
-                // TODO: Handle "tap" event.
+            for (var i = 0; i < eventCount; i++) {
+                var loopBehavior = device.processing.loopSequence.behaviors[i];
+                if ((ev.gesture.center.pageX - 50 < loopBehavior.x && loopBehavior.x < ev.gesture.center.pageX + 50)
+                    && (ev.gesture.center.pageY - 50 < loopBehavior.y && loopBehavior.y < ev.gesture.center.pageY + 50)) {
+
+                    // TODO: Handle "tap" event.
+                }
             }
-        }
 
-        for (var i = 0; i < interfaces.length; i++) {
-            console.log(interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY));
+            for (var i = 0; i < interfaces.length; i++) {
+                console.log(interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY));
 
-            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
-            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
-            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2)) - device.processing.yOffset;
+                // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+                var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+                var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2)) - device.processing.yOffset;
 
-            //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-            if (interfaces[i].touches(newX, newY)) {
-                interfaces[i].events.tap();
-                break;
+                //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+                if (interfaces[i].touches (newX, newY)) {
+                    interfaces[i].events.tap ();
+                    break;
+                }
             }
+
         }
     });
 
@@ -219,44 +223,51 @@ function setupGestures (device) {
 
         var touches = ev.gesture.touches;
 
-        device.processing.processGesture (ev);
+        device.processing.fingers = ev;
+        console.log (ev);
 
-        // DEBUG: console.log (((looper.getCurrentPane () + 1) * $(window).width ()) + device.processing.mouseX);
-        // DEBUG: console.log (device.processing.mouseY);
+        if (looper.hasCurrentDevice () === true) {
 
-        // Save mouse touch location
-        device.processing.mouse_x = (((looper.getCurrentPane () + 1) * $(window).width ()) + device.processing.mouseX);
-        device.processing.mouse_y = device.processing.mouseY;
+            device.processing.processGesture (ev);
 
-        // Store previous offset
-        device.processing.xOffsetPrevious = device.processing.xOffset;
-        device.processing.yOffsetPrevious = device.processing.yOffset;
+            // DEBUG: console.log (((looper.getCurrentPane () + 1) * $(window).width ()) + device.processing.mouseX);
+            // DEBUG: console.log (device.processing.mouseY);
 
-        // Update the previous touch state history
-        // device.touch = { touching: true, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, touch: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
-        device.touch.touching = true;
-        device.touch.holding = false;
-        device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
-        device.touch.touch = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+            // Save mouse touch location
+            device.processing.mouse_x = (((looper.getCurrentPane () + 1) * $(window).width ()) + device.processing.mouseX);
+            device.processing.mouse_y = device.processing.mouseY;
 
-        // device.processing.draggingCanvas = false; // device.touch.draggingCanvas = false;
+            // Store previous offset
+            device.processing.xOffsetPrevious = device.processing.xOffset;
+            device.processing.yOffsetPrevious = device.processing.yOffset;
 
-        // var touchingCanvas = true;
+            // Update the previous touch state history
+            // device.touch = { touching: true, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, touch: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
+            device.touch.touching = true;
+            device.touch.holding = false;
+            device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+            device.touch.touch = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
-        // Check for interaction with interfaces
-        for (var i = 0; i < interfaces.length; i++) {
-            console.log(interfaces[i]);
+            // device.processing.draggingCanvas = false; // device.touch.draggingCanvas = false;
 
-            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
-            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
-            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+            // var touchingCanvas = true;
 
-            //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-            if (interfaces[i].touches (newX, newY)) {
-                interfaces[i].events.touch();
-                // touchingCanvas = false; // Flag that an interface is being touched
-                break;
+            // Check for interaction with interfaces
+            for (var i = 0; i < interfaces.length; i++) {
+                console.log(interfaces[i]);
+
+                // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+                var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+                var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+
+                //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+                if (interfaces[i].touches (newX, newY)) {
+                    interfaces[i].events.touch ();
+                    // touchingCanvas = false; // Flag that an interface is being touched
+                    break;
+                }
             }
+
         }
 
         // Uncomment to enable dragging canvas:
@@ -298,58 +309,61 @@ function setupGestures (device) {
     /**
      * Detect "release" event.
      */
-    $(currentCanvas).hammer({ drag_max_touches: 0 }).on ("release", function (ev) {
+    $(currentCanvas).hammer ({ drag_max_touches: 0 }).on ("release", function (ev) {
         console.log("'release' event!");
 
-        device.processing.processGesture (ev);
-        // i.e., save, process
+        if (looper.hasCurrentDevice () === true) {
 
-        var touches = ev.gesture.touches;
+            device.processing.processGesture (ev);
+            // i.e., save, process
 
-        // if (device.processing.draggingCanvas == true) {
-        //     //device.touch.draggingCanvas = true;
-        //     device.processing.draggingCanvas = false;
+            var touches = ev.gesture.touches;
 
-        //     // Save mouse touch location
-        //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
-        //     var currentMouseY = device.processing.mouseY;
+            // if (device.processing.draggingCanvas == true) {
+            //     //device.touch.draggingCanvas = true;
+            //     device.processing.draggingCanvas = false;
 
-        //     // Store previous offset
-        //     device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
-        //     device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
-        // }
+            //     // Save mouse touch location
+            //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+            //     var currentMouseY = device.processing.mouseY;
 
-        // Update the previous touch state history
-        // device.touch = { touching: false, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, release: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
-        device.touch.touching = false;
-        device.touch.holding = false;
-        device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
-        device.touch.release = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+            //     // Store previous offset
+            //     device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
+            //     device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
+            // }
 
-        // Check for touches on interfaces
-        for (var i = 0; i < interfaces.length; i++) {
-            // DEBUG: console.log(interfaces[i]);
+            // Update the previous touch state history
+            // device.touch = { touching: false, holding: false, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY }, release: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
+            device.touch.touching = false;
+            device.touch.holding = false;
+            device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+            device.touch.release = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
 
-            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
-            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
-            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+            // Check for touches on interfaces
+            for (var i = 0; i < interfaces.length; i++) {
+                // DEBUG: console.log(interfaces[i]);
 
-            if (interfaces[i].touches (newX, newY)) {
-                interfaces[i].events.release ();
-                device.touch.behavior = null; // Free the behavior from touch history
-                break;
+                // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+                var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+                var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+
+                if (interfaces[i].touches (newX, newY)) {
+                    interfaces[i].events.release ();
+                    device.touch.behavior = null; // Free the behavior from touch history
+                    break;
+                }
             }
-        }
 
-        // Check if the touch was momentary
-        if (device.touch.release.t - device.touch.touch.t < 200) {
-            // TODO: Create a "none" behavior
-        }
+            // Check if the touch was momentary
+            if (device.touch.release.t - device.touch.touch.t < 200) {
+                // TODO: Create a "none" behavior
+            }
 
-        // ev.gesture.preventDefault();
-        // ev.stopPropagation();
-        // ev.gesture.stopPropagation();
-        // return;
+            // ev.gesture.preventDefault();
+            // ev.stopPropagation();
+            // ev.gesture.stopPropagation();
+            // return;
+        }
     });
 
     /**
@@ -358,88 +372,92 @@ function setupGestures (device) {
     $(currentCanvas).hammer ({ drag_max_touches: 0, hold_timeout: 200 }).on ("hold", function (ev) {
         console.log("'hold' event!");
 
-        device.processing.processGesture (ev);
+        if (looper.hasCurrentDevice () === true) {
 
-        var touches = ev.gesture.touches;
-
-        // console.log ("Processing (mouseX, mouseY): " + device.processing.mouseX + ", " + device.processing.mouseY);
-
-        // if (device.processing.draggingCanvas == true) {
-        //     //device.touch.draggingCanvas = true;
-        //     device.processing.draggingCanvas = false;
-
-        //     // Save mouse touch location
-        //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
-        //     var currentMouseY = device.processing.mouseY;
-
-        //     // Store previous offset
-        //     device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
-        //     device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
-        // }
-
-
-
-
-        // Update the previous touch state history
-        // device.touch = { touching: true, holding: true, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
-        device.touch.touching = true;
-        device.touch.holding = true;
-        device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
-
-        // If the canvas is being dragged, cancel the drag since a hold is detected
-        // if (device.processing.draggingCanvas) {
-        //     device.processing.draggingCanvas = false;
-        // }
-
-        for (var i = 0; i < interfaces.length; i++) {
-            // DEBUG: console.log(interfaces[i]);
-
-            // Map raw touch coordinates onto the current device's Processing rendering context coordinates
-            var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
-            var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
-
-            //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-            if (interfaces[i].touches(newX, newY)) {
-                //looper.interfaces[i].events.hold();
-                interfaces[i].events.release ();
-                break;
-            }
-        }
-
-
-
-        // Check if "behavior palette" was requested
-        if (!disableEventCreate) {
-            disableEventCreate = true;
+            device.processing.processGesture (ev);
 
             var touches = ev.gesture.touches;
 
-            if (device.processing.behaviorPalette == null) {
-                // console.log("looperInstance = ");
-                // console.log(device.processing.looperInstance);
-                device.processing.behaviorPalette = new BehaviorPalette ({ superstructure: device });
-                
-                device.processing.behaviorPalette.setPosition (device.processing.zoomedCanvasMouseX, device.processing.zoomedCanvasMouseY);
-                device.processing.behaviorPalette.updatePosition ();
-                device.processing.setupBehaviorPalette ();
-                // console.log (device.processing.behaviorPalette);
+            // console.log ("Processing (mouseX, mouseY): " + device.processing.mouseX + ", " + device.processing.mouseY);
 
-                // Zoom into behavior palette
-                device.processing.stackedZoomedCanvasMouseX = device.processing.xOffset;
-                device.processing.stackedZoomedCanvasMouseY = device.processing.yOffset;
-                device.processing.stackedScaleFactor = device.processing.zoomFactor;
-                // TODO: Uncomment to enable panning and scaling perspective on behavior selector
-                // device.processing.scaleTo (1.0);
-                // device.processing.panTo (device.processing.zoomedCanvasMouseX, -1 * device.processing.zoomedCanvasMouseY);
+            // if (device.processing.draggingCanvas == true) {
+            //     //device.touch.draggingCanvas = true;
+            //     device.processing.draggingCanvas = false;
 
-                // Center behavior palette on screen and zoom in on it
-                // looper.zoomIn ({ x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, factor: 2.0 });
+            //     // Save mouse touch location
+            //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + device.processing.mouseX);
+            //     var currentMouseY = device.processing.mouseY;
+
+            //     // Store previous offset
+            //     device.processing.xOffset = currentMouseX - device.processing.mouse_x + device.processing.xOffsetPrevious;
+            //     device.processing.yOffset = currentMouseY - device.processing.mouse_y + device.processing.yOffsetPrevious;
+            // }
+
+
+
+
+            // Update the previous touch state history
+            // device.touch = { touching: true, holding: true, current: { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY } };
+            device.touch.touching = true;
+            device.touch.holding = true;
+            device.touch.current = { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() };
+
+            // If the canvas is being dragged, cancel the drag since a hold is detected
+            // if (device.processing.draggingCanvas) {
+            //     device.processing.draggingCanvas = false;
+            // }
+
+            for (var i = 0; i < interfaces.length; i++) {
+                // DEBUG: console.log(interfaces[i]);
+
+                // Map raw touch coordinates onto the current device's Processing rendering context coordinates
+                var newX = device.processing.zoomedCanvasMouseX; // (ev.gesture.center.pageX - $(window).width() / 2) - device.processing.xOffset;
+                var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2) - device.processing.yOffset);
+
+                //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
+                if (interfaces[i].touches(newX, newY)) {
+                    //looper.interfaces[i].events.hold();
+                    interfaces[i].events.release ();
+                    break;
+                }
             }
 
-            // Show behavior palette
-            // device.processing.behaviorPalette.setPosition(ev.gesture.center.pageX, ev.gesture.center.pageY);
-            device.processing.behaviorPalette.show();
-            // DEBUG: console.log(device.processing.behaviorPalette);
+
+
+            // Check if "behavior palette" was requested
+            if (!disableEventCreate) {
+                disableEventCreate = true;
+
+                var touches = ev.gesture.touches;
+
+                if (device.processing.behaviorPalette == null) {
+                    // console.log("looperInstance = ");
+                    // console.log(device.processing.looperInstance);
+                    device.processing.behaviorPalette = new BehaviorPalette ({ superstructure: device });
+                    
+                    device.processing.behaviorPalette.setPosition (device.processing.zoomedCanvasMouseX, device.processing.zoomedCanvasMouseY);
+                    device.processing.behaviorPalette.updatePosition ();
+                    device.processing.setupBehaviorPalette ();
+                    // console.log (device.processing.behaviorPalette);
+
+                    // Zoom into behavior palette
+                    device.processing.stackedZoomedCanvasMouseX = device.processing.xOffset;
+                    device.processing.stackedZoomedCanvasMouseY = device.processing.yOffset;
+                    device.processing.stackedScaleFactor = device.processing.zoomFactor;
+                    // TODO: Uncomment to enable panning and scaling perspective on behavior selector
+                    // device.processing.scaleTo (1.0);
+                    // device.processing.panTo (device.processing.zoomedCanvasMouseX, -1 * device.processing.zoomedCanvasMouseY);
+
+                    // Center behavior palette on screen and zoom in on it
+                    // looper.zoomIn ({ x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, factor: 2.0 });
+                }
+
+                // Show behavior palette
+                // device.processing.behaviorPalette.setPosition(ev.gesture.center.pageX, ev.gesture.center.pageY);
+                device.processing.behaviorPalette.show();
+                // DEBUG: console.log(device.processing.behaviorPalette);
+            }
+
         }
 
         ev.gesture.preventDefault();
@@ -1261,7 +1279,7 @@ function BehaviorPalette (options) {
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x, this.y + 4);
+                    this.processing.text(behavior.label, this.x, this.y + 5);
 
                     this.processing.popMatrix();
 
@@ -1349,7 +1367,7 @@ function BehaviorPalette (options) {
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x, this.y + 4);
+                    this.processing.text(behavior.label, this.x, this.y + 5);
 
                     this.processing.popMatrix();
 
@@ -1647,8 +1665,12 @@ function BehaviorPalette (options) {
 
                     } else if (behavior.state === 'ENGAGED') {
 
-                        disableEventCreate = true;
-                        behavior.state = 'FOCUS';
+                        if (behavior.properties.length > 0) {
+                            disableEventCreate = true;
+                            behavior.state = 'FOCUS';
+                        } else {
+                            disableEventCreate = false;
+                        }
 
                     } else if (behavior.state === 'FOCUS') {
 
@@ -2167,6 +2189,24 @@ function LooperInstance (options) {
                     }
                 ]
             });
+
+            processing.behaviorPalette.addBehavior ({
+                type: 'module',
+                label: 'messg',
+
+                x: processing.behaviorPalette.x + 0,
+                y: processing.behaviorPalette.y - 100,
+
+                procedure: function (options) {
+                    console.log('send message to another module');
+                    // createBehavior (options);
+                    sendMessage (options);
+                },
+                options: {
+                    content: "to all play sound 500 500"
+                },
+                properties: []
+            });
         }
 
         processing.keyPressed = function() {
@@ -2347,25 +2387,48 @@ function LooperInstance (options) {
                 }
             }
 
+            // device.processing.fingers = touches;
+            if (looper.getCurrentDevice ().processing.fingers !== undefined) {
+                var fingers = looper.getCurrentDevice ().processing.fingers;
+                // console.log (fingers);
+                // alert (touches2.gesture.touches.length);
+                for (var i = 0; i < fingers.length; i++) {
+                    // console.log (touches2[i].pageX, touches2[i].pageY);
+                    looper.getCurrentDevice ().processing.fill(255, 0, 0);
+                    looper.getCurrentDevice ().processing.ellipse(fingers[i].pageX, fingers[i].pageY, 80, 80);
+                }
+
+                primaryFont = looper.getCurrentDevice ().processing.createFont("Comfortaa-Regular.ttf", 32);
+                looper.getCurrentDevice ().processing.textFont(primaryFont, 8);
+                looper.getCurrentDevice ().processing.textAlign(looper.getCurrentDevice ().processing.CENTER);
+                looper.getCurrentDevice ().processing.fill(65, 65, 65);
+                // looper.getCurrentDevice ().processing.text(behavior.label, this.x, this.y + 5);
+                //looper.getCurrentDevice ().processing.text ("" + fingers.gesture.touches.length, looper.getCurrentDevice ().processing.screenWidth / 2, 100);
+                looper.getCurrentDevice ().processing.text ("" + (fingers.gesture.touches.length).toString(), looper.getCurrentDevice ().processing.screenWidth / 2, 100);
+            }
+
             /**
              * Draw behaviors.
              */
             function drawInterfaces () {
 
-                // processing.pushMatrix();
+                if (looper.hasCurrentDevice () === true) {
 
-                // console.log (processing.looperInstance.interfaces);
+                    // processing.pushMatrix();
 
-                // Draw based on latest state
-                //for (var i = 0; i < this.interfaces.length; i++) {
-                // for (var i = 0; i < looper.getCurrentDevice ().interfaces.length; i++) {
-                //     processing.looperInstance.interfaces[i].draw();
-                //     //this.interfaces[i].draw();
-                // }
+                    // console.log (processing.looperInstance.interfaces);
 
-                processing.looperInstance.draw ();
+                    // Draw based on latest state
+                    //for (var i = 0; i < this.interfaces.length; i++) {
+                    // for (var i = 0; i < looper.getCurrentDevice ().interfaces.length; i++) {
+                    //     processing.looperInstance.interfaces[i].draw();
+                    //     //this.interfaces[i].draw();
+                    // }
 
-                // processing.popMatrix();
+                    processing.looperInstance.draw ();
+
+                    // processing.popMatrix();
+                }
             }
 
             /**
@@ -2628,7 +2691,7 @@ function LooperInstance (options) {
 
             this.drawLoop(); // TODO: Make Interface for this! Then remove!
 
-            drawInterfaces();
+            drawInterfaces ();
 
             this.popMatrix();
         };

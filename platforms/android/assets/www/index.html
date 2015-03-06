@@ -15,6 +15,8 @@
             button { font-size: 18px; }
         </style>
 
+        <script type="text/javascript" src="js/hammer.min-1.0.5.js"></script>
+
         <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="js/modernizr.js"></script>
 
@@ -275,7 +277,7 @@
     </div>
 
     <!-- Include Hammer.js (for gesture recognition) -->
-    <script type="text/javascript" src="js/jquery.hammer.min.js"></script>
+    <script type="text/javascript" src="js/jquery.hammer-1.0.5.js"></script>
     <script>
 
     /*
@@ -391,8 +393,8 @@
             yOrigin: options.yOrigin, // The origin of the interface's coordinate system along the y axis. This is relative to the parent's position along the y axis.
             xTarget: options.xTarget, // i.e., The desired or final position of the interface along the x axis. This is where the interface will eventually be (e.g., after it is animated into position).
             yTarget: options.yTarget, // i.e., The desired or final position of the interface along the y axis. This is where the interface will eventually be (e.g., after it is animated into position).
-            x: options.x, // options.x, // was ev.gesture.center.pageX, // i.e., The current actual position of the interface along the x axis. This is updated in the drawing loop and will ultimately be equal to the target x position.
-            y: options.y, // options.y, // was ev.gesture.center.pageY, // i.e., The current actual position of the interface along the y axis. This is updated in the drawing loop and will ultimately be equal to the target y position.
+            x: options.x, // options.x, // was ev.gesture.center.x, // i.e., The current actual position of the interface along the x axis. This is updated in the drawing loop and will ultimately be equal to the target x position.
+            y: options.y, // options.y, // was ev.gesture.center.y, // i.e., The current actual position of the interface along the y axis. This is updated in the drawing loop and will ultimately be equal to the target y position.
 
             // minX: 100,
             // maxX: 300,
@@ -460,12 +462,6 @@
 
             draw: function () {
 
-                // // if (this.processing.behaviorPalette.visible) {
-                // if (behavior.state === 'PROTOTYPE') {
-
-                //this.processing.behaviorPalette.updatePosition();
-                // this.processing.updatePosition(behavior);
-
                 this.update ();
 
                 this.processing.pushMatrix();
@@ -478,14 +474,7 @@
                 // this.processing.ellipse (this.xOrigin + this.x, this.yOrigin + this.y, 30, 30);
                 this.processing.ellipse (this.xOrigin + this.x, this.yOrigin + this.y, 30, 30);
 
-                // primaryFont = this.processing.createFont("/Comfortaa-Regular.ttf", 32);
-                // this.processing.textFont(primaryFont, 16);
-                // this.processing.textAlign(this.processing.CENTER);
-                // this.processing.fill(65, 65, 65);
-                // this.processing.text(behavior.label, this.x, this.y + 4);
-
                 this.processing.popMatrix();
-
 
 
                 // TODO: Invoke "callback" or "signal" for current state
@@ -511,11 +500,11 @@
 
             events: {
                 tap: function() {
-                    console.log("tap Behavior");
+                    console.log ("tap Behavior");
                 },
 
                 touch: function() {
-                    console.log("touch Behavior");
+                    console.log ("touch Behavior");
                     console.log (this);
                     console.log (this.interface);
 

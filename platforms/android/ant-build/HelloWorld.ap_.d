@@ -44,12 +44,12 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/index.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/img/logo.png \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/ga.js \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer.js \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer.min.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer-1.0.5.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer.min-1.0.5.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/index.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery-1.9.1.min.js \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery.hammer.js \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery.hammer.min.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery.hammer-1.0.5.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/jquery.hammer.min-1.0.5.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/looper.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/modernizr.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/pixel.js \

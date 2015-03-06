@@ -206,8 +206,8 @@ function setupGestures (device) {
                 var newY = device.processing.zoomedCanvasMouseY; // (ev.gesture.center.pageY - ($(window).height() / 2)) - device.processing.yOffset;
 
                 //if (interfaces[i].touches(ev.gesture.center.pageX, ev.gesture.center.pageY)) {
-                if (interfaces[i].touches(newX, newY)) {
-                    interfaces[i].events.tap();
+                if (interfaces[i].touches (newX, newY)) {
+                    interfaces[i].events.tap ();
                     break;
                 }
             }
@@ -1276,7 +1276,7 @@ function BehaviorPalette (options) {
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x, this.y + 4);
+                    this.processing.text(behavior.label, this.x, this.y + 5);
 
                     this.processing.popMatrix();
 
@@ -1364,7 +1364,7 @@ function BehaviorPalette (options) {
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x, this.y + 4);
+                    this.processing.text(behavior.label, this.x, this.y + 5);
 
                     this.processing.popMatrix();
 
@@ -1662,8 +1662,12 @@ function BehaviorPalette (options) {
 
                     } else if (behavior.state === 'ENGAGED') {
 
-                        disableEventCreate = true;
-                        behavior.state = 'FOCUS';
+                        if (behavior.properties.length > 0) {
+                            disableEventCreate = true;
+                            behavior.state = 'FOCUS';
+                        } else {
+                            disableEventCreate = false;
+                        }
 
                     } else if (behavior.state === 'FOCUS') {
 
@@ -1937,44 +1941,7 @@ function LooperInstance (options) {
                     content: "turn output on"
                     // index: -1, type: 'output', pin: 5, operation: 1, type: 0, mode: 1, value: 1
                 },
-                properties: [
-                    {
-                        name: 'note',
-                        minimum: 31,
-                        maximum: 4978,
-                        callback: function () { 
-                            console.log("NOTE");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                        }
-                    },
-                    {
-                        name: 'volume',
-                        minimum: 0,
-                        maximum: 100,
-                        callback: function () { 
-                            console.log("VOLUME");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                        }
-                    },
-                    {
-                        name: 'volume2',
-                        minimum: 0,
-                        maximum: 100,
-                        callback: function () { 
-                            console.log("VOLUME");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                        }
-                    }
-                ]
+                properties: []
             });
 
             processing.behaviorPalette.addBehavior ({
@@ -2054,7 +2021,7 @@ function LooperInstance (options) {
                 x: processing.behaviorPalette.x + 0,
                 y: processing.behaviorPalette.y + 0,
 
-                procedure: function(options) {
+                procedure: function (options) {
                     console.log('light off top level');
                     // setPin(options);
                     // createBehavior ({ type: 'output' });
@@ -2068,21 +2035,7 @@ function LooperInstance (options) {
                     content: "turn light off"
                     // index: -1, type: 'output', pin: 5, operation: 1, type: 0, mode: 1, value: 1
                 },
-                properties: [
-                    {
-                        name: 'note',
-                        minimum: 31,
-                        maximum: 4978,
-                        callback: function () { 
-                            console.log("NOTE");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                            sendMessage ({ content: "turn light off" });
-                        }
-                    }
-                ]
+                properties: []
             });
 
             // processing.behaviorPalette.addBehavior({
@@ -2181,6 +2134,24 @@ function LooperInstance (options) {
                         }
                     }
                 ]
+            });
+
+            processing.behaviorPalette.addBehavior ({
+                type: 'module',
+                label: 'messg',
+
+                x: processing.behaviorPalette.x + 0,
+                y: processing.behaviorPalette.y - 100,
+
+                procedure: function (options) {
+                    console.log('send message to another module');
+                    // createBehavior (options);
+                    sendMessage (options);
+                },
+                options: {
+                    content: "to all play sound 500 500"
+                },
+                properties: []
             });
         }
 
