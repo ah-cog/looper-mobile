@@ -1299,42 +1299,17 @@ function BehaviorPalette (options) {
                         behavior.interface.processing.zoomedCanvasMouseX = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
                         behavior.interface.processing.zoomedCanvasMouseY = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
 
-                        // console.log ("MIXEE");
-                        // console.log (behavior.interface.processing.mouseX);
-                        // console.log (behavior.interface.processing.mouseY);
-
                         behavior.interface.x = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
                         behavior.interface.y = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
 
-                        // behavior.interface.x = ((behavior.interface.x - behavior.interface.processing.previousCenterX) / behavior.interface.processing.scaleFactor) + behavior.interface.processing.centerX;
-                        // behavior.interface.y = ((behavior.interface.y - behavior.interface.processing.previousCenterY) / behavior.interface.processing.scaleFactor) + behavior.interface.processing.centerY;
 
-                        // console.log ('behavior.interface.x:');
-                        // console.log (behavior.interface.x);
-                        // console.log ('behavior.interface.y:');
-                        // console.log (behavior.interface.y);
+                        //
+                        // Check if under certain distance from the loop itself
+                        //
 
-                        // deltaX = behavior.interface.x - 0; // deltaX = currentMouseX - (behavior.interface.processing.screenWidth / 2);
-                        // deltaY = behavior.interface.y - 0; // deltaY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
-                        // console.log ('DELTAX = ' + deltaX);
-                        // console.log ('DELTAY = ' + deltaY);
-                        // angleInDegrees = Math.atan2(deltaY, deltaX);
+                        var distanceFromLoop = this.processing.lineDistance (this.x, this.y, this.xTarget, this.yTarget);
 
-                        // behavior.interface.xTarget = behavior.interface.x + (400 / 2) * Math.cos(angleInDegrees);
-                        // behavior.interface.yTarget = behavior.interface.y + (400 / 2) * Math.sin(angleInDegrees);
-
-                        // this.processing.behaviorPalette.updatePosition();
-                        // this.processing.updatePosition(behavior);
-
-                        // Check if under certain distance from the circle (and attach to)
-                        // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-                        // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-                        var distance = this.processing.lineDistance (this.x, this.y, this.xTarget, this.yTarget);
-
-                        // console.log("distance = ");
-                        // console.log(distance);
-
-                        if (distance < 110) { // ENTANGLED
+                        if (distanceFromLoop < 110) { // ENTANGLED
                             this.processing.line (this.x, this.y, this.xTarget, this.yTarget);
 
                             // Draw the "would be" position that the event node would occupy
@@ -1370,6 +1345,8 @@ function BehaviorPalette (options) {
                     // console.log (this.processing.loopSequence);
                     // this.geometry.loop.position = ;
                     // this.geometry.loop.angle = 0;
+
+                    this.geometry.loop.position = { x: 0, y: 0 };
 
                     this.geometry.behavior.position = { x: this.x, y: this.y };
                     this.geometry.behavior.diameter = 120;
@@ -1414,6 +1391,8 @@ function BehaviorPalette (options) {
                         }
                     }
 
+                    currentBehavior = this.processing.loop.behaviors[behaviorIndex];
+
                     this.geometry.condition.endAngleOffset = 0.35;
                     this.geometry.condition.startAngleOffset = 0.6;
                     this.geometry.condition.endAngle = this.geometry.behavior.angle - this.geometry.condition.endAngleOffset;
@@ -1426,8 +1405,8 @@ function BehaviorPalette (options) {
                     this.geometry.condition.startAngle = previousBehaviorAngle;
 
 
-                    var distance = Math.sqrt (this.processing.zoomedCanvasMouseX * this.processing.zoomedCanvasMouseX + this.processing.zoomedCanvasMouseY * this.processing.zoomedCanvasMouseY);
-                    // console.log (distance);
+                    var distanceFromCenter = Math.sqrt (this.processing.zoomedCanvasMouseX * this.processing.zoomedCanvasMouseX + this.processing.zoomedCanvasMouseY * this.processing.zoomedCanvasMouseY);
+                    var touchAngle = this.processing.getAngleFixed (this.processing.zoomedCanvasMouseX, this.processing.zoomedCanvasMouseY);
 
                     if (this.processing.loop.behaviors[behaviorIndex].conditionType === undefined) {
                         this.processing.loop.behaviors[behaviorIndex].conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
@@ -1436,15 +1415,20 @@ function BehaviorPalette (options) {
                     if (looper.hasCurrentDevice () === true) {
                         if (looper.getCurrentDevice ().touch.touching === true) {
                     // if (device.touch.touching == false) {
-                            if (distance > 175 && distance < 225) {
-                                if (this.processing.loop.behaviors[behaviorIndex].conditionType === "none") {
-                                    this.processing.loop.behaviors[behaviorIndex].conditionType = "stimulus";
-                                } else if (this.processing.loop.behaviors[behaviorIndex].conditionType === "stimulus") {
-                                    this.processing.loop.behaviors[behaviorIndex].conditionType = "message";
-                                } else if (this.processing.loop.behaviors[behaviorIndex].conditionType === "message") {
-                                    this.processing.loop.behaviors[behaviorIndex].conditionType = "gesture";
-                                } else if (this.processing.loop.behaviors[behaviorIndex].conditionType === "gesture") {
-                                    this.processing.loop.behaviors[behaviorIndex].conditionType = "none";
+                            if (distanceFromCenter > 175 && distanceFromCenter < 225) {
+
+                                if (touchAngle > this.geometry.condition.startAngle && touchAngle < this.geometry.condition.endAngle) {
+                                    
+                                    if (currentBehavior.conditionType === "none") {
+                                        currentBehavior.conditionType = "stimulus";
+                                    } else if (currentBehavior.conditionType === "stimulus") {
+                                        currentBehavior.conditionType = "message";
+                                    } else if (currentBehavior.conditionType === "message") {
+                                        currentBehavior.conditionType = "gesture";
+                                    } else if (currentBehavior.conditionType === "gesture") {
+                                        currentBehavior.conditionType = "none";
+                                    }
+
                                 }
                             }
                         }
