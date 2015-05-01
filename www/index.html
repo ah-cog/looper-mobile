@@ -360,7 +360,7 @@
     function Slider (options) {
 
         var defaults = {
-            superstructure: null,
+            parent: null,
             xOrigin: 0,
             yOrigin: 0,
             xTarget: 100,
@@ -375,11 +375,11 @@
         options.structure = this; // Set the structure to this slider
 
         // Validate and copy the options to this class, to be used for creating an interface
-        this.superstructure = options.superstructure; // i.e., the Behavior
+        this.parent = options.parent; // i.e., the Behavior
 
 
         //looper.getCurrentDevice().attachInterface({
-        var newInterface = this.superstructure.interface.attachInterface ({
+        var newInterface = this.parent.interface.attachInterface ({
 
             structure: null, // looper.getCurrentDevice(),
 
@@ -491,7 +491,7 @@
                 this.structure.value = scaledValue;
                 // alert (this.structure.value); // this.interface.<slider>.<behavior node>
                 // alert (this.behavior.properties.length);
-                // this.superstructure.values[this.name] = this.value;
+                // this.parent.values[this.name] = this.value;
                 // console.log (scaledValue + " (scaled)");
 
                 // TODO: Send musical note to Pixel via Looper
