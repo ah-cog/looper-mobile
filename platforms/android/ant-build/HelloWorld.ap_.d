@@ -41,7 +41,7 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/spec.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/css/index.css \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/css/style.css \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/index.html \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/htdocs/spec.html \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/img/logo.png \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/ga.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/hammer-1.0.5.js \
@@ -55,12 +55,9 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/pixel.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/js/processing.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd/www \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd/www/CorHttpd.js \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit/www \
-/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/edu.uic.travelmidwest.cordova.udptransmit/www/udptransmit.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www/Acceleration.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www/accelerometer.js \

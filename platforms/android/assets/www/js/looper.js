@@ -223,9 +223,6 @@ function setupGestures (device) {
 
         var touches = ev.gesture.touches;
 
-        device.processing.fingers = ev;
-        console.log (ev);
-
         if (looper.hasCurrentDevice () === true) {
 
             device.processing.processGesture (ev);
@@ -1359,17 +1356,255 @@ function BehaviorPalette (options) {
                         }
                     }
 
-                    // Draw the behavior
-                    this.processing.fill(66, 214, 146);
-                    this.processing.ellipse(this.x, this.y, 80, 80);
+                    //
+                    // Update behavior coordinate system orientation
+                    //
 
+                    if (this.geometry === undefined) { this.geometry = {}; }
+                    if (this.geometry.loop === undefined) { this.geometry.loop = {}; } // i.e., the containing loop
+                    if (this.geometry.loop.position === undefined) { this.geometry.loop.position = {}; }
+                    if (this.geometry.behavior === undefined) { this.geometry.behavior = {}; } // i.e., the current behavior
+                    if (this.geometry.behavior.position === undefined) { this.geometry.behavior.position = {}; }
+                    if (this.geometry.condition === undefined) { this.geometry.condition = {}; } // i.e., the current behavior's condition
+
+                    // console.log (this.processing.loopSequence);
+                    // this.geometry.loop.position = ;
+                    // this.geometry.loop.angle = 0;
+
+                    this.geometry.behavior.position = { x: this.x, y: this.y };
+                    this.geometry.behavior.diameter = 120;
+                    this.geometry.behavior.angle = this.processing.getAngleFixed (this.geometry.behavior.position.x, this.geometry.behavior.position.y);
+
+                    console.log (this.geometry.behavior.angle);
+
+                    if (this.processing.loop === undefined) { this.processing.loop = {}; }
+                    if (this.processing.loop.behaviors === undefined) { this.processing.loop.behaviors = []; }
+
+                    // Update list of behavior (interfaces)
+                    var found = false;
+                    for (var i = 0; i < this.processing.loop.behaviors.length; i++) {
+                        if (this === this.processing.loop.behaviors[i]) {
+                            found = true;
+                            // // console.log ("REMOVING INTERFACE FROM ARRAY!");
+                            // this.processing.loop.behaviors.splice (i, 1); // Remove object from list
+                            // break;
+                        }
+                    }
+                    if (found === false) {
+                        this.processing.loop.behaviors.push (this);
+                    }
+                    // sort the list by angle
+                    for (var i = 0; i < this.processing.loop.behaviors.length; i++) {
+                        for (var j = i; j < this.processing.loop.behaviors.length; j++) {
+                            if (this.processing.loop.behaviors[i].geometry.behavior.angle > this.processing.loop.behaviors[j].geometry.behavior.angle) {
+                                var tmp = this.processing.loop.behaviors[i];
+                                this.processing.loop.behaviors[i] = this.processing.loop.behaviors[j];
+                                this.processing.loop.behaviors[j] = tmp;
+                            }
+                        }
+                    }
+                    // get index of current behavior (interface)
+                    var behaviorIndex = -1;
+                    for (var i = 0; i < this.processing.loop.behaviors.length; i++) {
+                        if (this === this.processing.loop.behaviors[i]) {
+                            behaviorIndex = i;
+                            break;
+                        }
+                    }
+
+                    this.geometry.condition.endAngleOffset = 0.35;
+                    this.geometry.condition.startAngleOffset = 0.6;
+                    this.geometry.condition.endAngle = this.geometry.behavior.angle - this.geometry.condition.endAngleOffset;
+
+                    //this.geometry.condition.startAngle = this.geometry.condition.endAngle -  this.geometry.condition.startAngleOffset; // = -1 * (this.processing.PI / 2);
+                    var previousBehaviorAngle = 0;
+                    if (behaviorIndex > 0) {
+                        previousBehaviorAngle = this.processing.loop.behaviors[behaviorIndex - 1].geometry.behavior.angle + this.geometry.condition.endAngleOffset;
+                    }
+                    this.geometry.condition.startAngle = previousBehaviorAngle;
+
+                    //
+                    // Draw the behavior
+                    //
+
+                    // Draw the behavior itself
+                    this.processing.stroke (255, 255, 255); // (65, 65, 65);
+                    this.processing.fill(220, 220, 220, 150); // (255, 255, 255, 193);
+                    this.processing.ellipse(this.x, this.y, this.geometry.behavior.diameter, this.geometry.behavior.diameter);
+                    this.processing.fill(255, 255, 255, 200);
+                    this.processing.ellipse(this.x, this.y, 0.8 * this.geometry.behavior.diameter, 0.8 * this.geometry.behavior.diameter);
                     primaryFont = this.processing.createFont("Comfortaa-Regular.ttf", 32);
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x, this.y + 5);
+                    this.processing.text(behavior.label, this.x /* + Math.random() * 4 - 2 */, this.y + 5 /* + Math.random() * 4 - 2 */);
 
                     this.processing.popMatrix();
+
+
+
+
+                    // var behaviorAngle = this.processing.getAngleFixed (this.x, this.y);
+                    // behavior.interface.xTarget = nearestPosition.x;
+                    // behavior.interface.yTarget = nearestPosition.y;
+
+                    // console.log (behaviorAngle);
+
+                    // Draw the condition
+                    // this.processing.pushMatrix();
+                    // this.processing.strokeWeight (4.0);
+                    // this.processing.stroke (65, 65, 65);
+                    // this.processing.noFill ();
+                    // this.processing.smooth ();
+                    // //this.processing.arc (0, 0, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
+                    // // var startAngle = -1 * (this.processing.PI / 2);
+                    // // var endAngle = behaviorAngle;
+                    // this.processing.arc (0, 0, 400, 400, this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2));
+                    // this.processing.popMatrix();
+
+
+                    // Draw a "message" condition
+                    // var segmentArcLength = 0.1;
+                    // for (var currentAngle = this.geometry.condition.startAngle; currentAngle < this.geometry.condition.endAngle; currentAngle += segmentArcLength) {
+
+                    //     // Draw the condition
+                    //     this.processing.pushMatrix();
+                    //     this.processing.strokeWeight (4.0);
+                    //     this.processing.stroke (65, 65, 65);
+                    //     this.processing.noFill ();
+                    //     this.processing.smooth ();
+                    //     //this.processing.arc (0, 0, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
+                    //     // var startAngle = -1 * (this.processing.PI / 2);
+                    //     // var endAngle = behaviorAngle;
+                    //     // this.processing.arc (0, 0, 400, 400, this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2));
+                    //     this.processing.arc (0, 0, 400, 400, currentAngle - (this.processing.PI / 2), (currentAngle + (segmentArcLength / 2)) - (this.processing.PI / 2));
+                    //     this.processing.popMatrix();
+                    // }
+
+
+
+
+                    // Draw a "gesture" condition
+                    var segmentArcLength = 0.1;
+                    var previousSegmentEndpoint = null;
+                    var maximumAmplitude = 50;
+                    for (var currentAngle = this.geometry.condition.startAngle; currentAngle < this.geometry.condition.endAngle; currentAngle += segmentArcLength) {
+
+                        if ((currentAngle + segmentArcLength) > this.geometry.condition.endAngle) {
+                            currentAngle = this.geometry.condition.endAngle;
+                        }
+
+                        // Draw the condition
+                        this.processing.pushMatrix();
+                        this.processing.strokeWeight (4.0);
+                        this.processing.stroke (65, 65, 65);
+                        this.processing.noFill ();
+                        this.processing.smooth ();
+                        //this.processing.arc (0, 0, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
+                        // var startAngle = -1 * (this.processing.PI / 2);
+                        // var endAngle = behaviorAngle;
+                        // this.processing.arc (0, 0, 400, 400, this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2));
+                        // this.processing.arc (0, 0, 400, 400, currentAngle - (this.processing.PI / 2), (currentAngle + (segmentArcLength / 2)) - (this.processing.PI / 2));
+
+                        var computedStartAmplitude = 400 + Math.random () * maximumAmplitude - (maximumAmplitude / 2);
+                        if (currentAngle === this.geometry.condition.startAngle) { computedStartAmplitude = 400; }
+                        var startPosition = this.processing.getPosition (currentAngle, computedStartAmplitude);
+                        if (previousSegmentEndpoint !== null) { startPosition = previousSegmentEndpoint; }
+                        var computedEndAmplitude = 400 + Math.random () * maximumAmplitude - (maximumAmplitude / 2);
+                        if ((currentAngle + segmentArcLength) >= this.geometry.condition.endAngle) { computedEndAmplitude = 400; }
+                        var endPosition = this.processing.getPosition (currentAngle + segmentArcLength, computedEndAmplitude);
+                        previousSegmentEndpoint = endPosition;
+
+                        // console.log (startPosition);
+                        // console.log (endPosition);
+
+                        //this.processing.rotate(-1 * this.processing.PI / 2 + -1 * this.geometry.condition.endAngleOffset);
+                        this.processing.rotate(-1 * this.processing.PI / 2 + -0.1);
+
+                        this.processing.line(startPosition.x, startPosition.y, endPosition.x, endPosition.y);
+
+                        this.processing.popMatrix();
+                    }
+
+
+
+
+                    // Draw condition text...
+                    // this.processing.stroke (255, 255, 255); // (65, 65, 65);
+                    // this.processing.fill (200, 200, 200, 193);
+                    // this.processing.ellipse (this.x, this.y, this.geometry.behavior.diameter, this.geometry.behavior.diameter);
+                    // this.processing.fill (255, 255, 255, 193);
+                    // this.processing.ellipse (this.x, this.y, 0.8 * this.geometry.behavior.diameter, 0.8 * this.geometry.behavior.diameter);
+                    // primaryFont = this.processing.createFont ("Comfortaa-Regular.ttf", 32);
+                    // this.processing.textFont (primaryFont, 20);
+                    // this.processing.textAlign (this.processing.CENTER);
+                    // this.processing.fill (65, 65, 65);
+
+                    // this.geometry.condition.midAngle = this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2)
+                    // this.processing.text ("activate", this.x + Math.random() * 4 - 2, this.y + 5 + Math.random() * 4 - 2);
+
+
+
+
+                    // Draw the condition arc segment's arrow
+                    this.processing.pushMatrix();
+
+                    // Draw the loop's arrowhead to indicate its sequence order
+                    this.processing.strokeWeight(4.0);
+                    this.processing.stroke (65, 65, 65); // (65, 65, 65);
+                    // this.translate(this.screenWidth / 2, this.screenHeight / 2);
+                    this.processing.rotate(-1 * this.geometry.condition.endAngleOffset); // adjust rotation to account for offset from action
+                    this.processing.translate(this.geometry.behavior.position.x, this.geometry.behavior.position.y);
+                    // this.processing.rotate(-0.05 * this.processing.PI);
+                    this.processing.rotate(this.geometry.behavior.angle);
+                    this.processing.line(0, 0, -8, 8);
+                    this.processing.line(0, 0, -8, -8);
+
+                    this.processing.popMatrix();
+
+
+
+
+
+                    // If needed, draw the ellipses fan
+                    // this.processing.pushMatrix();
+
+                    // // Draw the loop's arrowhead to indicate its sequence order
+                    // this.processing.strokeWeight(4.0);
+                    // this.processing.stroke (65, 65, 65); // (65, 65, 65);
+                    // // this.translate(this.screenWidth / 2, this.screenHeight / 2);
+                    // // this.processing.rotate(-1 * this.geometry.condition.endAngleOffset); // adjust rotation to account for offset from action
+                    // // this.processing.translate(this.geometry.behavior.position.x, this.geometry.behavior.position.y);
+                    // // this.processing.rotate(-0.05 * this.processing.PI);
+                    // // this.processing.rotate(this.geometry.behavior.angle);
+                    // // TODO: polyfill
+                    // this.geometry.behavior.ellipsesAngle = this.processing.getAngleFixed (this.geometry.behavior.position.x, this.geometry.behavior.position.y);
+                    // // this.geometry.behavior.ellipsesArcOffset = this.processing.getAngleFixed (this.geometry.behavior.position.x, this.geometry.behavior.position.y);
+                    // var offsetStartAngle = getPosition (ellipsesAngle + 0.2);
+                    // var offsetStartEnd = getPosition (ellipsesAngle - 0.2);
+                    // this.processing.line(0, 0, this.geometry.behavior.position.x, this.geometry.behavior.position.y);
+                    // this.processing.line(0, 0, -8, -8);
+
+                    // this.processing.popMatrix();
+
+
+
+
+
+                    this.processing.strokeWeight (2.0);
+
+                    // this.processing.pushMatrix();
+
+                    // // Draw the loop
+                    // this.processing.strokeWeight (2.0);
+                    // this.processing.stroke (65, 65, 65);
+                    // this.processing.noFill ();
+                    // this.processing.smooth ();
+                    // this.processing.arc (this.x, this.y, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
+
+                    // this.processing.popMatrix();
+
+
 
                     if (behavior.state === 'FOCUS') {
 
@@ -1944,44 +2179,7 @@ function LooperInstance (options) {
                     content: "turn output on"
                     // index: -1, type: 'output', pin: 5, operation: 1, type: 0, mode: 1, value: 1
                 },
-                properties: [
-                    {
-                        name: 'note',
-                        minimum: 31,
-                        maximum: 4978,
-                        callback: function () { 
-                            console.log("NOTE");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                        }
-                    },
-                    {
-                        name: 'volume',
-                        minimum: 0,
-                        maximum: 100,
-                        callback: function () { 
-                            console.log("VOLUME");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                        }
-                    },
-                    {
-                        name: 'volume2',
-                        minimum: 0,
-                        maximum: 100,
-                        callback: function () { 
-                            console.log("VOLUME");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                        }
-                    }
-                ]
+                properties: []
             });
 
             processing.behaviorPalette.addBehavior ({
@@ -2061,7 +2259,7 @@ function LooperInstance (options) {
                 x: processing.behaviorPalette.x + 0,
                 y: processing.behaviorPalette.y + 0,
 
-                procedure: function(options) {
+                procedure: function (options) {
                     console.log('light off top level');
                     // setPin(options);
                     // createBehavior ({ type: 'output' });
@@ -2075,21 +2273,7 @@ function LooperInstance (options) {
                     content: "turn light off"
                     // index: -1, type: 'output', pin: 5, operation: 1, type: 0, mode: 1, value: 1
                 },
-                properties: [
-                    {
-                        name: 'note',
-                        minimum: 31,
-                        maximum: 4978,
-                        callback: function () { 
-                            console.log("NOTE");
-                            console.log (this);
-                            console.log (this.interface.value + " (scaled)");
-                            // alert (this.interface.value);
-                            // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                            sendMessage ({ content: "turn light off" });
-                        }
-                    }
-                ]
+                properties: []
             });
 
             // processing.behaviorPalette.addBehavior({
@@ -2309,7 +2493,7 @@ function LooperInstance (options) {
 
             // Draw the loop
             this.strokeWeight (2.0);
-            this.stroke (65, 65, 65);
+            this.stroke (200, 200, 200);
             this.noFill ();
             this.smooth ();
             this.arc (0, 0, 400, 400, (-this.PI / 2) + 0.05 * this.PI, 1.45 * this.PI);
@@ -2331,7 +2515,7 @@ function LooperInstance (options) {
 
             // Draw the loop's arrowhead to indicate its sequence order
             this.strokeWeight(2.0);
-            this.stroke(65, 65, 65);
+            this.stroke (200, 200, 200); // (65, 65, 65);
             // this.translate(this.screenWidth / 2, this.screenHeight / 2);
             this.translate(-29, -198);
             this.rotate(-0.05 * this.PI);
@@ -2385,26 +2569,6 @@ function LooperInstance (options) {
                     var mouseY = looper.getCurrentDevice ().processing.mouseY;
                     looper.getCurrentDevice ().touch.current = { x: mouseX, y: mouseY };
                 }
-            }
-
-            // device.processing.fingers = touches;
-            if (looper.getCurrentDevice ().processing.fingers !== undefined) {
-                var fingers = looper.getCurrentDevice ().processing.fingers;
-                // console.log (fingers);
-                // alert (touches2.gesture.touches.length);
-                for (var i = 0; i < fingers.length; i++) {
-                    // console.log (touches2[i].pageX, touches2[i].pageY);
-                    looper.getCurrentDevice ().processing.fill(255, 0, 0);
-                    looper.getCurrentDevice ().processing.ellipse(fingers[i].pageX, fingers[i].pageY, 80, 80);
-                }
-
-                primaryFont = looper.getCurrentDevice ().processing.createFont("Comfortaa-Regular.ttf", 32);
-                looper.getCurrentDevice ().processing.textFont(primaryFont, 8);
-                looper.getCurrentDevice ().processing.textAlign(looper.getCurrentDevice ().processing.CENTER);
-                looper.getCurrentDevice ().processing.fill(65, 65, 65);
-                // looper.getCurrentDevice ().processing.text(behavior.label, this.x, this.y + 5);
-                //looper.getCurrentDevice ().processing.text ("" + fingers.gesture.touches.length, looper.getCurrentDevice ().processing.screenWidth / 2, 100);
-                looper.getCurrentDevice ().processing.text ("" + (fingers.gesture.touches.length).toString(), looper.getCurrentDevice ().processing.screenWidth / 2, 100);
             }
 
             /**
@@ -2513,10 +2677,12 @@ function LooperInstance (options) {
             /**
              * Get the (x,y) point on the loop at the specified angle (in radians).
              */
-            function getPosition(angle) {
+            function getPosition (angle, radius) {
 
-                var nearestX = processing.screenWidth / 2 + (400 / 2) * Math.cos(angle);
-                var nearestY = processing.screenHeight / 2 + (400 / 2) * Math.sin(angle);
+                radius = typeof radius !== 'undefined' ? radius : 400;
+
+                var nearestX = (radius / 2) * Math.cos(angle);
+                var nearestY = (radius / 2) * Math.sin(angle);
 
                 var nearestPosition = {
                     x: nearestX,
@@ -2543,6 +2709,28 @@ function LooperInstance (options) {
                 return angleInRadians;
             }
             processing.getAngle = getAngle;
+
+            /**
+             * Get the angle.
+             */
+            function getAngleFixed (x, y) {
+                var deltaX = x; // - (processing.screenWidth / 2);
+                var deltaY = y; // - (processing.screenHeight / 2);
+                var angleInRadians = Math.atan2(deltaY, deltaX); // * 180 / PI;
+                angleInRadians = angleInRadians + (processing.PI / 2);
+                // if (angleInRadians < 0) {
+                //     angleInRadians = Math.PI + (Math.PI + angleInRadians);
+                // }
+                // angleInRadians = angleInRadians + (Math.PI / 2); // Offset by (PI / 2) radians
+                // if (angleInRadians > (2 * Math.PI)) {
+                //     angleInRadians = angleInRadians - (2 * Math.PI);
+                // }
+                if (angleInRadians < 0) {
+                    angleInRadians = processing.PI + (processing.PI + angleInRadians);
+                }
+                return angleInRadians;
+            }
+            processing.getAngleFixed = getAngleFixed;
 
             /**
              * Pans the perspective to the specified (x,y) position on the canvas.
