@@ -474,7 +474,6 @@ function setupGestures (device) {
 function Looper (options) {
     var defaults = {
         devices: []
-        // going: false
     };
     var options = options || {};
     var options = $.extend({}, defaults, options);
@@ -641,52 +640,11 @@ function Looper (options) {
 function Loop (options) {
     var defaults = {
         behaviors: []
-        // going: false,
-        // position: 0
     };
     var options = options || {};
     var options = $.extend({}, defaults, options);
 
     this.behaviors = options.behaviors; // behaviors on the event loop
-
-    // this.position = options.position;
-    // this.going = options.going;
-
-    // function go() {
-    //     this.updateOrdering();
-    //     this.going = true;
-    // }
-    // this.go = go;
-
-    // function stop() {
-    //     this.going = false;
-    //     this.updateOrdering();
-
-    //     // Stop all behaviors in the event loop
-    //     for (var i = 0; i < this.behaviors.length; i++) {
-    //         this.behaviors[i].stop();
-    //     }
-    //     this.position = 0; // Reset position
-    // }
-    // this.stop = stop;
-
-    // function step() {
-    //     if (this.going) {
-    //         var previousEvent = this.behaviors[this.position];
-    //         if (previousEvent !== undefined) {
-    //             previousEvent.stop();
-    //         }
-
-    //         this.position = (this.position + 1) % this.behaviors.length;
-    //         // console.log('new position = ' + this.position);
-
-    //         var currentEvent = this.behaviors[this.position];
-    //         currentEvent.go();
-
-    //         // currentEvent.behavior(); // NOTE: Uncomment this to call the behavior every time it is "going"
-    //     }
-    // }
-    // this.step = step;
 
     /**
      * Re-orders the behaviors in the event loop.
@@ -763,7 +721,6 @@ function Behavior (options) {
         procedure: null,
         properties: [],
         options: {},
-        // going: false,
         label: '?',
 
         uuid: null // NOTE: This is set after receiving a response from Looper (containing the Behavior's UUID set by Looper.)
@@ -795,20 +752,7 @@ function Behavior (options) {
 
     this.state = options.state;
 
-    this.go = options.go;
-
     this.label = options.label;
-
-    //this.visible = options.visible;
-    // this.going = options.going;
-
-    // this.go = function () {
-    //     this.going = true;
-    // }
-
-    // this.stop = function () {
-    //     this.going = false;
-    // }
 
     //this.looperInstance = options.looperInstance;
     this.superstructure = options.superstructure; // The superstructure is the structure that semantically contains this structure as a component. The superstructure may also contain structure other this one.
@@ -985,10 +929,6 @@ function BehaviorPalette (options) {
         y: null,
         xTarget: null,
         yTarget: null,
-        // state: 'NONE', // NONE, DISENGAGED, MOVING, ENTANGLED, ENGAGED
-        //visible: true
-        // go: null,
-        // going: false,
         behaviors: [],
         label: '?',
         visible: false
@@ -1534,31 +1474,7 @@ function BehaviorPalette (options) {
                     }
 
                 }
-
-
-
-                    // processing.updatePosition(behavior);
-
-                    // // Draw the event node
-                    // processing.fill(66, 214, 146);
-                    // if (behavior.going) {
-                    //     processing.ellipse(behavior.x, behavior.y, 70, 70);
-
-                    //     // Show the program counter
-                    //     if (behavior.state == 'ENGAGED') {
-                    //         var angle = getAngle(behavior.x, behavior.y);
-                    //         var nearestX = processing.screenWidth / 2 + (500 / 2) * Math.cos(angle - Math.PI  / 2);
-                    //         var nearestY = processing.screenHeight / 2 + (500 / 2) * Math.sin(angle - Math.PI  / 2);
-                    //         processing.ellipse(nearestX, nearestY, 20, 20);
-                    //     }
-                    // } else {
-                    //     processing.ellipse(behavior.x, behavior.y, 70, 70);
-
-                    //     // // Draw options for the sequenced node
-                    //     // if (behavior.state == 'ENGAGED') {
-                    //     //     processing.ellipse(behavior.x + 40, behavior.y - 40, 30, 30);
-                    //     // }
-                    // }
+                
             },
 
             events: {
@@ -1704,12 +1620,6 @@ function BehaviorPalette (options) {
 
                             // TODO: Upload/Submit/Push/Send the update to MCU.
 
-                            // Start the event loop if any behaviors exist
-                            var sequence = behavior.interface.processing.getBehaviorSequence();
-                            if (sequence.length > 0) {
-                                // behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
-                            }
-
                             // Callback to server to update the program
                             // DEBUG: console.log(behavior);
                             behavior.procedure(behavior.options);
@@ -1732,14 +1642,6 @@ function BehaviorPalette (options) {
 
                             // Update loop ordering
                             // device.processing.loopSequence.updateOrdering();
-
-                            // Stop the event loop if no nodes are placed on it
-                            var sequence = behavior.interface.processing.getBehaviorSequence();
-                            // if (sequence.length == 0) {
-                            //     behavior.interface.processing.loopSequence.stop ();
-                            // } else {
-                            //     behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
-                            // }
 
                             // Push the behavior change to the server
                             // TODO: Remove the behavior from the program
@@ -2017,7 +1919,6 @@ function LooperInstance (options) {
 
         processing.currentTime = 0;
         processing.previousTime = 0;
-        // processing.stepFrequency = 100;
 
         var backgroundColor = processing.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
         function generateRandomColor(red, green, blue) {
@@ -2868,13 +2769,6 @@ function LooperInstance (options) {
 
             // erase background
             processing.background(backgroundColor);
-
-            // step to next node in loop
-            // processing.currentTime = (new Date()).getTime();
-            // if (processing.currentTime > (processing.previousTime + processing.stepFrequency)) {
-            //     processing.previousTime = processing.currentTime;
-            //     processing.loopSequence.step();
-            // }
 
             this.drawLoop(); // TODO: Make Interface for this! Then remove!
 
