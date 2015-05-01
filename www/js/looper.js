@@ -473,8 +473,8 @@ function setupGestures (device) {
  */
 function Looper (options) {
     var defaults = {
-        devices: [],
-        going: false
+        devices: []
+        // going: false
     };
     var options = options || {};
     var options = $.extend({}, defaults, options);
@@ -640,53 +640,53 @@ function Looper (options) {
 
 function Loop (options) {
     var defaults = {
-        behaviors: [],
-        going: false,
-        position: 0
+        behaviors: []
+        // going: false,
+        // position: 0
     };
     var options = options || {};
     var options = $.extend({}, defaults, options);
 
     this.behaviors = options.behaviors; // behaviors on the event loop
 
-    this.position = options.position;
-    this.going = options.going;
+    // this.position = options.position;
+    // this.going = options.going;
 
-    function go() {
-        this.updateOrdering();
-        this.going = true;
-    }
-    this.go = go;
+    // function go() {
+    //     this.updateOrdering();
+    //     this.going = true;
+    // }
+    // this.go = go;
 
-    function stop() {
-        this.going = false;
-        this.updateOrdering();
+    // function stop() {
+    //     this.going = false;
+    //     this.updateOrdering();
 
-        // Stop all behaviors in the event loop
-        for (var i = 0; i < this.behaviors.length; i++) {
-            this.behaviors[i].stop();
-        }
-        this.position = 0; // Reset position
-    }
-    this.stop = stop;
+    //     // Stop all behaviors in the event loop
+    //     for (var i = 0; i < this.behaviors.length; i++) {
+    //         this.behaviors[i].stop();
+    //     }
+    //     this.position = 0; // Reset position
+    // }
+    // this.stop = stop;
 
-    function step() {
-        if (this.going) {
-            var previousEvent = this.behaviors[this.position];
-            if (previousEvent !== undefined) {
-                previousEvent.stop();
-            }
+    // function step() {
+    //     if (this.going) {
+    //         var previousEvent = this.behaviors[this.position];
+    //         if (previousEvent !== undefined) {
+    //             previousEvent.stop();
+    //         }
 
-            this.position = (this.position + 1) % this.behaviors.length;
-            // console.log('new position = ' + this.position);
+    //         this.position = (this.position + 1) % this.behaviors.length;
+    //         // console.log('new position = ' + this.position);
 
-            var currentEvent = this.behaviors[this.position];
-            currentEvent.go();
+    //         var currentEvent = this.behaviors[this.position];
+    //         currentEvent.go();
 
-            // currentEvent.behavior(); // NOTE: Uncomment this to call the behavior every time it is "going"
-        }
-    }
-    this.step = step;
+    //         // currentEvent.behavior(); // NOTE: Uncomment this to call the behavior every time it is "going"
+    //     }
+    // }
+    // this.step = step;
 
     /**
      * Re-orders the behaviors in the event loop.
@@ -763,7 +763,7 @@ function Behavior (options) {
         procedure: null,
         properties: [],
         options: {},
-        going: false,
+        // going: false,
         label: '?',
 
         uuid: null // NOTE: This is set after receiving a response from Looper (containing the Behavior's UUID set by Looper.)
@@ -800,15 +800,15 @@ function Behavior (options) {
     this.label = options.label;
 
     //this.visible = options.visible;
-    this.going = options.going;
+    // this.going = options.going;
 
-    this.go = function () {
-        this.going = true;
-    }
+    // this.go = function () {
+    //     this.going = true;
+    // }
 
-    this.stop = function () {
-        this.going = false;
-    }
+    // this.stop = function () {
+    //     this.going = false;
+    // }
 
     //this.looperInstance = options.looperInstance;
     this.superstructure = options.superstructure; // The superstructure is the structure that semantically contains this structure as a component. The superstructure may also contain structure other this one.
@@ -1252,7 +1252,7 @@ function BehaviorPalette (options) {
                     // Draw the behavior
                     //this.processing.fill(66, 214, 146);
                     this.processing.fill(255, 255, 255);
-                    this.processing.ellipse(this.x, this.y, 80, 80);
+                    this.processing.ellipse(this.x, this.y, 100, 100);
 
                     primaryFont = this.processing.createFont("Comfortaa-Regular.ttf", 32);
                     this.processing.textFont(primaryFont, 20);
@@ -1265,7 +1265,7 @@ function BehaviorPalette (options) {
                 } else if (behavior.state === 'DISENGAGED') {
 
                     this.processing.fill(66, 214, 146, 50);
-                    this.processing.ellipse(behavior.interface.x, behavior.interface.y, 70, 70);
+                    this.processing.ellipse(behavior.interface.x, behavior.interface.y, 0.8 * behavior.geometry.diameter, 0.8 * behavior.geometry.diameter);
 
                 } else {
 
@@ -1313,6 +1313,8 @@ function BehaviorPalette (options) {
                         }
                     }
 
+
+
                     // Update list of behavior (interfaces)
                     var found = false;
                     for (var i = 0; i < looper.loop.behaviors.length; i++) {
@@ -1346,7 +1348,7 @@ function BehaviorPalette (options) {
 
                     // Draw the behavior itself
                     this.processing.stroke (255, 255, 255); // (65, 65, 65);
-                    this.processing.fill(0, 220, 220, 150); // (220, 220, 220, 150); // (255, 255, 255, 193);
+                    this.processing.fill(220, 220, 220, 150); // (220, 220, 220, 150); // (255, 255, 255, 193);
                     this.processing.ellipse(this.x, this.y, currentBehavior.geometry.diameter, currentBehavior.geometry.diameter);
                     this.processing.fill(255, 255, 255, 200);
                     this.processing.ellipse(this.x, this.y, 0.8 * currentBehavior.geometry.diameter, 0.8 * currentBehavior.geometry.diameter);
@@ -1354,12 +1356,15 @@ function BehaviorPalette (options) {
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x /* + Math.random() * 4 - 2 */, this.y + 5 /* + Math.random() * 4 - 2 */);
+                    this.processing.text(behavior.label, this.x, this.y + 5);
 
                     this.processing.popMatrix();
 
+
+
+
                     //
-                    // Update behavior coordinate system orientation
+                    // Update behavior coordinate system orientation #draw-behavior
                     //
 
                     if (behavior.state === 'ENGAGED') {
@@ -1477,9 +1482,9 @@ function BehaviorPalette (options) {
 
                         }
 
-                        this.processing.strokeWeight (2.0);
-
                     }
+
+                    this.processing.strokeWeight (2.0);
 
 
 
@@ -1628,7 +1633,7 @@ function BehaviorPalette (options) {
                         // TODO: Delete!
                         behavior.interface.processing.loopSequence.behaviors.push (behavior);
 
-                        // Add behavior to the Looper
+                        // Add behavior to the Looper #draw-behavior
                         if (behavior.geometry === undefined) { behavior.geometry = {}; }
                         if (behavior.geometry.position === undefined) { behavior.geometry.position = {}; }
                         if (behavior.condition === undefined) { behavior.condition = {}; }
@@ -1702,7 +1707,7 @@ function BehaviorPalette (options) {
                             // Start the event loop if any behaviors exist
                             var sequence = behavior.interface.processing.getBehaviorSequence();
                             if (sequence.length > 0) {
-                                behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
+                                // behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
                             }
 
                             // Callback to server to update the program
@@ -1730,11 +1735,11 @@ function BehaviorPalette (options) {
 
                             // Stop the event loop if no nodes are placed on it
                             var sequence = behavior.interface.processing.getBehaviorSequence();
-                            if (sequence.length == 0) {
-                                behavior.interface.processing.loopSequence.stop ();
-                            } else {
-                                behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
-                            }
+                            // if (sequence.length == 0) {
+                            //     behavior.interface.processing.loopSequence.stop ();
+                            // } else {
+                            //     behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
+                            // }
 
                             // Push the behavior change to the server
                             // TODO: Remove the behavior from the program
@@ -2012,7 +2017,7 @@ function LooperInstance (options) {
 
         processing.currentTime = 0;
         processing.previousTime = 0;
-        processing.stepFrequency = 100;
+        // processing.stepFrequency = 100;
 
         var backgroundColor = processing.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
         function generateRandomColor(red, green, blue) {
@@ -2757,7 +2762,7 @@ function LooperInstance (options) {
 
 
             //
-            // TODO: Update behavior coordinate system orientation
+            // TODO: Update behavior coordinate system orientation #draw-behavior
             //
 
             if (looper.geometry === undefined) { looper.geometry = {}; }
@@ -2820,6 +2825,7 @@ function LooperInstance (options) {
                     currentBehavior.conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
                 }
 
+                // TODO: Move this to the click handler, so it's only executed once
                 if (looper.hasCurrentDevice () === true) {
                     if (looper.getCurrentDevice ().touch.touching === true) {
                         if (distanceFromCenter > 175 && distanceFromCenter < 225) {
@@ -2864,11 +2870,11 @@ function LooperInstance (options) {
             processing.background(backgroundColor);
 
             // step to next node in loop
-            processing.currentTime = (new Date()).getTime();
-            if (processing.currentTime > (processing.previousTime + processing.stepFrequency)) {
-                processing.previousTime = processing.currentTime;
-                processing.loopSequence.step();
-            }
+            // processing.currentTime = (new Date()).getTime();
+            // if (processing.currentTime > (processing.previousTime + processing.stepFrequency)) {
+            //     processing.previousTime = processing.currentTime;
+            //     processing.loopSequence.step();
+            // }
 
             this.drawLoop(); // TODO: Make Interface for this! Then remove!
 
