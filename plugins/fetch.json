@@ -5,5 +5,19 @@
             "url": "https://github.com/floatinghotpot/cordova-httpd.git",
             "subdir": "."
         }
+    },
+    "cordova-plugin-dgram": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/andischerer/cordova-plugin-dgram",
+            "subdir": "."
+        }
+    },
+    "in.girish.datagram": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/gramakri/cordova-plugin-datagram",
+            "subdir": "."
+        }
     }
 }

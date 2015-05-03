@@ -20,13 +20,26 @@ module.exports = [
         "clobbers": [
             "navigator.accelerometer"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-dgram/www/dgram.js",
+        "id": "cordova-plugin-dgram.dgram",
+        "clobbers": [
+            "dgram"
+        ]
+    },
+    {
+        "file": "plugins/in.girish.datagram/www/datagram.js",
+        "id": "in.girish.datagram.datagram"
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
     "com.rjfun.cordova.httpd": "0.9.2",
-    "org.apache.cordova.device-motion": "0.2.10"
+    "org.apache.cordova.device-motion": "0.2.10",
+    "cordova-plugin-dgram": "0.1.2",
+    "in.girish.datagram": "0.1.0"
 }
 // BOTTOM OF METADATA
 });

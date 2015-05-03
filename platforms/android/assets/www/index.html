@@ -41,10 +41,59 @@
     	document.addEventListener ("deviceready", onDeviceReady, false);
     }
 
+    function startUdpServer () {
+
+        datagram = window.dgram;
+
+        //var datagram = cordova.require("in.girish.datagram.datagram");
+        var broadcastSocket = datagram.createSocket("multicast-udp4", 4445);
+        broadcastSocket.bind(function(data) {
+            console.log(" data ===> " + data);
+        });
+
+        broadcastSocket.on("message", function(data, info) {
+            alert(data);
+            alert(JSON.stringify(info));
+            // broadcastSocket.send("Hi!", info.address, 4445, function() {
+
+            // });
+        });
+    }
+
     function onDeviceReady () {
         httpd = ( cordova && cordova.plugins && cordova.plugins.CorHttpd ) ? cordova.plugins.CorHttpd : null;
+        // alert (httpd);
 
         startServer("htdocs");
+
+        startUdpServer ();
+
+        // datagram = window.dgram;
+
+        // //var datagram = cordova.require("in.girish.datagram.datagram");
+        // var broadcastSocket = datagram.createSocket("multicast-udp4", 4445);
+        // // broadcastSocket.bind(function(data) {
+        // //     console.log(" data ===> " + data);
+        // // });
+
+        // // broadcastSocket.on("message", function(data, info) {
+        // //     alert(data);
+        // //     alert(JSON.stringify(info));
+        // //     // broadcastSocket.send("Hi!", info.address, 4445, function() {
+
+        // //     // });
+        // // });
+        // broadcastSocket.send("Hello", "255.255.255.255", 4445, function() {
+
+        // });
+
+        // var datagram = cordova.require("in.girish.datagram.datagram");
+        // alert (datagram);
+        // alert (JSON.stringify(window.dgram));
+        // alert (window.dgram.createSocket);
+        // var dgram = cordova.require("cordova/plugin/dgram");
+        // alert (dgram);
+            //udpBroadcast
     }
 
     function updateStatus () {
@@ -219,23 +268,50 @@
         }
     }
 
+    // function udpBroadcast () {
+
+    //     // Start UDP transmitter
+    //     // Simple usage, initialize once, setting the IP address and port of the intended receiver
+    //     // udptransmit.initialize("192.168.1.133", 4445);
+    //     var addressWithPort = g_deviceUrl.substring (7);
+    //     var address = addressWithPort.substring (0, g_deviceUrl.lastIndexOf (":"));
+    //     var broadcastAddress = address.substring(0, address.lastIndexOf (".") + 1) + "255";
+    //     // alert (address);
+    //     udptransmit.initialize(broadcastAddress, 4445);
+
+    //     // Then send messages over and over
+    //     udptransmit.sendMessage("Pixel: " + addressWithPort);
+    //     // udptransmit.sendMessage("PIXEL UDP");
+    //     // udptransmit.sendMessage("PIXEL UDP");
+    //     // udptransmit.sendMessage("PIXEL UDP");
+    //     // udptransmit.sendMessage("PIXEL UDP");
+
+    // }
+
     function udpBroadcast () {
 
-        // Start UDP transmitter
-        // Simple usage, initialize once, setting the IP address and port of the intended receiver
-        // udptransmit.initialize("192.168.1.133", 4445);
         var addressWithPort = g_deviceUrl.substring (7);
         var address = addressWithPort.substring (0, g_deviceUrl.lastIndexOf (":"));
         var broadcastAddress = address.substring(0, address.lastIndexOf (".") + 1) + "255";
-        // alert (address);
-        udptransmit.initialize(broadcastAddress, 4445);
+        
+        datagram = window.dgram;
 
-        // Then send messages over and over
-        udptransmit.sendMessage("Pixel: " + addressWithPort);
-        // udptransmit.sendMessage("PIXEL UDP");
-        // udptransmit.sendMessage("PIXEL UDP");
-        // udptransmit.sendMessage("PIXEL UDP");
-        // udptransmit.sendMessage("PIXEL UDP");
+        //var datagram = cordova.require("in.girish.datagram.datagram");
+        var broadcastSocket = datagram.createSocket("multicast-udp4", 4445);
+        // broadcastSocket.bind(function(data) {
+        //     console.log(" data ===> " + data);
+        // });
+
+        // broadcastSocket.on("message", function(data, info) {
+        //     alert(data);
+        //     alert(JSON.stringify(info));
+        //     // broadcastSocket.send("Hi!", info.address, 4445, function() {
+
+        //     // });
+        // });
+        broadcastSocket.send("@all notice presence", "255.255.255.255", 4445, function() {
+
+        });
 
     }
 
@@ -360,7 +436,7 @@
     function Slider (options) {
 
         var defaults = {
-            superstructure: null,
+            parent: null,
             xOrigin: 0,
             yOrigin: 0,
             xTarget: 100,
@@ -375,11 +451,11 @@
         options.structure = this; // Set the structure to this slider
 
         // Validate and copy the options to this class, to be used for creating an interface
-        this.superstructure = options.superstructure; // i.e., the Behavior
+        this.parent = options.parent; // i.e., the Behavior
 
 
         //looper.getCurrentDevice().attachInterface({
-        var newInterface = this.superstructure.interface.attachInterface ({
+        var newInterface = this.parent.interface.attachInterface ({
 
             structure: null, // looper.getCurrentDevice(),
 
@@ -491,7 +567,7 @@
                 this.structure.value = scaledValue;
                 // alert (this.structure.value); // this.interface.<slider>.<behavior node>
                 // alert (this.behavior.properties.length);
-                // this.superstructure.values[this.name] = this.value;
+                // this.parent.values[this.name] = this.value;
                 // console.log (scaledValue + " (scaled)");
 
                 // TODO: Send musical note to Pixel via Looper

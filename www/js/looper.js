@@ -2753,10 +2753,6 @@ g_deviceUrl = "";
 moduleList = [];
 moduleObjects = {};
 
-// setInterval(function () {
-//     udpBroadcast ();
-// }, 5000);
-
 // Get modules every 5 seconds
 // setInterval(function () {
 //     getModules ();

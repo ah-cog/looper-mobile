@@ -8,6 +8,8 @@ deviceCount = -1;
 disableEventCreate = false;
 showPalette = false;
 
+interfaces = []; // TODO: Move this into Looper class?
+
 /**
 * super simple carousel
 * animation between panes happens with css transitions
@@ -210,6 +212,43 @@ function setupGestures (device) {
                     interfaces[i].events.tap ();
                     break;
                 }
+
+
+
+
+                //
+                // #draw-behavior
+                //
+                // TODO: Hack! Move this into a more well-designed touch handler!
+                //
+                currentBehavior = interfaces[i].structure;
+
+                var distanceFromCenter = Math.sqrt (newX * newX + newY * newY);
+                var touchAngle = device.processing.getAngleFixed (newX, newY);
+
+                // if (currentBehavior.conditionType === undefined) {
+                //     currentBehavior.conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
+                // }
+
+                // TODO: Move this to the click handler, so it's only executed once
+                if (distanceFromCenter > 175 && distanceFromCenter < 225) {
+
+                    if (touchAngle > currentBehavior.condition.startAngle && touchAngle < currentBehavior.condition.endAngle) {
+
+                        if (currentBehavior.conditionType === "none") {
+                            currentBehavior.conditionType = "stimulus";
+                        } else if (currentBehavior.conditionType === "stimulus") {
+                            currentBehavior.conditionType = "message";
+                        } else if (currentBehavior.conditionType === "message") {
+                            currentBehavior.conditionType = "gesture";
+                        } else if (currentBehavior.conditionType === "gesture") {
+                            currentBehavior.conditionType = "none";
+                        }
+
+                    }
+                }
+
+
             }
 
         }
@@ -430,7 +469,7 @@ function setupGestures (device) {
                 if (device.processing.behaviorPalette == null) {
                     // console.log("looperInstance = ");
                     // console.log(device.processing.looperInstance);
-                    device.processing.behaviorPalette = new BehaviorPalette ({ superstructure: device });
+                    device.processing.behaviorPalette = new BehaviorPalette ({ parent: device });
                     
                     device.processing.behaviorPalette.setPosition (device.processing.zoomedCanvasMouseX, device.processing.zoomedCanvasMouseY);
                     device.processing.behaviorPalette.updatePosition ();
@@ -473,8 +512,7 @@ function setupGestures (device) {
  */
 function Looper (options) {
     var defaults = {
-        devices: [],
-        going: false
+        devices: []
     };
     var options = options || {};
     var options = $.extend({}, defaults, options);
@@ -587,111 +625,21 @@ function Looper (options) {
         var currentLooper = this.getCurrentDevice ();
         return currentLooper.getInterface (options);
     }
-
-    // this.zoomIn = function (options) {
-
-    //     // var looper = this.getCurrentDevice ();
-    //     // looper.processing.zoomFactor = options['factor']; // Math.pow(options['factor'], 1);
-    //     // // looper.processing.previousCenterX = looper.processing.centerX;
-    //     // // looper.processing.previousCenterY = looper.processing.centerY;
-    //     // // looper.processing.centerX = options['x'];
-    //     // // looper.processing.centerY = options['y'];
-
-    //     // // looper.processing.unscaleFactor = looper.processing.unscaleFactor * looper.processing.zoomFactor;
-
-    //     // looper.processing.translate (looper.processing.xOrigin, looper.processing.yOrigin);
-
-    //     // looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
-
-    //     // var xTranslate = -( options['x'] / looper.processing.scaleFactor + looper.processing.xOrigin - options['x'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ));
-    //     // var yTranslate = -( options['y'] / looper.processing.scaleFactor + looper.processing.yOrigin - options['y'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ));
-    //     // looper.processing.translate (xTranslate, yTranslate);
-
-    //     // looper.processing.xOrigin = ( options['x'] / looper.processing.scaleFactor + looper.processing.xOrigin - options['x'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ) );
-    //     // looper.processing.yOrigin = ( options['y'] / looper.processing.scaleFactor + looper.processing.yOrigin - options['y'] / ( looper.processing.scaleFactor * looper.processing.zoomFactor ) );
-    //     // looper.processing.scaleFactor = looper.processing.scaleFactor * looper.processing.zoomFactor;
-
-    //     var looper = this.getCurrentDevice ();
-    //     looper.processing.zoomFactor = Math.pow(options['factor'], 1);
-    //     looper.processing.previousCenterX = looper.processing.centerX;
-    //     looper.processing.previousCenterY = looper.processing.centerY;
-    //     looper.processing.centerX = options['x'];
-    //     looper.processing.centerY = options['y'];
-
-    //     looper.processing.unscaleFactor = looper.processing.unscaleFactor * looper.processing.zoomFactor;
-
-    //     looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
-    //     // this.translate (this.screenWidth / 2, this.screenHeight / 2);
-    //     looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
-    //     looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
-    // }
-
-    // this.zoomOut = function (options) {
-    //     var looper = this.getCurrentDevice ();
-
-    //     looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
-    //     // this.translate (this.screenWidth / 2, this.screenHeight / 2);
-    //     //looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
-    //     looper.processing.scale (0.5);
-    //     looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
-        
-    // }
 }
 
 function Loop (options) {
     var defaults = {
-        behaviors: [],
-        going: false,
-        position: 0
+        behaviors: []
     };
     var options = options || {};
     var options = $.extend({}, defaults, options);
 
     this.behaviors = options.behaviors; // behaviors on the event loop
 
-    this.position = options.position;
-    this.going = options.going;
-
-    function go() {
-        this.updateOrdering();
-        this.going = true;
-    }
-    this.go = go;
-
-    function stop() {
-        this.going = false;
-        this.updateOrdering();
-
-        // Stop all behaviors in the event loop
-        for (var i = 0; i < this.behaviors.length; i++) {
-            this.behaviors[i].stop();
-        }
-        this.position = 0; // Reset position
-    }
-    this.stop = stop;
-
-    function step() {
-        if (this.going) {
-            var previousEvent = this.behaviors[this.position];
-            if (previousEvent !== undefined) {
-                previousEvent.stop();
-            }
-
-            this.position = (this.position + 1) % this.behaviors.length;
-            // console.log('new position = ' + this.position);
-
-            var currentEvent = this.behaviors[this.position];
-            currentEvent.go();
-
-            // currentEvent.behavior(); // NOTE: Uncomment this to call the behavior every time it is "going"
-        }
-    }
-    this.step = step;
-
     /**
      * Re-orders the behaviors in the event loop.
      */
-    function updateOrdering() {
+    this.updateOrdering = function () {
         var behaviorSequence = [];
 
         var eventCount = this.behaviors.length;
@@ -731,7 +679,6 @@ function Loop (options) {
 
         this.behaviors = updatedEventLoop;
     }
-    this.updateOrdering = updateOrdering;
 
     function getAngle(x, y) {
         var deltaX = x - ($(window).width() / 2);
@@ -746,13 +693,11 @@ function Loop (options) {
         }
         return angleInRadians;
     }
-    // processing.getAngle;
 }
 
 function Behavior (options) {
-
     var defaults = {
-        superstructure: null,
+        parent: null,
 
         x: null,
         y: null,
@@ -763,7 +708,6 @@ function Behavior (options) {
         procedure: null,
         properties: [],
         options: {},
-        going: false,
         label: '?',
 
         uuid: null // NOTE: This is set after receiving a response from Looper (containing the Behavior's UUID set by Looper.)
@@ -774,14 +718,6 @@ function Behavior (options) {
     this.uuid = options.uuid;
 
     this.properties = options.properties;
-
-    //  // Configure properties for behavior: Add properties to behavior (e.g., lightBehavior.red)
-    // for (var i = 0; i < this.properties.length; i++) {
-    //     var propertyName = this.properties[i].name;
-    //     // alert (propertyName);
-    //     // var defaultPropertyValue = 100;
-    //     // this[propertyName] = defaultPropertyValue;
-    // }
 
     this.procedure = options.procedure;
     this.options = options.options;
@@ -795,24 +731,11 @@ function Behavior (options) {
 
     this.state = options.state;
 
-    this.go = options.go;
-
     this.label = options.label;
 
-    //this.visible = options.visible;
-    this.going = options.going;
-
-    this.go = function () {
-        this.going = true;
-    }
-
-    this.stop = function () {
-        this.going = false;
-    }
-
     //this.looperInstance = options.looperInstance;
-    this.superstructure = options.superstructure; // The superstructure is the structure that semantically contains this structure as a component. The superstructure may also contain structure other this one.
-    this.substructures = []; // The substructures are the structures that are semantically components of this structure. In other words, they are contained by this structure.
+    this.parent = options.parent; // The parent is the structure that semantically contains this structure as a component. The parent may also contain structure other this one.
+    this.children = []; // The children are the structures that are semantically components of this structure. In other words, they are contained by this structure.
 
     //! Interfaces
     // TODO: (?) Set a default interface rather than null
@@ -833,20 +756,20 @@ function Behavior (options) {
 
     //! Returns the Looper for which the structure was created.
     //!
-    this.getSuperstructure = function (options) {
-        return this.superstructure;
+    this.getParent = function (options) {
+        return this.parent;
     }
 
     //! Returns the components of this structure. These components may be defined statically or generatively.
     //!
-    this.getSubstructure = function (options) {
+    this.getChild = function (options) {
         return this.substructure;
     }
 
     //! Returns the Looper for which the structure was created.
     //!
     // this.getLooper = function (options) {
-    //     return this.superstructure;
+    //     return this.parent;
     // }
 
     //! Attaches an interface to this structure, enabling it to be rendered.
@@ -884,14 +807,13 @@ function Behavior (options) {
             this.interface.draw ();
 
             // Draw the substructure
-            for (var i = 0; i < this.substructures.length; i++) {
-                this.substructures[i].draw ();
+            for (var i = 0; i < this.children.length; i++) {
+                this.children[i].draw ();
             }
         }
     }
 }
 
-interfaces = []; // TODO: Move this into Looper class?
 function Interface (options) {
     var defaults = {
         // parent: null,
@@ -974,39 +896,17 @@ function Interface (options) {
     // interfaces.push (this);
 }
 
-// NOTE: The following is one way to do inheritance.
-//
-// Behavior.prototype.getType = function() {
-//   return "Behavior";
-// }
-
-// function LightBehavior() {
-//   // LightBehavior constructor code goes here 
-// }
- 
-// // Inherit the methods of Behavior (i.e., the base class)
-// LightBehavior.prototype = new Behavior();
- 
-// // Override the parent's getName method
-// LightBehavior.prototype.getType = function() {
-//     return "LightBehavior";
-// }
-
 function BehaviorPalette (options) {
     console.log ("BehaviorPalette");
 
     var defaults = {
         //looperInstance: null,
-        superstructure: null,
+        parent: null,
 
         x: null,
         y: null,
         xTarget: null,
         yTarget: null,
-        // state: 'NONE', // NONE, DISENGAGED, MOVING, ENTANGLED, ENGAGED
-        //visible: true
-        // go: null,
-        // going: false,
         behaviors: [],
         label: '?',
         visible: false
@@ -1042,12 +942,12 @@ function BehaviorPalette (options) {
     }
 
     //this.looperInstance = options.looperInstance;
-    this.superstructure = options.superstructure; // The superstructure is the structure that semantically contains this structure as a component. The superstructure may also contain structure other this one.
-    this.substructures = []; // The substructures are the structures that are semantically components of this structure. In other words, they are contained by this structure.
+    this.parent = options.parent; // The parent is the structure that semantically contains this structure as a component. The parent may also contain structure other this one.
+    this.children = []; // The children are the structures that are semantically components of this structure. In other words, they are contained by this structure.
 
-    // Add this structure to the superstructure's substructure.
-    if (this.superstructure !== undefined && this.superstructure !== null) {
-        this.superstructure.substructures.push (this);
+    // Add this structure to the parent's substructure.
+    if (this.parent !== undefined && this.parent !== null) {
+        this.parent.children.push (this);
     }
 
     //! Interfaces
@@ -1069,20 +969,20 @@ function BehaviorPalette (options) {
 
     //! Returns the Looper for which the structure was created.
     //!
-    this.getSuperstructure = function (options) {
-        return this.superstructure;
+    this.getParent = function (options) {
+        return this.parent;
     }
 
     //! Returns the components of this structure. These components may be defined statically or generatively.
     //!
-    this.getSubstructure = function (options) {
-        return this.substructures;
+    this.getChild = function (options) {
+        return this.children;
     }
 
     //! Returns the Looper for which the structure was created.
     //!
     this.getLooper = function (options) {
-        return this.superstructure;
+        return this.parent;
     }
 
     //! Returns the current interface (if any) set for this structure.
@@ -1105,13 +1005,10 @@ function BehaviorPalette (options) {
         }
 
         // Draw the substructure
-        for (var i = 0; i < this.substructures.length; i++) {
-            this.substructures[i].draw ();
+        for (var i = 0; i < this.children.length; i++) {
+            this.children[i].draw ();
         }
     }
-
-    // console.log("!!!!!");
-    // console.log(this.looperInstance);
 
     /**
      * Adds a behavior node to the behavior palette
@@ -1134,7 +1031,7 @@ function BehaviorPalette (options) {
 
         // Set the parent to the behavior palette
         //options.parent = this;
-        options.superstructure = this;
+        options.parent = this;
 
         console.log("\tAdding Behavior");
         DEBUG: console.log(options);
@@ -1142,7 +1039,7 @@ function BehaviorPalette (options) {
         // Construct the behavior
         var behavior = new Behavior ({
             // parent: options.parent,
-            superstructure: options.superstructure,
+            parent: options.parent,
 
             x: options.x, // was ev.gesture.center.pageX,
             y: options.y, // was ev.gesture.center.pageY,
@@ -1165,7 +1062,7 @@ function BehaviorPalette (options) {
         });
 
         // Add the Behavior to the palette's substructure
-        this.substructures.push (behavior);
+        this.children.push (behavior);
 
         // Attach Interface to behavior
         behavior.attachInterface ({
@@ -1173,32 +1070,20 @@ function BehaviorPalette (options) {
             // parent: behavior, // The "entity" that this interface represents visually.
             structure: behavior,
 
-            processing: this.superstructure.processing,
+            processing: this.parent.processing,
 
-            // xOrigin: superstructure.x,
-            // yOrigin: superstructure.y,
+            // xOrigin: parent.x,
+            // yOrigin: parent.y,
             x: options.x, // was ev.gesture.center.pageX,
             y: options.y, // was ev.gesture.center.pageY,
             xTarget: options.x,
             yTarget: options.y,
 
             touches: function (x, y) {
-                // console.log ("touches");
-                // console.log ("x: " + x + ", y: " + y);
-                // console.log ("x': " + (x - $(window).width() / 2) + ", y': " + (y - ($(window).height() / 2)));
-                // console.log ("this.x: " + this.x + ", this.y: " + this.y);
                 var radius = 50;
-                // console.log(x, y, this.x, this.y);
-                // console.log ("structure:");
-                // console.log (this.structure);
-                // console.log (this.structure.superstructure);
                 if ((this.x - radius < x && this.x + radius > x) && (this.y - radius < y && this.y + radius > y)) {
-                // if ((x - radius < this.processing.behaviorPalette.x + this.x && this.processing.behaviorPalette.x + this.x < x + radius)
-                //     && (y - radius < this.processing.behaviorPalette.y + this.y && this.processing.behaviorPalette.y + this.y < y + radius)) {
-
                     return true;
                 }
-
                 return false;
             },
 
@@ -1269,8 +1154,9 @@ function BehaviorPalette (options) {
 
                     // Draw the behavior
                     //this.processing.fill(66, 214, 146);
-                    this.processing.fill(255, 255, 255);
-                    this.processing.ellipse(this.x, this.y, 80, 80);
+                    this.processing.noStroke(); //this.processing.stroke(200, 200, 200)
+                    this.processing.fill(240, 240, 240, 200);
+                    this.processing.ellipse(this.x, this.y, 100, 100);
 
                     primaryFont = this.processing.createFont("Comfortaa-Regular.ttf", 32);
                     this.processing.textFont(primaryFont, 20);
@@ -1282,8 +1168,9 @@ function BehaviorPalette (options) {
 
                 } else if (behavior.state === 'DISENGAGED') {
 
+                    this.processing.noStroke();
                     this.processing.fill(66, 214, 146, 50);
-                    this.processing.ellipse(behavior.interface.x, behavior.interface.y, 70, 70);
+                    this.processing.ellipse(behavior.interface.x, behavior.interface.y, 0.8 * behavior.geometry.diameter, 0.8 * behavior.geometry.diameter);
 
                 } else {
 
@@ -1299,45 +1186,22 @@ function BehaviorPalette (options) {
                         behavior.interface.processing.zoomedCanvasMouseX = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
                         behavior.interface.processing.zoomedCanvasMouseY = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
 
-                        // console.log ("MIXEE");
-                        // console.log (behavior.interface.processing.mouseX);
-                        // console.log (behavior.interface.processing.mouseY);
-
                         behavior.interface.x = (currentMouseX - behavior.interface.processing.xOffset) / behavior.interface.processing.zoomFactor;
                         behavior.interface.y = (currentMouseY - behavior.interface.processing.yOffset) / behavior.interface.processing.zoomFactor;
 
-                        // behavior.interface.x = ((behavior.interface.x - behavior.interface.processing.previousCenterX) / behavior.interface.processing.scaleFactor) + behavior.interface.processing.centerX;
-                        // behavior.interface.y = ((behavior.interface.y - behavior.interface.processing.previousCenterY) / behavior.interface.processing.scaleFactor) + behavior.interface.processing.centerY;
 
-                        // console.log ('behavior.interface.x:');
-                        // console.log (behavior.interface.x);
-                        // console.log ('behavior.interface.y:');
-                        // console.log (behavior.interface.y);
+                        //
+                        // Check if under certain distance from the loop itself
+                        //
 
-                        // deltaX = behavior.interface.x - 0; // deltaX = currentMouseX - (behavior.interface.processing.screenWidth / 2);
-                        // deltaY = behavior.interface.y - 0; // deltaY = behavior.interface.processing.mouseY - (behavior.interface.processing.screenHeight / 2);
-                        // console.log ('DELTAX = ' + deltaX);
-                        // console.log ('DELTAY = ' + deltaY);
-                        // angleInDegrees = Math.atan2(deltaY, deltaX);
+                        var distanceFromLoop = this.processing.lineDistance (this.x, this.y, this.xTarget, this.yTarget);
 
-                        // behavior.interface.xTarget = behavior.interface.x + (400 / 2) * Math.cos(angleInDegrees);
-                        // behavior.interface.yTarget = behavior.interface.y + (400 / 2) * Math.sin(angleInDegrees);
-
-                        // this.processing.behaviorPalette.updatePosition();
-                        // this.processing.updatePosition(behavior);
-
-                        // Check if under certain distance from the circle (and attach to)
-                        // var newX = ((ev.gesture.center.pageX - device.processing.previousCenterX) / device.processing.scaleFactor) + device.processing.centerX;
-                        // var newY = ((ev.gesture.center.pageY - device.processing.previousCenterY) / device.processing.scaleFactor) + device.processing.centerY;
-                        var distance = this.processing.lineDistance (this.x, this.y, this.xTarget, this.yTarget);
-
-                        // console.log("distance = ");
-                        // console.log(distance);
-
-                        if (distance < 110) { // ENTANGLED
+                        if (distanceFromLoop < 110) { // ENTANGLED
+                            this.processing.stroke(200, 200, 200)
                             this.processing.line (this.x, this.y, this.xTarget, this.yTarget);
 
                             // Draw the "would be" position that the event node would occupy
+                            this.processing.noStroke();
                             this.processing.fill (66, 214, 146, 50);
                             this.processing.ellipse (behavior.interface.xTarget, behavior.interface.yTarget, 50, 50);
 
@@ -1356,72 +1220,34 @@ function BehaviorPalette (options) {
                         }
                     }
 
-                    //
-                    // Update behavior coordinate system orientation
-                    //
 
-                    if (this.geometry === undefined) { this.geometry = {}; }
-                    if (this.geometry.loop === undefined) { this.geometry.loop = {}; } // i.e., the containing loop
-                    if (this.geometry.loop.position === undefined) { this.geometry.loop.position = {}; }
-                    if (this.geometry.behavior === undefined) { this.geometry.behavior = {}; } // i.e., the current behavior
-                    if (this.geometry.behavior.position === undefined) { this.geometry.behavior.position = {}; }
-                    if (this.geometry.condition === undefined) { this.geometry.condition = {}; } // i.e., the current behavior's condition
-
-                    // console.log (this.processing.loopSequence);
-                    // this.geometry.loop.position = ;
-                    // this.geometry.loop.angle = 0;
-
-                    this.geometry.behavior.position = { x: this.x, y: this.y };
-                    this.geometry.behavior.diameter = 120;
-                    this.geometry.behavior.angle = this.processing.getAngleFixed (this.geometry.behavior.position.x, this.geometry.behavior.position.y);
-
-                    console.log (this.geometry.behavior.angle);
-
-                    if (this.processing.loop === undefined) { this.processing.loop = {}; }
-                    if (this.processing.loop.behaviors === undefined) { this.processing.loop.behaviors = []; }
 
                     // Update list of behavior (interfaces)
                     var found = false;
-                    for (var i = 0; i < this.processing.loop.behaviors.length; i++) {
-                        if (this === this.processing.loop.behaviors[i]) {
+                    for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                        if (behavior === looper.loop.behaviors[i]) {
                             found = true;
-                            // // console.log ("REMOVING INTERFACE FROM ARRAY!");
-                            // this.processing.loop.behaviors.splice (i, 1); // Remove object from list
-                            // break;
                         }
                     }
                     if (found === false) {
-                        this.processing.loop.behaviors.push (this);
+                        looper.loop.behaviors.push (behavior);
                     }
-                    // sort the list by angle
-                    for (var i = 0; i < this.processing.loop.behaviors.length; i++) {
-                        for (var j = i; j < this.processing.loop.behaviors.length; j++) {
-                            if (this.processing.loop.behaviors[i].geometry.behavior.angle > this.processing.loop.behaviors[j].geometry.behavior.angle) {
-                                var tmp = this.processing.loop.behaviors[i];
-                                this.processing.loop.behaviors[i] = this.processing.loop.behaviors[j];
-                                this.processing.loop.behaviors[j] = tmp;
-                            }
-                        }
-                    }
+
                     // get index of current behavior (interface)
                     var behaviorIndex = -1;
-                    for (var i = 0; i < this.processing.loop.behaviors.length; i++) {
-                        if (this === this.processing.loop.behaviors[i]) {
+                    for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                        if (behavior === looper.loop.behaviors[i]) {
                             behaviorIndex = i;
                             break;
                         }
                     }
+                    currentBehavior = looper.loop.behaviors[behaviorIndex];
 
-                    this.geometry.condition.endAngleOffset = 0.35;
-                    this.geometry.condition.startAngleOffset = 0.6;
-                    this.geometry.condition.endAngle = this.geometry.behavior.angle - this.geometry.condition.endAngleOffset;
-
-                    //this.geometry.condition.startAngle = this.geometry.condition.endAngle -  this.geometry.condition.startAngleOffset; // = -1 * (this.processing.PI / 2);
-                    var previousBehaviorAngle = 0;
-                    if (behaviorIndex > 0) {
-                        previousBehaviorAngle = this.processing.loop.behaviors[behaviorIndex - 1].geometry.behavior.angle + this.geometry.condition.endAngleOffset;
-                    }
-                    this.geometry.condition.startAngle = previousBehaviorAngle;
+                    // Update current behavior's geometry
+                    // TODO: Move this elsewhere to make faster
+                    currentBehavior.geometry.position = { x: this.x, y: this.y };
+                    currentBehavior.geometry.diameter = 120;
+                    currentBehavior.geometry.angle = this.processing.getAngleFixed (currentBehavior.geometry.position.x, currentBehavior.geometry.position.y);
 
                     //
                     // Draw the behavior
@@ -1429,180 +1255,143 @@ function BehaviorPalette (options) {
 
                     // Draw the behavior itself
                     this.processing.stroke (255, 255, 255); // (65, 65, 65);
-                    this.processing.fill(220, 220, 220, 150); // (255, 255, 255, 193);
-                    this.processing.ellipse(this.x, this.y, this.geometry.behavior.diameter, this.geometry.behavior.diameter);
+                    this.processing.fill(220, 220, 220, 150); // (220, 220, 220, 150); // (255, 255, 255, 193);
+                    this.processing.ellipse(this.x, this.y, currentBehavior.geometry.diameter, currentBehavior.geometry.diameter);
                     this.processing.fill(255, 255, 255, 200);
-                    this.processing.ellipse(this.x, this.y, 0.8 * this.geometry.behavior.diameter, 0.8 * this.geometry.behavior.diameter);
+                    this.processing.ellipse(this.x, this.y, 0.8 * currentBehavior.geometry.diameter, 0.8 * currentBehavior.geometry.diameter);
                     primaryFont = this.processing.createFont("Comfortaa-Regular.ttf", 32);
                     this.processing.textFont(primaryFont, 20);
                     this.processing.textAlign(this.processing.CENTER);
                     this.processing.fill(65, 65, 65);
-                    this.processing.text(behavior.label, this.x /* + Math.random() * 4 - 2 */, this.y + 5 /* + Math.random() * 4 - 2 */);
+                    this.processing.text(behavior.label, this.x, this.y + 5);
 
                     this.processing.popMatrix();
 
 
 
 
-                    // var behaviorAngle = this.processing.getAngleFixed (this.x, this.y);
-                    // behavior.interface.xTarget = nearestPosition.x;
-                    // behavior.interface.yTarget = nearestPosition.y;
+                    //
+                    // Update behavior coordinate system orientation #draw-behavior
+                    //
 
-                    // console.log (behaviorAngle);
+                    if (behavior.state === 'ENGAGED') {
 
-                    // Draw the condition
-                    // this.processing.pushMatrix();
-                    // this.processing.strokeWeight (4.0);
-                    // this.processing.stroke (65, 65, 65);
-                    // this.processing.noFill ();
-                    // this.processing.smooth ();
-                    // //this.processing.arc (0, 0, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
-                    // // var startAngle = -1 * (this.processing.PI / 2);
-                    // // var endAngle = behaviorAngle;
-                    // this.processing.arc (0, 0, 400, 400, this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2));
-                    // this.processing.popMatrix();
+                        //
+                        // Draw the condition segment
+                        //
+                        if (looper.loop.behaviors[behaviorIndex].conditionType === "none") {
 
+                            // Unconditional
+                            this.processing.pushMatrix();
+                            this.processing.strokeWeight (4.0);
+                            this.processing.stroke (65, 65, 65);
+                            this.processing.noFill ();
+                            this.processing.smooth ();
+                            this.processing.arc (0, 0, 2 * looper.geometry.loop.radius, 2 * looper.geometry.loop.radius, currentBehavior.condition.startAngle - (this.processing.PI / 2), currentBehavior.condition.endAngle - (this.processing.PI / 2));
+                            this.processing.popMatrix();
 
-                    // Draw a "message" condition
-                    // var segmentArcLength = 0.1;
-                    // for (var currentAngle = this.geometry.condition.startAngle; currentAngle < this.geometry.condition.endAngle; currentAngle += segmentArcLength) {
+                        } else if (looper.loop.behaviors[behaviorIndex].conditionType === "stimulus") {
 
-                    //     // Draw the condition
-                    //     this.processing.pushMatrix();
-                    //     this.processing.strokeWeight (4.0);
-                    //     this.processing.stroke (65, 65, 65);
-                    //     this.processing.noFill ();
-                    //     this.processing.smooth ();
-                    //     //this.processing.arc (0, 0, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
-                    //     // var startAngle = -1 * (this.processing.PI / 2);
-                    //     // var endAngle = behaviorAngle;
-                    //     // this.processing.arc (0, 0, 400, 400, this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2));
-                    //     this.processing.arc (0, 0, 400, 400, currentAngle - (this.processing.PI / 2), (currentAngle + (segmentArcLength / 2)) - (this.processing.PI / 2));
-                    //     this.processing.popMatrix();
-                    // }
+                            // Draw a "stimulus" condition
+                            this.processing.pushMatrix();
+                            this.processing.strokeWeight (4.0);
+                            this.processing.stroke (65, 65, 65);
+                            this.processing.noFill ();
+                            this.processing.smooth ();
+                            this.processing.arc (0, 0, 2 * looper.geometry.loop.radius, 2 * looper.geometry.loop.radius, currentBehavior.condition.startAngle - (this.processing.PI / 2), currentBehavior.condition.endAngle - (this.processing.PI / 2));
+                            this.processing.popMatrix();
 
+                            // Draw the condition arc's arrowhead to indicate its sequence order
+                            this.processing.pushMatrix();
+                            this.processing.strokeWeight(4.0);
+                            this.processing.stroke (65, 65, 65); // (65, 65, 65);
+                            this.processing.rotate(-1 * currentBehavior.condition.endAngleOffset); // adjust rotation to account for offset from action
+                            this.processing.translate(currentBehavior.geometry.position.x, currentBehavior.geometry.position.y);
+                            this.processing.rotate(currentBehavior.geometry.angle);
+                            this.processing.line(0, 0, -8, 8);
+                            this.processing.line(0, 0, -8, -8);
+                            this.processing.popMatrix();
 
+                        } else if (looper.loop.behaviors[behaviorIndex].conditionType === "message") {
 
+                            // Draw a "message" condition
+                            var segmentArcLength = 0.1;
+                            for (var currentAngle = currentBehavior.condition.startAngle; currentAngle < currentBehavior.condition.endAngle; currentAngle += segmentArcLength) {
 
-                    // Draw a "gesture" condition
-                    var segmentArcLength = 0.1;
-                    var previousSegmentEndpoint = null;
-                    var maximumAmplitude = 50;
-                    for (var currentAngle = this.geometry.condition.startAngle; currentAngle < this.geometry.condition.endAngle; currentAngle += segmentArcLength) {
+                                // Draw a condition sub-segment (one of the multiple that together form a dashed line)
+                                this.processing.pushMatrix();
+                                this.processing.strokeWeight (4.0);
+                                this.processing.stroke (65, 65, 65);
+                                this.processing.noFill ();
+                                this.processing.smooth ();
+                                this.processing.arc (0, 0, 2 * looper.geometry.loop.radius, 2 * looper.geometry.loop.radius, currentAngle - (this.processing.PI / 2), (currentAngle + (segmentArcLength / 2)) - (this.processing.PI / 2));
+                                this.processing.popMatrix();
+                            }
 
-                        if ((currentAngle + segmentArcLength) > this.geometry.condition.endAngle) {
-                            currentAngle = this.geometry.condition.endAngle;
+                            // Draw the condition arc's arrowhead to indicate its sequence order
+                            this.processing.pushMatrix();
+                            this.processing.strokeWeight(4.0);
+                            this.processing.stroke (65, 65, 65); // (65, 65, 65);
+                            // this.translate(this.screenWidth / 2, this.screenHeight / 2);
+                            this.processing.rotate(-1 * currentBehavior.condition.endAngleOffset); // adjust rotation to account for offset from action
+                            this.processing.translate(currentBehavior.geometry.position.x, currentBehavior.geometry.position.y);
+                            this.processing.rotate(currentBehavior.geometry.angle);
+                            this.processing.line(0, 0, -8, 8);
+                            this.processing.line(0, 0, -8, -8);
+                            this.processing.popMatrix();
+
+                        } else if (looper.loop.behaviors[behaviorIndex].conditionType === "gesture") {
+
+                            // Draw a "gesture" condition
+                            var segmentArcLength = 0.1;
+                            var previousSegmentEndpoint = null;
+                            var maximumAmplitude = 50;
+                            for (var currentAngle = currentBehavior.condition.startAngle; currentAngle < currentBehavior.condition.endAngle; currentAngle += segmentArcLength) {
+
+                                if ((currentAngle + segmentArcLength) > currentBehavior.condition.endAngle) {
+                                    currentAngle = currentBehavior.condition.endAngle;
+                                }
+
+                                // Draw the condition
+                                this.processing.pushMatrix();
+                                this.processing.strokeWeight (4.0);
+                                this.processing.stroke (65, 65, 65);
+                                this.processing.noFill ();
+                                this.processing.smooth ();
+
+                                var computedStartAmplitude = 2 * looper.geometry.loop.radius + Math.random () * maximumAmplitude - (maximumAmplitude / 2);
+                                if (currentAngle === currentBehavior.condition.startAngle) { computedStartAmplitude = 2 * looper.geometry.loop.radius; }
+                                var startPosition = this.processing.getPosition (currentAngle, computedStartAmplitude);
+                                if (previousSegmentEndpoint !== null) { startPosition = previousSegmentEndpoint; }
+                                var computedEndAmplitude = 2 * looper.geometry.loop.radius + Math.random () * maximumAmplitude - (maximumAmplitude / 2);
+                                if ((currentAngle + segmentArcLength) >= currentBehavior.condition.endAngle) { computedEndAmplitude = 2 * looper.geometry.loop.radius; }
+                                var endPosition = this.processing.getPosition (currentAngle + segmentArcLength, computedEndAmplitude);
+                                previousSegmentEndpoint = endPosition;
+
+                                this.processing.rotate(-1 * this.processing.PI / 2 + -0.1);
+                                this.processing.line(startPosition.x, startPosition.y, endPosition.x, endPosition.y);
+                                this.processing.popMatrix();
+                            }
+
+                            // Draw the condition arc segment's arrow
+                            this.processing.pushMatrix();
+
+                            // Draw the loop's arrowhead to indicate its sequence order
+                            this.processing.strokeWeight(4.0);
+                            this.processing.stroke (65, 65, 65); // (65, 65, 65);
+                            this.processing.rotate(-1 * currentBehavior.condition.endAngleOffset); // adjust rotation to account for offset from action
+                            this.processing.translate(currentBehavior.geometry.position.x, currentBehavior.geometry.position.y);
+                            this.processing.rotate(currentBehavior.geometry.angle);
+                            this.processing.line(0, 0, -8, 8);
+                            this.processing.line(0, 0, -8, -8);
+
+                            this.processing.popMatrix();
+
                         }
 
-                        // Draw the condition
-                        this.processing.pushMatrix();
-                        this.processing.strokeWeight (4.0);
-                        this.processing.stroke (65, 65, 65);
-                        this.processing.noFill ();
-                        this.processing.smooth ();
-                        //this.processing.arc (0, 0, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
-                        // var startAngle = -1 * (this.processing.PI / 2);
-                        // var endAngle = behaviorAngle;
-                        // this.processing.arc (0, 0, 400, 400, this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2));
-                        // this.processing.arc (0, 0, 400, 400, currentAngle - (this.processing.PI / 2), (currentAngle + (segmentArcLength / 2)) - (this.processing.PI / 2));
-
-                        var computedStartAmplitude = 400 + Math.random () * maximumAmplitude - (maximumAmplitude / 2);
-                        if (currentAngle === this.geometry.condition.startAngle) { computedStartAmplitude = 400; }
-                        var startPosition = this.processing.getPosition (currentAngle, computedStartAmplitude);
-                        if (previousSegmentEndpoint !== null) { startPosition = previousSegmentEndpoint; }
-                        var computedEndAmplitude = 400 + Math.random () * maximumAmplitude - (maximumAmplitude / 2);
-                        if ((currentAngle + segmentArcLength) >= this.geometry.condition.endAngle) { computedEndAmplitude = 400; }
-                        var endPosition = this.processing.getPosition (currentAngle + segmentArcLength, computedEndAmplitude);
-                        previousSegmentEndpoint = endPosition;
-
-                        // console.log (startPosition);
-                        // console.log (endPosition);
-
-                        //this.processing.rotate(-1 * this.processing.PI / 2 + -1 * this.geometry.condition.endAngleOffset);
-                        this.processing.rotate(-1 * this.processing.PI / 2 + -0.1);
-
-                        this.processing.line(startPosition.x, startPosition.y, endPosition.x, endPosition.y);
-
-                        this.processing.popMatrix();
                     }
 
-
-
-
-                    // Draw condition text...
-                    // this.processing.stroke (255, 255, 255); // (65, 65, 65);
-                    // this.processing.fill (200, 200, 200, 193);
-                    // this.processing.ellipse (this.x, this.y, this.geometry.behavior.diameter, this.geometry.behavior.diameter);
-                    // this.processing.fill (255, 255, 255, 193);
-                    // this.processing.ellipse (this.x, this.y, 0.8 * this.geometry.behavior.diameter, 0.8 * this.geometry.behavior.diameter);
-                    // primaryFont = this.processing.createFont ("Comfortaa-Regular.ttf", 32);
-                    // this.processing.textFont (primaryFont, 20);
-                    // this.processing.textAlign (this.processing.CENTER);
-                    // this.processing.fill (65, 65, 65);
-
-                    // this.geometry.condition.midAngle = this.geometry.condition.startAngle - (this.processing.PI / 2), this.geometry.condition.endAngle - (this.processing.PI / 2)
-                    // this.processing.text ("activate", this.x + Math.random() * 4 - 2, this.y + 5 + Math.random() * 4 - 2);
-
-
-
-
-                    // Draw the condition arc segment's arrow
-                    this.processing.pushMatrix();
-
-                    // Draw the loop's arrowhead to indicate its sequence order
-                    this.processing.strokeWeight(4.0);
-                    this.processing.stroke (65, 65, 65); // (65, 65, 65);
-                    // this.translate(this.screenWidth / 2, this.screenHeight / 2);
-                    this.processing.rotate(-1 * this.geometry.condition.endAngleOffset); // adjust rotation to account for offset from action
-                    this.processing.translate(this.geometry.behavior.position.x, this.geometry.behavior.position.y);
-                    // this.processing.rotate(-0.05 * this.processing.PI);
-                    this.processing.rotate(this.geometry.behavior.angle);
-                    this.processing.line(0, 0, -8, 8);
-                    this.processing.line(0, 0, -8, -8);
-
-                    this.processing.popMatrix();
-
-
-
-
-
-                    // If needed, draw the ellipses fan
-                    // this.processing.pushMatrix();
-
-                    // // Draw the loop's arrowhead to indicate its sequence order
-                    // this.processing.strokeWeight(4.0);
-                    // this.processing.stroke (65, 65, 65); // (65, 65, 65);
-                    // // this.translate(this.screenWidth / 2, this.screenHeight / 2);
-                    // // this.processing.rotate(-1 * this.geometry.condition.endAngleOffset); // adjust rotation to account for offset from action
-                    // // this.processing.translate(this.geometry.behavior.position.x, this.geometry.behavior.position.y);
-                    // // this.processing.rotate(-0.05 * this.processing.PI);
-                    // // this.processing.rotate(this.geometry.behavior.angle);
-                    // // TODO: polyfill
-                    // this.geometry.behavior.ellipsesAngle = this.processing.getAngleFixed (this.geometry.behavior.position.x, this.geometry.behavior.position.y);
-                    // // this.geometry.behavior.ellipsesArcOffset = this.processing.getAngleFixed (this.geometry.behavior.position.x, this.geometry.behavior.position.y);
-                    // var offsetStartAngle = getPosition (ellipsesAngle + 0.2);
-                    // var offsetStartEnd = getPosition (ellipsesAngle - 0.2);
-                    // this.processing.line(0, 0, this.geometry.behavior.position.x, this.geometry.behavior.position.y);
-                    // this.processing.line(0, 0, -8, -8);
-
-                    // this.processing.popMatrix();
-
-
-
-
-
                     this.processing.strokeWeight (2.0);
-
-                    // this.processing.pushMatrix();
-
-                    // // Draw the loop
-                    // this.processing.strokeWeight (2.0);
-                    // this.processing.stroke (65, 65, 65);
-                    // this.processing.noFill ();
-                    // this.processing.smooth ();
-                    // this.processing.arc (this.x, this.y, 300, 300, (-this.processing.PI / 2) + 0.05 * this.processing.PI, 1.45 * this.processing.PI);
-
-                    // this.processing.popMatrix();
 
 
 
@@ -1617,7 +1406,7 @@ function BehaviorPalette (options) {
 
                         for (var i = 0; i < sliderCount; i++) {
 
-                            // slider = new Slider ({ superstructure: looper.getCurrentDevice() });
+                            // slider = new Slider ({ parent: looper.getCurrentDevice() });
                             if (behavior.sliders === undefined || behavior.sliders === null) {
                                 behavior.sliders = {};
                             }
@@ -1625,7 +1414,7 @@ function BehaviorPalette (options) {
                             if (behavior.sliders.hasOwnProperty (behavior.properties[i].name) === false) {
                                 // console.log ("EH?");
                                 // console.log (behavior);
-                                newSlider = new Slider ({ superstructure: behavior, xOrigin: behavior.interface.x, yOrigin: behavior.interface.y, properties: behavior.properties[i] });
+                                newSlider = new Slider ({ parent: behavior, xOrigin: behavior.interface.x, yOrigin: behavior.interface.y, properties: behavior.properties[i] });
                                 newSlider.x = 0;
                                 newSlider.yTarget = sliderOffsetY + i * sliderGapLength;
                                 // behavior.sliders.push (newSlider);
@@ -1634,7 +1423,7 @@ function BehaviorPalette (options) {
                                 // if (behavior.slider1 === undefined || behavior.slider === null) {
                                 //     // console.log ("EH?");
                                 //     // console.log (behavior);
-                                //     behavior.slider1 = new Slider ({ superstructure: behavior, xOrigin: behavior.interface.x, yOrigin: behavior.interface.y, properties: behavior.properties[1] });
+                                //     behavior.slider1 = new Slider ({ parent: behavior, xOrigin: behavior.interface.x, yOrigin: behavior.interface.y, properties: behavior.properties[1] });
                                 //     console.log(behavior.slider1);
                                 //     behavior.slider1.x = 0;
                                 //     behavior.slider1.yTarget = 0 + i * 50;
@@ -1653,30 +1442,6 @@ function BehaviorPalette (options) {
 
                 }
 
-
-
-                    // processing.updatePosition(behavior);
-
-                    // // Draw the event node
-                    // processing.fill(66, 214, 146);
-                    // if (behavior.going) {
-                    //     processing.ellipse(behavior.x, behavior.y, 70, 70);
-
-                    //     // Show the program counter
-                    //     if (behavior.state == 'ENGAGED') {
-                    //         var angle = getAngle(behavior.x, behavior.y);
-                    //         var nearestX = processing.screenWidth / 2 + (500 / 2) * Math.cos(angle - Math.PI  / 2);
-                    //         var nearestY = processing.screenHeight / 2 + (500 / 2) * Math.sin(angle - Math.PI  / 2);
-                    //         processing.ellipse(nearestX, nearestY, 20, 20);
-                    //     }
-                    // } else {
-                    //     processing.ellipse(behavior.x, behavior.y, 70, 70);
-
-                    //     // // Draw options for the sequenced node
-                    //     // if (behavior.state == 'ENGAGED') {
-                    //     //     processing.ellipse(behavior.x + 40, behavior.y - 40, 30, 30);
-                    //     // }
-                    // }
             },
 
             events: {
@@ -1743,11 +1508,25 @@ function BehaviorPalette (options) {
                             // Zoom out to default perspective
                             //looper.zoomOut ({ x: behavior.interface.processing.screenWidth / 2, y: behavior.interface.processing.screenHeight / 2, factor: 2.0 });
                             // looper.zoomIn ({ x: 0, y: 0, factor: 0.5 });
+
                         }
 
 
                         // Add behavior to the Looper
+                        // TODO: Delete!
                         behavior.interface.processing.loopSequence.behaviors.push (behavior);
+
+                        // Add behavior to the Looper #draw-behavior
+                        if (behavior.geometry === undefined) { behavior.geometry = {}; }
+                        if (behavior.geometry.position === undefined) { behavior.geometry.position = {}; }
+                        if (behavior.condition === undefined) { behavior.condition = {}; }
+
+                        behavior.condition.endAngleOffset = 0.35;
+                        behavior.condition.startAngleOffset = 0.6;
+
+                        looper.loop.behaviors.push (behavior);
+
+                        console.log ("Added behavior");
 
                     } else if (behavior.state === 'DISENGAGED') {
 
@@ -1779,19 +1558,7 @@ function BehaviorPalette (options) {
 
                     if (behavior.state === 'MOVING') {
 
-                        // deltaX = ev.gesture.center.pageX - (screenWidth / 2);
-                        // deltaY = ev.gesture.center.pageY - (screenHeight / 2);
-                        // //angleInDegrees = Math.atan(deltaY / deltaX) * 180 / PI;
-                        // angleInDegrees = Math.atan2(deltaY, deltaX); // * 180 / PI;
-
-                        // x = screenWidth / 2 + (400 / 2) * Math.cos(angleInDegrees);
-                        // y = screenHeight / 2 + (400 / 2) * Math.sin(angleInDegrees);
-
-                        // console.log("MOVING PROTOTYPE!");
-                        // console.log(behavior);
-                        // console.log(behavior.interface.processing);
                         var distance = behavior.interface.processing.getDistanceFromEventLoop (behavior.interface);
-                        // console.log(distance);
 
                         if (distance < 110) {
 
@@ -1807,12 +1574,6 @@ function BehaviorPalette (options) {
                             // device.processing.loopSequence.updateOrdering();
 
                             // TODO: Upload/Submit/Push/Send the update to MCU.
-
-                            // Start the event loop if any behaviors exist
-                            var sequence = behavior.interface.processing.getBehaviorSequence();
-                            if (sequence.length > 0) {
-                                behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
-                            }
 
                             // Callback to server to update the program
                             // DEBUG: console.log(behavior);
@@ -1836,14 +1597,6 @@ function BehaviorPalette (options) {
 
                             // Update loop ordering
                             // device.processing.loopSequence.updateOrdering();
-
-                            // Stop the event loop if no nodes are placed on it
-                            var sequence = behavior.interface.processing.getBehaviorSequence();
-                            if (sequence.length == 0) {
-                                behavior.interface.processing.loopSequence.stop ();
-                            } else {
-                                behavior.interface.processing.loopSequence.go (); // toggle "go" and "stop"
-                            }
 
                             // Push the behavior change to the server
                             // TODO: Remove the behavior from the program
@@ -1911,6 +1664,7 @@ function BehaviorPalette (options) {
 
                         disableEventCreate = false;
                         behavior.state = 'ENGAGED';
+
                     }
                 }
             }
@@ -2016,15 +1770,15 @@ function LooperInstance (options) {
     /**
      * Returns the behavior of the device with the specified index.
      */
-    this.getBehaviorSequence = function getBehaviorSequence (deviceIndex) {
-      return this.looper.devices[deviceIndex].processing.loopSequence.behaviors;
-    }
+    // this.getBehaviorSequence = function getBehaviorSequence (deviceIndex) {
+    //   return this.looper.devices[deviceIndex].processing.loopSequence.behaviors;
+    // }
 
     
 
     //this.looperInstance = options.looperInstance;
-    this.superstructure = options.looperInstance; // The superstructure is the structure that semantically contains this structure as a component. The superstructure may also contain structure other this one.
-    this.substructures = []; // The substructures are the structures that are semantically components of this structure. In other words, they are contained by this structure.
+    this.parent = options.looperInstance; // The parent is the structure that semantically contains this structure as a component. The parent may also contain structure other this one.
+    this.children = []; // The children are the structures that are semantically components of this structure. In other words, they are contained by this structure.
 
     //! Interfaces
     // TODO: (?) Set a default interface rather than null
@@ -2045,20 +1799,20 @@ function LooperInstance (options) {
 
     //! Returns the Looper for which the structure was created.
     //!
-    this.getSuperstructure = function (options) {
-        return this.superstructure;
+    this.getParent = function (options) {
+        return this.parent;
     }
 
     //! Returns the components of this structure. These components may be defined statically or generatively.
     //!
-    this.getSubstructure = function (options) {
+    this.getChild = function (options) {
         return this.substructure;
     }
 
     //! Returns the Looper for which the structure was created.
     //!
     // this.getLooper = function (options) {
-    //     return this.superstructure;
+    //     return this.parent;
     // }
 
     //! Attaches an interface to this structure, enabling it to be rendered.
@@ -2103,11 +1857,11 @@ function LooperInstance (options) {
             this.interface.draw ();
         }
 
-        // console.log (this.substructures);
+        // console.log (this.children);
 
         // Draw the substructure
-        for (var i = 0; i < this.substructures.length; i++) {
-            this.substructures[i].draw ();
+        for (var i = 0; i < this.children.length; i++) {
+            this.children[i].draw ();
         }
     }
 
@@ -2121,7 +1875,6 @@ function LooperInstance (options) {
 
         processing.currentTime = 0;
         processing.previousTime = 0;
-        processing.stepFrequency = 100;
 
         var backgroundColor = processing.color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
         function generateRandomColor(red, green, blue) {
@@ -2210,8 +1963,8 @@ function LooperInstance (options) {
                             // console.log("NOTE");
                             // console.log (this);
                             // console.log (this.interface.value + " (scaled)");
-                            var note = this.interface.structure.superstructure.sliders['note'].value; // this.interface.<slider>.<behavior node>
-                            var duration = this.interface.structure.superstructure.sliders['duration'].value; // this.interface.<slider>.<behavior node>
+                            var note = this.interface.structure.parent.sliders['note'].value; // this.interface.<slider>.<behavior node>
+                            var duration = this.interface.structure.parent.sliders['duration'].value; // this.interface.<slider>.<behavior node>
                             sendMessage ({ content: "play note " + parseInt (note) + " " + parseInt (duration) });
                             // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
                             // sendMessage ({ content: "play sound 500 800" });
@@ -2222,8 +1975,8 @@ function LooperInstance (options) {
                         minimum: 0,
                         maximum: 1000,
                         callback: function () {
-                            var note = this.interface.structure.superstructure.sliders['note'].value; // this.interface.<slider>.<behavior node>
-                            var duration = this.interface.structure.superstructure.sliders['duration'].value; // this.interface.<slider>.<behavior node>
+                            var note = this.interface.structure.parent.sliders['note'].value; // this.interface.<slider>.<behavior node>
+                            var duration = this.interface.structure.parent.sliders['duration'].value; // this.interface.<slider>.<behavior node>
                             sendMessage ({ content: "play note " + parseInt (note) + " " + parseInt (duration) });
                             // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
                             // sendMessage ({ content: "play sound 500 800" });
@@ -2321,21 +2074,21 @@ function LooperInstance (options) {
                             console.log (this.value + " (scaled)");
                             // alert (this.interface.value);
                             // alert (this.interface.structure.value); // this.interface.<slider>.<behavior node>
-                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
-                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
-                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            var red = this.interface.structure.parent.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.parent.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.parent.sliders['blue'].value; // this.interface.<slider>.<behavior node>
                             // alert (this.interface.structure); // this.interface.<slider>.<behavior node>
-                            // alert (this.interface.structure.superstructure); // this.interface.<slider>.<behavior node>
-                            // // alert (this.interface.structure.superstructure.sliders); // this.interface.<slider>.<behavior node>
-                            // alert (this.interface.structure.superstructure.properties); // this.interface.<slider>.<behavior node>
-                            // // alert (this.interface.structure.superstructure.sliders.length); // this.interface.<slider>.<behavior node>
-                            // alert (this.interface.structure.superstructure.properties.length); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure.parent); // this.interface.<slider>.<behavior node>
+                            // // alert (this.interface.structure.parent.sliders); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure.parent.properties); // this.interface.<slider>.<behavior node>
+                            // // alert (this.interface.structure.parent.sliders.length); // this.interface.<slider>.<behavior node>
+                            // alert (this.interface.structure.parent.properties.length); // this.interface.<slider>.<behavior node>
                             // alert (this.interface.value);
                             // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
                             // alert (this.values['red'] + ', ' + this.values['green'] + ', ' + this.values['blue']);
-                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
-                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
-                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            var red = this.interface.structure.parent.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.parent.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.parent.sliders['blue'].value; // this.interface.<slider>.<behavior node>
                             sendMessage ({ content: "change color to " + red + "," + green + "," + blue });
                         }
                     },
@@ -2349,9 +2102,9 @@ function LooperInstance (options) {
                             console.log (this.value + " (scaled)");
                             // alert (this.interface.value);
                             // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
-                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
-                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            var red = this.interface.structure.parent.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.parent.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.parent.sliders['blue'].value; // this.interface.<slider>.<behavior node>
                             sendMessage ({ content: "change color to " + red + "," + green + "," + blue });
                         }
                     },
@@ -2365,9 +2118,9 @@ function LooperInstance (options) {
                             console.log (this.value + " (scaled)");
                             // alert (this.interface.value);
                             // updateBehavior ({ type: 'sound', uuid: 691, note: parseInt (this.interface.value), duration: 1000 });
-                            var red = this.interface.structure.superstructure.sliders['red'].value; // this.interface.<slider>.<behavior node>
-                            var green = this.interface.structure.superstructure.sliders['green'].value; // this.interface.<slider>.<behavior node>
-                            var blue = this.interface.structure.superstructure.sliders['blue'].value; // this.interface.<slider>.<behavior node>
+                            var red = this.interface.structure.parent.sliders['red'].value; // this.interface.<slider>.<behavior node>
+                            var green = this.interface.structure.parent.sliders['green'].value; // this.interface.<slider>.<behavior node>
+                            var blue = this.interface.structure.parent.sliders['blue'].value; // this.interface.<slider>.<behavior node>
                             sendMessage ({ content: "change color to " + red + "," + green + "," + blue });
                         }
                     }
@@ -2376,7 +2129,7 @@ function LooperInstance (options) {
 
             processing.behaviorPalette.addBehavior ({
                 type: 'module',
-                label: 'messg',
+                label: 'message',
 
                 x: processing.behaviorPalette.x + 0,
                 y: processing.behaviorPalette.y - 100,
@@ -2420,6 +2173,17 @@ function LooperInstance (options) {
 
             } else if (processing.key == 97) { // a
                 console.log ("pan left");
+
+                // mouse = new PVector(mouseX, mouseY);
+                // poffset.set(offset);
+                processing.mouse_x = processing.mouseX;
+                processing.mouse_y = processing.mouseY;
+                processing.xOffsetPrevious = processing.xOffset;
+                processing.yOffsetPrevious = processing.yOffset;
+
+                // offset.x = mouseX - mouse.x + poffset.x;
+                // offset.y = mouseY - mouse.y + poffset.y;
+                processing.xOffset = 10 + processing.xOffsetPrevious;
             } else if (processing.key == 115) { // s
                 console.log ("pan down");
 
@@ -2435,6 +2199,17 @@ function LooperInstance (options) {
                 processing.yOffset = -10 + processing.yOffsetPrevious;
             } else if (processing.key == 100) { // d
                 console.log ("pan right");
+
+                // mouse = new PVector(mouseX, mouseY);
+                // poffset.set(offset);
+                processing.mouse_x = processing.mouseX;
+                processing.mouse_y = processing.mouseY;
+                processing.xOffsetPrevious = processing.xOffset;
+                processing.yOffsetPrevious = processing.yOffset;
+
+                // offset.x = mouseX - mouse.x + poffset.x;
+                // offset.y = mouseY - mouse.y + poffset.y;
+                processing.xOffset = -10 + processing.xOffsetPrevious;
             }
         }
 
@@ -2442,6 +2217,8 @@ function LooperInstance (options) {
          * Override setup function.
          */
         processing.setup = function() {
+            this.frameRate (30);
+
             this.size (this.screenWidth, this.screenHeight);
 
             this.font = this.loadFont("Comfortaa-Regular.ttf");
@@ -2449,30 +2226,13 @@ function LooperInstance (options) {
             this.xOffsetOrigin = this.screenWidth / 2;
             this.yOffsetOrigin = this.screenHeight / 2;
 
-            // processing.xOrigin = 0.0;
-            // processing.yOrigin = 0.0;
             processing.xOffset = 0.0;
             processing.yOffset = 0.0;
             processing.xOffsetPrevious = 0.0;
             processing.yOffsetPrevious = 0.0;
-            // processing.translate (processing.xOrigin, processing.yOrigin);
-            // processing.scale (processing.scaleOrigin);
 
             processing.scaleFactor = 1.0;
             processing.zoomFactor = 0.6;
-            // processing.previousCenterX = processing.xOrigin; // this.screenWidth / 2;
-            // processing.previousCenterY = processing.yOrigin; // this.screenHeight / 2;
-            // processing.centerX = processing.xOrigin; // this.screenWidth / 2;
-            // processing.centerY = processing.yOrigin; // this.screenHeight / 2;
-
-            // processing.translate (processing.xOrigin, processing.yOrigin);
-            // processing.scale (processing.scaleOrigin);
-            // processing.translate (-1 * processing.xOrigin, -1 * processing.yOrigin);
-
-            // looper.processing.translate (looper.processing.previousCenterX, looper.processing.previousCenterY);
-            // // this.translate (this.screenWidth / 2, this.screenHeight / 2);
-            // looper.processing.scale (looper.processing.zoomFactor * looper.processing.scaleFactor);
-            // looper.processing.translate (-1 * looper.processing.centerX, -1 * looper.processing.centerY);
         }
 
         processing.drawLoop = function() {
@@ -2598,7 +2358,7 @@ function LooperInstance (options) {
             /**
              * Returns the sequence of behaviors in the event queue.
              */
-            function getBehaviorSequence () {
+            processing.getBehaviorSequence = function () {
                 var behaviorSequence = [];
 
                 var eventCount = processing.loopSequence.behaviors.length;
@@ -2641,7 +2401,6 @@ function LooperInstance (options) {
 
                 return behaviorSequence;
             }
-            processing.getBehaviorSequence = getBehaviorSequence;
 
             /**
              * Returns the distance between the two specified points.
@@ -2863,19 +2622,116 @@ function LooperInstance (options) {
 
             }
 
+
+
+
+            //
+            // TODO: Update behavior coordinate system orientation #draw-behavior
+            //
+
+            if (looper.geometry === undefined) { looper.geometry = {}; }
+            if (looper.geometry.loop === undefined) { looper.geometry.loop = {}; } // i.e., the containing loop
+            if (looper.geometry.loop.position === undefined) { looper.geometry.loop.position = {}; }
+            if (looper.geometry.behavior === undefined) { looper.geometry.behavior = {}; } // i.e., the current behavior
+            if (looper.geometry.behavior.position === undefined) { looper.geometry.behavior.position = {}; }
+            if (looper.geometry.condition === undefined) { looper.geometry.condition = {}; } // i.e., the current behavior's condition
+
+            if (looper.loop === undefined) { looper.loop = {}; }
+            if (looper.loop.behaviors === undefined) { looper.loop.behaviors = []; }
+            // if (looper.loop.behaviors2 === undefined) { looper.loop.behaviors2 = []; }
+
+            looper.geometry.loop.position = { x: 0, y: 0 };
+            looper.geometry.loop.radius = 200;
+
+            // Sort the list by angle
+            // TODO: Only do this when a new interaction occurs
+            // console.log (looper.loop.behaviors);
+            for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                for (var j = i; j < looper.loop.behaviors.length; j++) {
+                    if (looper.loop.behaviors[i].geometry.angle > looper.loop.behaviors[j].geometry.angle) {
+                        var tmp = looper.loop.behaviors[i];
+                        looper.loop.behaviors[i] = looper.loop.behaviors[j];
+                        looper.loop.behaviors[j] = tmp;
+                    }
+                }
+            }
+
+            // Find the current behavior
+            // behaviorIndex = -1;
+            // for (var i = 0; i < looper.loop.behaviors.length; i++) {
+            //     if (behavior === looper.loop.behaviors[i]) {
+            //         behaviorIndex = i;
+            //         break;
+            //     }
+            // }
+            // currentBehavior = looper.loop.behaviors[behaviorIndex];
+
+            // Update the behavior
+            for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                currentBehavior = looper.loop.behaviors[i];
+
+                currentBehavior.condition.endAngle = currentBehavior.geometry.angle - currentBehavior.condition.endAngleOffset;
+
+                // Set condition start angle
+                if (i > 0) {
+                    var previousBehavior = looper.loop.behaviors[i - 1];
+                    currentBehavior.condition.startAngle = previousBehavior.geometry.angle + previousBehavior.condition.endAngleOffset;;
+                } else {
+                    currentBehavior.condition.startAngle = 0;
+                }
+
+
+
+                // var distanceFromCenter = Math.sqrt (processing.zoomedCanvasMouseX * processing.zoomedCanvasMouseX + processing.zoomedCanvasMouseY * processing.zoomedCanvasMouseY);
+                // var touchAngle = processing.getAngleFixed (processing.zoomedCanvasMouseX, processing.zoomedCanvasMouseY);
+
+                if (currentBehavior.conditionType === undefined) {
+                    currentBehavior.conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
+                }
+
+                // // TODO: Move this to the click handler, so it's only executed once
+                // if (looper.hasCurrentDevice () === true) {
+                //     if (looper.getCurrentDevice ().touch.touching === true) {
+                //         if (distanceFromCenter > 175 && distanceFromCenter < 225) {
+
+                //             if (touchAngle > currentBehavior.condition.startAngle && touchAngle < currentBehavior.condition.endAngle) {
+
+                //                 if (currentBehavior.conditionType === "none") {
+                //                     currentBehavior.conditionType = "stimulus";
+                //                 } else if (currentBehavior.conditionType === "stimulus") {
+                //                     currentBehavior.conditionType = "message";
+                //                 } else if (currentBehavior.conditionType === "message") {
+                //                     currentBehavior.conditionType = "gesture";
+                //                 } else if (currentBehavior.conditionType === "gesture") {
+                //                     currentBehavior.conditionType = "none";
+                //                 }
+
+                //             }
+                //         }
+                //     }
+                // }
+            }
+
+
+
+
+
+
+            // var sequence = behavior.interface.processing.getBehaviorSequence();
+            //var sequence = processing.loopSequence.behaviors;
+
+            // console.log (looper.loop.behaviors2);
+
+            // looper.geometry.behavior.position = { x: this.x, y: this.y };
+            // looper.geometry.behavior.diameter = 120;
+            // looper.geometry.behavior.angle = processing.getAngleFixed (looper.geometry.behavior.position.x, looper.geometry.behavior.position.y);
+
             /**
              * Start of actual loop instructions. The things above are definitions.
              */
 
             // erase background
             processing.background(backgroundColor);
-
-            // step to next node in loop
-            processing.currentTime = (new Date()).getTime();
-            if (processing.currentTime > (processing.previousTime + processing.stepFrequency)) {
-                processing.previousTime = processing.currentTime;
-                processing.loopSequence.step();
-            }
 
             this.drawLoop(); // TODO: Make Interface for this! Then remove!
 
@@ -2897,9 +2753,9 @@ g_deviceUrl = "";
 moduleList = [];
 moduleObjects = {};
 
-// setInterval(function () {
-//     udpBroadcast ();
-// }, 5000);
+setInterval(function () {
+    udpBroadcast ();
+}, 3000);
 
 // Get modules every 5 seconds
 // setInterval(function () {

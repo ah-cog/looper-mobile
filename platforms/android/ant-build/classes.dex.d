@@ -9,6 +9,12 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/edu/uic/udptransmit/UDPTransmit$1.class \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/edu/uic/udptransmit/UDPTransmit$2.class \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/edu/uic/udptransmit/UDPTransmit.class \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/in/girish/datagram/Datagram$SocketListener.class \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/in/girish/datagram/Datagram.class \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/org/apache/cordova/devicemotion/AccelListener$1.class \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/org/apache/cordova/devicemotion/AccelListener.class \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/org/apache/cordova/dgram/Dgram$1.class \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/org/apache/cordova/dgram/Dgram$SocketConfig.class \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/org/apache/cordova/dgram/Dgram$SocketListener.class \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/classes/org/apache/cordova/dgram/Dgram.class \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/ant-build/dexedLibs/classes-f5cd1da3de66c4cf7691de342a9be2a4.jar \

@@ -7,6 +7,12 @@
     <feature name="Accelerometer">
         <param name="android-package" value="org.apache.cordova.devicemotion.AccelListener" />
     </feature>
+    <feature name="Dgram">
+        <param name="android-package" value="org.apache.cordova.dgram.Dgram" />
+    </feature>
+    <feature name="Datagram">
+        <param name="android-package" value="in.girish.datagram.Datagram" />
+    </feature>
     <name>Pixel</name>
     <description>
         Graphical interface for Pixel.
