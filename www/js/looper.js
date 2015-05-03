@@ -1,7 +1,3 @@
-//!
-//! 
-//!
-
 // devices = [];
 deviceCount = -1;
 
@@ -11,9 +7,8 @@ showPalette = false;
 interfaces = []; // TODO: Move this into Looper class?
 
 /**
-* super simple carousel
-* animation between panes happens with css transitions
-*/
+ * Simple carousel that animates transitions between panes (with CSS transitions).
+ */
 function Carousel (element) {
     var self = this;
     element = $(element);
@@ -68,7 +63,6 @@ function Carousel (element) {
 
     /**
      * show pane by index
-     * @param   {Number}    index
      */
     this.getCurrentPane = function() {
         return current_pane;
@@ -503,10 +497,6 @@ function setupGestures (device) {
     });
 }
 
-//------------
-// looper.js
-//------------
-
 /**
  * The main Looper class.
  */
@@ -639,46 +629,46 @@ function Loop (options) {
     /**
      * Re-orders the behaviors in the event loop.
      */
-    this.updateOrdering = function () {
-        var behaviorSequence = [];
+    // this.updateOrdering = function () {
+    //     var behaviorSequence = [];
 
-        var eventCount = this.behaviors.length;
+    //     var eventCount = this.behaviors.length;
 
-        // Populate array for sorting
-        for (var i = 0; i < eventCount; i++) {
-            var loopBehavior = this.behaviors[i];
-            if (loopBehavior.state === 'ENGAGED') {
-                behaviorSequence.push({
-                    event: loopBehavior,
-                    angle: getAngle(loopBehavior.x, loopBehavior.y)
-                });
-            }
-        }
+    //     // Populate array for sorting
+    //     for (var i = 0; i < eventCount; i++) {
+    //         var loopBehavior = this.behaviors[i];
+    //         if (loopBehavior.state === 'ENGAGED') {
+    //             behaviorSequence.push({
+    //                 event: loopBehavior,
+    //                 angle: getAngle(loopBehavior.x, loopBehavior.y)
+    //             });
+    //         }
+    //     }
 
-        // Perform insertion sort
-        var i, j;
-        var loopBehavior;
-        eventCount = behaviorSequence.length;
-        for (var i = 0; i < eventCount; i++) {
-            loopBehavior = behaviorSequence[i];
+    //     // Perform insertion sort
+    //     var i, j;
+    //     var loopBehavior;
+    //     eventCount = behaviorSequence.length;
+    //     for (var i = 0; i < eventCount; i++) {
+    //         loopBehavior = behaviorSequence[i];
 
-            for (j = i-1; j > -1 && behaviorSequence[j].angle > loopBehavior.angle; j--) {
-                behaviorSequence[j+1] = behaviorSequence[j];
-            }
+    //         for (j = i-1; j > -1 && behaviorSequence[j].angle > loopBehavior.angle; j--) {
+    //             behaviorSequence[j+1] = behaviorSequence[j];
+    //         }
 
-            behaviorSequence[j+1] = loopBehavior;
-        }
+    //         behaviorSequence[j+1] = loopBehavior;
+    //     }
 
-        // Update the sequence to the sorted list of behaviors
-        var updatedEventLoop = [];
-        for (var i = 0; i < behaviorSequence.length; i++) {
-            loopBehavior = behaviorSequence[i];
-            loopBehavior.event.options.index = i; // HACK: Update the behavior's index in the loop
-            updatedEventLoop.push(loopBehavior.event);
-        }
+    //     // Update the sequence to the sorted list of behaviors
+    //     var updatedEventLoop = [];
+    //     for (var i = 0; i < behaviorSequence.length; i++) {
+    //         loopBehavior = behaviorSequence[i];
+    //         loopBehavior.event.options.index = i; // HACK: Update the behavior's index in the loop
+    //         updatedEventLoop.push(loopBehavior.event);
+    //     }
 
-        this.behaviors = updatedEventLoop;
-    }
+    //     this.behaviors = updatedEventLoop;
+    // }
 
     function getAngle(x, y) {
         var deltaX = x - ($(window).width() / 2);
@@ -765,12 +755,6 @@ function Behavior (options) {
     this.getChild = function (options) {
         return this.substructure;
     }
-
-    //! Returns the Looper for which the structure was created.
-    //!
-    // this.getLooper = function (options) {
-    //     return this.parent;
-    // }
 
     //! Attaches an interface to this structure, enabling it to be rendered.
     //!
@@ -900,7 +884,6 @@ function BehaviorPalette (options) {
     console.log ("BehaviorPalette");
 
     var defaults = {
-        //looperInstance: null,
         parent: null,
 
         x: null,
@@ -915,7 +898,6 @@ function BehaviorPalette (options) {
     var options = $.extend({}, defaults, options);
 
     console.log ("\tCreating BehaviorPalette");
-    // DEBUG: console.log (options);
 
     this.x = options.x;
     this.y = options.y;
@@ -924,8 +906,6 @@ function BehaviorPalette (options) {
     this.yTarget = options.yTarget;
 
     this.behaviors = options.behaviors;
-
-    // this.state = options.state;
 
     this.label = options.label;
 
