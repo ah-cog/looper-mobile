@@ -29,10 +29,6 @@ corhttpd_exports.getURL = function(success, error) {
 	  exec(success, error, "CorHttpd", "getURL", []);
 };
 
-corhttpd_exports.getModules = function(success, error) {
-	  exec(success, error, "CorHttpd", "getModules", []);
-};
-
 corhttpd_exports.getLocalPath = function(success, error) {
 	  exec(success, error, "CorHttpd", "getLocalPath", []);
 };

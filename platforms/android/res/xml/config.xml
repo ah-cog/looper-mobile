@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="builders.abstraction.pixel" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
-    <feature name="CorHttpd">
-        <param name="android-package" value="com.rjfun.cordova.httpd.CorHttpd" />
-    </feature>
     <feature name="Accelerometer">
         <param name="android-package" value="org.apache.cordova.devicemotion.AccelListener" />
     </feature>
     <feature name="Dgram">
         <param name="android-package" value="org.apache.cordova.dgram.Dgram" />
     </feature>
-    <feature name="Datagram">
-        <param name="android-package" value="in.girish.datagram.Datagram" />
+    <feature name="networkinterface">
+        <param name="android-package" value="com.albahra.plugin.networkinterface.networkinterface" />
+    </feature>
+    <feature name="CorHttpd">
+        <param name="android-package" value="com.rjfun.cordova.httpd.CorHttpd" />
     </feature>
     <name>Pixel</name>
     <description>
@@ -54,6 +54,7 @@
     <gap:plugin name="org.apache.cordova.network-information" />
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
+    <gap:plugin name="com.albahra.plugin.networkinterface" />
     <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="www/res/icon/android/icon-36-ldpi.png" />
     <icon gap:platform="android" gap:qualifier="mdpi" src="www/res/icon/android/icon-48-mdpi.png" />

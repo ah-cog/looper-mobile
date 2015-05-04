@@ -1,13 +1,6 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/com.rjfun.cordova.httpd/www/CorHttpd.js",
-        "id": "com.rjfun.cordova.httpd.CorHttpd",
-        "clobbers": [
-            "cordova.plugins.CorHttpd"
-        ]
-    },
-    {
         "file": "plugins/org.apache.cordova.device-motion/www/Acceleration.js",
         "id": "org.apache.cordova.device-motion.Acceleration",
         "clobbers": [
@@ -29,17 +22,27 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/in.girish.datagram/www/datagram.js",
-        "id": "in.girish.datagram.datagram"
+        "file": "plugins/com.albahra.plugin.networkinterface/www/networkinterface.js",
+        "id": "com.albahra.plugin.networkinterface.networkinterface",
+        "clobbers": [
+            "window.networkinterface"
+        ]
+    },
+    {
+        "file": "plugins/com.rjfun.cordova.httpd/www/CorHttpd.js",
+        "id": "com.rjfun.cordova.httpd.CorHttpd",
+        "clobbers": [
+            "cordova.plugins.CorHttpd"
+        ]
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "com.rjfun.cordova.httpd": "0.9.2",
     "org.apache.cordova.device-motion": "0.2.10",
     "cordova-plugin-dgram": "0.1.2",
-    "in.girish.datagram": "0.1.0"
+    "com.albahra.plugin.networkinterface": "1.0.7",
+    "com.rjfun.cordova.httpd": "0.9.2"
 }
 // BOTTOM OF METADATA
 });

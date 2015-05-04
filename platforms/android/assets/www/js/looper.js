@@ -2731,13 +2731,13 @@ function LooperInstance (options) {
              */
 
             // erase background
-            processing.background(backgroundColor);
+            processing.background (backgroundColor);
 
-            this.drawLoop(); // TODO: Make Interface for this! Then remove!
+            this.drawLoop (); // TODO: Make Interface for this! Then remove!
 
             drawInterfaces ();
 
-            this.popMatrix();
+            this.popMatrix ();
         };
     });
 
@@ -2752,10 +2752,6 @@ g_deviceUrl = "";
 
 moduleList = [];
 moduleObjects = {};
-
-setInterval(function () {
-    udpBroadcast ();
-}, 3000);
 
 // Get modules every 5 seconds
 // setInterval(function () {

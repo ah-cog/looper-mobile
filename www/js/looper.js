@@ -2731,13 +2731,13 @@ function LooperInstance (options) {
              */
 
             // erase background
-            processing.background(backgroundColor);
+            processing.background (backgroundColor);
 
-            this.drawLoop(); // TODO: Make Interface for this! Then remove!
+            this.drawLoop (); // TODO: Make Interface for this! Then remove!
 
             drawInterfaces ();
 
-            this.popMatrix();
+            this.popMatrix ();
         };
     });
 

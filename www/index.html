@@ -36,25 +36,40 @@
 
     <body onload="onLoad()">
     <script>
-    var httpd = null;
+    // var httpd = null;
     function onLoad() {
     	document.addEventListener ("deviceready", onDeviceReady, false);
     }
 
-    function startUdpServer () {
+    function Start_UDP_Server () {
 
-        datagram = window.dgram;
+        datagram = window.dgram; // get a reference to the PhoneGap Dgram library
 
-        //var datagram = cordova.require("in.girish.datagram.datagram");
-        var broadcastSocket = datagram.createSocket("multicast-udp4", 4445);
-        broadcastSocket.bind(function(data) {
+        // var datagram = cordova.require("in.girish.datagram.datagram");
+        var broadcastSocket = datagram.createSocket ("multicast-udp4", 4445);
+        broadcastSocket.bind (function (data) {
             console.log(" data ===> " + data);
         });
 
-        broadcastSocket.on("message", function(data, info) {
-            alert(data);
-            alert(JSON.stringify(info));
-            // broadcastSocket.send("Hi!", info.address, 4445, function() {
+        broadcastSocket.on ("message", function (data, info) {
+            if (address !== undefined && info.address !== address) {
+                // alert (data);
+                // alert (JSON.stringify (info));
+
+                // for (var i = 0; i < moduleList.length; i++) {
+
+                    if (moduleList.indexOf (info.address) > -1) { // if module is already in the list...
+                        
+                    } else { // if the module is not already in the list...
+                        // alert ("Adding: " + moduleArray[i]);
+                        moduleList.push (info.address); // add the module to the list
+                        looper.addDevice ({ address: info.address });
+                        looper.showDeviceByIndex (moduleList.length - 1); // ...show it!
+                    }
+
+                // }
+            }
+            // broadcastSocket.send ("Hi!", info.address, 4445, function () {
 
             // });
 
@@ -62,217 +77,201 @@
         });
     }
 
+    function Start_UDP_Broadcast () {
+        setInterval (function () {
+            Broadcast_UDP_Client (); // Expose (); // Start_UDP_Broadcaster (); // send "@all present" or "@all be"
+        }, 5000);
+    }
+
     function onDeviceReady () {
-        httpd = ( cordova && cordova.plugins && cordova.plugins.CorHttpd ) ? cordova.plugins.CorHttpd : null;
+        // httpd = (cordova && cordova.plugins && cordova.plugins.CorHttpd) ? cordova.plugins.CorHttpd : null;
         // alert (httpd);
 
-        startServer("htdocs");
+        // startServer("htdocs");
 
-        startUdpServer ();
+        Start_UDP_Server (); // Watch_For_Peers (); // Start_UDP_Server (); // watch for Pixels announcing "@all notify"
 
-        setInterval(function () {
-            udpBroadcast ();
-        }, 5000);
+        Start_UDP_Broadcast ();
+        // setInterval (function () {
+        //     Broadcast_UDP_Client (); // Expose (); // Start_UDP_Broadcaster (); // send "@all present" or "@all be"
+        // }, 5000);
 
-        // datagram = window.dgram;
-
-        // //var datagram = cordova.require("in.girish.datagram.datagram");
-        // var broadcastSocket = datagram.createSocket("multicast-udp4", 4445);
-        // // broadcastSocket.bind(function(data) {
-        // //     console.log(" data ===> " + data);
-        // // });
-
-        // // broadcastSocket.on("message", function(data, info) {
-        // //     alert(data);
-        // //     alert(JSON.stringify(info));
-        // //     // broadcastSocket.send("Hi!", info.address, 4445, function() {
-
-        // //     // });
-        // // });
-        // broadcastSocket.send("Hello", "255.255.255.255", 4445, function() {
-
-        // });
-
-        // var datagram = cordova.require("in.girish.datagram.datagram");
-        // alert (datagram);
-        // alert (JSON.stringify(window.dgram));
-        // alert (window.dgram.createSocket);
-        // var dgram = cordova.require("cordova/plugin/dgram");
-        // alert (dgram);
-            //udpBroadcast
+        networkinterface.getIPAddress(function (ip) { 
+            address = ip;
+        });
     }
 
-    function updateStatus () {
-    	document.getElementById('location').innerHTML = "document.location.href: " + document.location.href;
-    	if (httpd) {
-    		httpd.getURL (function (url) {
-    			if(url.length > 0) {
-    				document.getElementById('url').innerHTML = "server is up: <a href='" + url + "' target='_blank'>" + url + "</a>";
-    			} else {
-    				document.getElementById('url').innerHTML = "server is down.";
-    			}
+    // function updateStatus () {
+    // 	document.getElementById('location').innerHTML = "document.location.href: " + document.location.href;
+    // 	if (httpd) {
+    // 		httpd.getURL (function (url) {
+    // 			if(url.length > 0) {
+    // 				document.getElementById('url').innerHTML = "server is up: <a href='" + url + "' target='_blank'>" + url + "</a>";
+    // 			} else {
+    // 				document.getElementById('url').innerHTML = "server is down.";
+    // 			}
 
-                document.getElementById('looper').innerHTML = "<a href='" + url + "/looper.html' target='_blank'>Looper</a>";
-    		});
-    		httpd.getLocalPath (function (path){
-    			document.getElementById ('localpath').innerHTML = "<br/>localPath: " + path;
-        	});
-    	} else {
-    		alert ('CorHttpd plugin not available/ready.');
-    	}
-    }
+    //             document.getElementById('looper').innerHTML = "<a href='" + url + "/looper.html' target='_blank'>Looper</a>";
+    // 		});
+    // 		httpd.getLocalPath (function (path){
+    // 			document.getElementById ('localpath').innerHTML = "<br/>localPath: " + path;
+    //     	});
+    // 	} else {
+    // 		alert ('CorHttpd plugin not available/ready.');
+    // 	}
+    // }
 
-    function startServer (wwwroot) {
-    	if (httpd) {
-    	    httpd.getURL (function (url) {
-    	    	if (url.length > 0) {
-    	    		document.getElementById ('url').innerHTML = "server is up: <a href='" + url + "' target='_blank'>" + url + "</a>";
+    // function startServer (wwwroot) {
+    // 	if (httpd) {
+    // 	    httpd.getURL (function (url) {
+    // 	    	if (url.length > 0) {
+    // 	    		document.getElementById ('url').innerHTML = "server is up: <a href='" + url + "' target='_blank'>" + url + "</a>";
 
-	    	    } else {
-    	    	    httpd.startServer ({
-    	    	    	'www_root' : wwwroot,
-    	    	    	'port' : 8080
-    	    	    }, function (url) {
-                        g_deviceUrl = url;
-                        // updateStatus ();
-    	    	    }, function (error) {
-    	    	    	document.getElementById ('url').innerHTML = 'failed to start server: ' + error;
-    	    	    });
-    	    	}
+	   //  	    } else {
+    // 	    	    httpd.startServer ({
+    // 	    	    	'www_root' : wwwroot,
+    // 	    	    	'port' : 8080
+    // 	    	    }, function (url) {
+    //                     g_deviceUrl = url;
+    //                     // updateStatus ();
+    // 	    	    }, function (error) {
+    // 	    	    	document.getElementById ('url').innerHTML = 'failed to start server: ' + error;
+    // 	    	    });
+    // 	    	}
     	    	
-    	    }, function () {});
-    	} else {
-    		alert('CorHttpd plugin not available/ready.');
-    	}
-    }
+    // 	    }, function () {});
+    // 	} else {
+    // 		alert('CorHttpd plugin not available/ready.');
+    // 	}
+    // }
 
-    function stopServer () {
-    	if (httpd) {
-    	    httpd.stopServer (function (){
-    	    	//document.getElementById ('url').innerHTML = 'server is stopped.';
-                //updateStatus ();
-    	    }, function (error){
-    	    	document.getElementById ('url').innerHTML = 'failed to stop server' + error;
-    	    });
-    	} else {
-    		alert ('CorHttpd plugin not available/ready.');
-    	}
-    }
+    // function stopServer () {
+    // 	if (httpd) {
+    // 	    httpd.stopServer (function (){
+    // 	    	//document.getElementById ('url').innerHTML = 'server is stopped.';
+    //             //updateStatus ();
+    // 	    }, function (error){
+    // 	    	document.getElementById ('url').innerHTML = 'failed to stop server' + error;
+    // 	    });
+    // 	} else {
+    // 		alert ('CorHttpd plugin not available/ready.');
+    // 	}
+    // }
 
     // MG: Gets the list of Pixel modules are available
-    function getModulesHTTP () {
+    // function getModulesHTTP () {
 
-        var http = new XMLHttpRequest ();
-        var url = g_deviceUrl.concat ("/modules");
-        var params = "";
-        url = url.concat ('?', params);
+    //     var http = new XMLHttpRequest ();
+    //     var url = g_deviceUrl.concat ("/modules");
+    //     var params = "";
+    //     url = url.concat ('?', params);
         
-        http.open ("GET", url, true);
+    //     http.open ("GET", url, true);
 
-        // Send the proper header information along with the request
-        http.setRequestHeader ("Content-Type", "application/x-www-form-urlencoded");
-        // http.setRequestHeader ('Access-Control-Allow-Origin', '*');
-        http.setRequestHeader ('X-PINGOTHER', 'pingpong');
+    //     // Send the proper header information along with the request
+    //     http.setRequestHeader ("Content-Type", "application/x-www-form-urlencoded");
+    //     // http.setRequestHeader ('Access-Control-Allow-Origin', '*');
+    //     http.setRequestHeader ('X-PINGOTHER', 'pingpong');
         
-        http.onreadystatechange = function () { // Call a function when the state changes.
-            if (http.readyState == 4 && http.status == 200) {
-                // console.log("Behavior got successfully.");
-                alert (http.responseText);
+    //     http.onreadystatechange = function () { // Call a function when the state changes.
+    //         if (http.readyState == 4 && http.status == 200) {
+    //             // console.log("Behavior got successfully.");
+    //             alert (http.responseText);
 
-                // TODO: Update the behavior's state based on the response behavior data.
+    //             // TODO: Update the behavior's state based on the response behavior data.
 
-                // if (callback !== undefined) {
-                //     callback(); // The callback function
-                // }
-            } else if(http.readyState == 4 && http.status == 404) {
-                alert ("fail");
-            }
-        }
-        http.send (params);
-    }
+    //             // if (callback !== undefined) {
+    //             //     callback(); // The callback function
+    //             // }
+    //         } else if(http.readyState == 4 && http.status == 404) {
+    //             alert ("fail");
+    //         }
+    //     }
+    //     http.send (params);
+    // }
 
-    function getModules () {
-        if (httpd) {
-            httpd.getModules (function (response) {
-                if (response.length > 0) {
+    // function getModules () {
+    //     if (httpd) {
+    //         httpd.getModules (function (response) {
+    //             if (response.length > 0) {
 
-                    var moduleListString = response.substring (1, response.length - 1); // Remove the bounding '[' and ']' characters.
+    //                 var moduleListString = response.substring (1, response.length - 1); // Remove the bounding '[' and ']' characters.
 
-                    var moduleArray = moduleListString.split (/\s*,\s*/); // split by comma
+    //                 var moduleArray = moduleListString.split (/\s*,\s*/); // split by comma
 
-                    for (var i = 0; i < moduleArray.length; i++) {
+    //                 for (var i = 0; i < moduleArray.length; i++) {
 
-                        if (moduleArray[i].length > 0) { // if the module string is not empty
+    //                     if (moduleArray[i].length > 0) { // if the module string is not empty
 
-                            if (moduleList.indexOf (moduleArray[i]) > -1) { // if module is already in the list...
+    //                         if (moduleList.indexOf (moduleArray[i]) > -1) { // if module is already in the list...
                                 
-                            } else { // if the module is not already in the list...
-                                // alert ("Adding: " + moduleArray[i]);
-                                moduleList.push (moduleArray[i]); // add the module to the list
-                                looper.addDevice({ address: moduleArray[i] });
-                                looper.showDeviceByIndex(moduleList.length - 1); // ...show it!
-                            }
+    //                         } else { // if the module is not already in the list...
+    //                             // alert ("Adding: " + moduleArray[i]);
+    //                             moduleList.push (moduleArray[i]); // add the module to the list
+    //                             looper.addDevice({ address: moduleArray[i] });
+    //                             looper.showDeviceByIndex(moduleList.length - 1); // ...show it!
+    //                         }
 
-                        }
-                    }
+    //                     }
+    //                 }
 
-                    // var moduleArray = moduleListString.split (", "); // split by comma
+    //                 // var moduleArray = moduleListString.split (", "); // split by comma
 
-                    // if (moduleListString.length > 0) {
-                    //     var rawModuleStrings = moduleListString.split (","); // Extract "module-ip=module-ip" pairs
+    //                 // if (moduleListString.length > 0) {
+    //                 //     var rawModuleStrings = moduleListString.split (","); // Extract "module-ip=module-ip" pairs
 
-                    //     var rawModuleCount = rawModuleStrings.length;
-                    //     for (var i = 0; i < rawModuleCount; i++) {
+    //                 //     var rawModuleCount = rawModuleStrings.length;
+    //                 //     for (var i = 0; i < rawModuleCount; i++) {
 
-                    //         var rawSingleModuleString = rawModuleStrings[i];
+    //                 //         var rawSingleModuleString = rawModuleStrings[i];
 
-                    //         var singleModule = rawSingleModuleString.split ("="); // Extract "module-ip=module-ip" pairs
-                    //         var moduleIP = singleModule[0];
+    //                 //         var singleModule = rawSingleModuleString.split ("="); // Extract "module-ip=module-ip" pairs
+    //                 //         var moduleIP = singleModule[0];
 
-                    //         // Check if the module is already in the list of modules. If not, add it. If so, update it.
-                    //         if (moduleList.indexOf (moduleIP) > -1) { // Check if the module is in the list...
+    //                 //         // Check if the module is already in the list of modules. If not, add it. If so, update it.
+    //                 //         if (moduleList.indexOf (moduleIP) > -1) { // Check if the module is in the list...
 
-                    //         } else { // Check if the module is NOT in the list...
-                    //             // alert ("Adding: " + moduleIP);
-                    //             moduleList.push (moduleIP);
+    //                 //         } else { // Check if the module is NOT in the list...
+    //                 //             // alert ("Adding: " + moduleIP);
+    //                 //             moduleList.push (moduleIP);
 
-                    //             // Add to Looper
-                    //             looper.addDevice({ address: moduleIP });
-                    //             // if (moduleList.length == 1) { // if this is the first module...
-                    //                 looper.showDeviceByIndex(moduleList.length - 1); // ...show it!
-                    //             // }
-                    //         }
+    //                 //             // Add to Looper
+    //                 //             looper.addDevice({ address: moduleIP });
+    //                 //             // if (moduleList.length == 1) { // if this is the first module...
+    //                 //                 looper.showDeviceByIndex(moduleList.length - 1); // ...show it!
+    //                 //             // }
+    //                 //         }
 
-                    //         // if (moduleObjects[moduleIP] === undefined) { // Check if the module IS NOT already in the list
-                    //         //     moduleObjects[moduleIP] = moduleIP;
-                    //         // } else { // ...if the module is already in the list (e.g., then update it!)
-                    //         //     moduleObjects[moduleIP] = moduleIP;
-                    //         // }
+    //                 //         // if (moduleObjects[moduleIP] === undefined) { // Check if the module IS NOT already in the list
+    //                 //         //     moduleObjects[moduleIP] = moduleIP;
+    //                 //         // } else { // ...if the module is already in the list (e.g., then update it!)
+    //                 //         //     moduleObjects[moduleIP] = moduleIP;
+    //                 //         // }
 
-                    //         // alert (moduleObjects);
-                    //     }
+    //                 //         // alert (moduleObjects);
+    //                 //     }
 
 
-                    //     // Echo the modules in the list
-                    //     // alert (moduleList);
-                    //     if (moduleList.length > 0) {
-                    //         // for (var i = 0; i < moduleList.length; i++) {
-                    //         //     alert (moduleList[i]);
-                    //         // }
-                    //     }
-                    // }
+    //                 //     // Echo the modules in the list
+    //                 //     // alert (moduleList);
+    //                 //     if (moduleList.length > 0) {
+    //                 //         // for (var i = 0; i < moduleList.length; i++) {
+    //                 //         //     alert (moduleList[i]);
+    //                 //         // }
+    //                 //     }
+    //                 // }
 
-                } else {
-                    alert ("getModules fail");
-                }
-            });
-            // httpd.getLocalPath (function (path){
-            //     document.getElementById ('localpath').innerHTML = "<br/>localPath: " + path;
-            // });
-        } else {
-            alert ('CorHttpd plugin not available/ready.');
-        }
-    }
+    //             } else {
+    //                 alert ("getModules fail");
+    //             }
+    //         });
+    //         // httpd.getLocalPath (function (path){
+    //         //     document.getElementById ('localpath').innerHTML = "<br/>localPath: " + path;
+    //         // });
+    //     } else {
+    //         alert ('CorHttpd plugin not available/ready.');
+    //     }
+    // }
 
     // function udpBroadcast () {
 
@@ -294,30 +293,21 @@
 
     // }
 
-    function udpBroadcast () {
+    function Broadcast_UDP_Client () { // udpBroadcast () {
 
-        var addressWithPort = g_deviceUrl.substring (7);
-        var address = addressWithPort.substring (0, g_deviceUrl.lastIndexOf (":"));
-        var broadcastAddress = address.substring(0, address.lastIndexOf (".") + 1) + "255";
-        
         datagram = window.dgram;
 
+        var port = 4445;
+        var addressWithPort = address + ":" + port;
+        var broadcastAddress = address.substring (0, address.lastIndexOf (".") + 1) + "255";
+
         //var datagram = cordova.require("in.girish.datagram.datagram");
-        var broadcastSocket = datagram.createSocket("multicast-udp4", 4445);
-        // broadcastSocket.bind(function(data) {
-        //     console.log(" data ===> " + data);
-        // });
+        var broadcastSocket = datagram.createSocket ("multicast-udp4", port);
 
-        // broadcastSocket.on("message", function(data, info) {
-        //     alert(data);
-        //     alert(JSON.stringify(info));
-        //     // broadcastSocket.send("Hi!", info.address, 4445, function() {
-
-        //     // });
-        // });
-        broadcastSocket.send("@all notice presence", "255.255.255.255", 4445, function() {
-
-        });
+        //broadcastSocket.send("@all notice presence", "255.255.255.255", 4445, function() {
+        //var message = "@all notice presence " + addressWithPort;
+        var message = "PIXEL: " + addressWithPort;
+        broadcastSocket.send (message, "255.255.255.255", port, function () {});
 
     }
 
