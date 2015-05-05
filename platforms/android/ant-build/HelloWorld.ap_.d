@@ -57,6 +57,7 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.albahra.plugin.networkinterface \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/cordova-plugin-dgram \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/cordova-plugin-vibration \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.albahra.plugin.networkinterface/www \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.albahra.plugin.networkinterface/www/networkinterface.js \
@@ -64,6 +65,8 @@
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/com.rjfun.cordova.httpd/www/CorHttpd.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/cordova-plugin-dgram/www \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/cordova-plugin-dgram/www/dgram.js \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/cordova-plugin-vibration/www \
+/Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/cordova-plugin-vibration/www/vibration.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www/Acceleration.js \
 /Users/mokogobo/Sandbox/Checkouts/looper-app/platforms/android/assets/www/plugins/org.apache.cordova.device-motion/www/accelerometer.js \

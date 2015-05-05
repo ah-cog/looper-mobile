@@ -34,6 +34,14 @@ module.exports = [
         "clobbers": [
             "cordova.plugins.CorHttpd"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-vibration/www/vibration.js",
+        "id": "cordova-plugin-vibration.notification",
+        "merges": [
+            "navigator.notification",
+            "navigator"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -42,7 +50,8 @@ module.exports.metadata =
     "org.apache.cordova.device-motion": "0.2.10",
     "cordova-plugin-dgram": "0.1.2",
     "com.albahra.plugin.networkinterface": "1.0.7",
-    "com.rjfun.cordova.httpd": "0.9.2"
+    "com.rjfun.cordova.httpd": "0.9.2",
+    "cordova-plugin-vibration": "1.0.1-dev"
 }
 // BOTTOM OF METADATA
 });

@@ -23,6 +23,10 @@
                         {
                             "xml": "<feature name=\"CorHttpd\"><param name=\"android-package\" value=\"com.rjfun.cordova.httpd.CorHttpd\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Vibration\"><param name=\"android-package\" value=\"org.apache.cordova.vibration.Vibration\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -42,6 +46,12 @@
                             "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
                             "count": 1
                         }
+                    ],
+                    "/manifest": [
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.VIBRATE\" />",
+                            "count": 1
+                        }
                     ]
                 }
             }
@@ -58,6 +68,9 @@
             "PACKAGE_NAME": "builders.abstraction.pixel"
         },
         "com.rjfun.cordova.httpd": {
+            "PACKAGE_NAME": "builders.abstraction.pixel"
+        },
+        "cordova-plugin-vibration": {
             "PACKAGE_NAME": "builders.abstraction.pixel"
         }
     },

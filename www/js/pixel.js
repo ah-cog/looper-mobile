@@ -74,52 +74,52 @@
 // TODO: function pin(index, pin, operation, type, mode, value) { /* ... */ }
 //function pin(index, pin, operation, type, mode, value) {
 function sendMessage (options) { // function text (options) {
-    var defaults = {
-        content: ""
-    };
-    var options = options || {};
-    var options = $.extend({}, defaults, options);
+    // var defaults = {
+    //     content: ""
+    // };
+    // var options = options || {};
+    // var options = $.extend({}, defaults, options);
 
-    var http = new XMLHttpRequest();
-    //var deviceUri = "http://" + deviceAddresses[looper.getCurrentPane()];
-    var deviceUri = "http://" + looper.devices[looper.getCurrentPane()].address;
-    var url = deviceUri.concat ("/message");
-    var params = "content=" + options['content'];
-    url = url.concat ('?', params);
+    // var http = new XMLHttpRequest();
+    // //var deviceUri = "http://" + deviceAddresses[looper.getCurrentPane()];
+    // var deviceUri = "http://" + looper.devices[looper.getCurrentPane()].address;
+    // var url = deviceUri.concat ("/message");
+    // var params = "content=" + options['content'];
+    // url = url.concat ('?', params);
     
-    http.open("POST", url, true);
+    // http.open("POST", url, true);
 
-    // alert(url);
+    // // alert(url);
 
-    // Send the proper header information along with the request
-    http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    // http.setRequestHeader('Access-Control-Allow-Origin', '*');
-    http.setRequestHeader('X-PINGOTHER', 'pingpong');
+    // // Send the proper header information along with the request
+    // http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    // // http.setRequestHeader('Access-Control-Allow-Origin', '*');
+    // http.setRequestHeader('X-PINGOTHER', 'pingpong');
     
-    http.onreadystatechange = function() { // Call a function when the state changes.
-        if(http.readyState == 4 && http.status == 200) {
-           console.log(http.responseText);
-        } else if(http.readyState == 4 && http.status == 201) {
-            console.log("Message successfully sent.");
+    // http.onreadystatechange = function() { // Call a function when the state changes.
+    //     if(http.readyState == 4 && http.status == 200) {
+    //        console.log(http.responseText);
+    //     } else if(http.readyState == 4 && http.status == 201) {
+    //         console.log("Message successfully sent.");
 
-            // TODO: Get response from message
+    //         // TODO: Get response from message
 
-            // console.log(http.getResponseHeader('Location'));
+    //         // console.log(http.getResponseHeader('Location'));
 
-            // var behaviorUri = http.getResponseHeader ('Location');
-            // var behaviorUuid = behaviorUri.split ("/")[2];
+    //         // var behaviorUri = http.getResponseHeader ('Location');
+    //         // var behaviorUuid = behaviorUri.split ("/")[2];
 
-            // console.log ("UUID: " + behaviorUuid);
+    //         // console.log ("UUID: " + behaviorUuid);
 
-            // // Update the behavior's UUID
-            // options.behavior.uuid = behaviorUuid;
+    //         // // Update the behavior's UUID
+    //         // options.behavior.uuid = behaviorUuid;
 
-            // console.log (options.behavior);
+    //         // console.log (options.behavior);
 
-            // TODO: Assign UUID to behavior in Looper for subsequent calls.
-        }
-    }
-    http.send(params);
+    //         // TODO: Assign UUID to behavior in Looper for subsequent calls.
+    //     }
+    // }
+    // http.send(params);
 }
 
 /**

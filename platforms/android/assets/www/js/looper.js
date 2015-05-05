@@ -1104,8 +1104,18 @@ function BehaviorPalette (options) {
                         }
                     }
                 }
+
+                //
+                // Reset states as needed at beginning of loop
+                //
+
+                // TODO: Call this only when the user lifts finger (i.e., stops an interaction)
+                looper.loop.entangled = false;
                 
-                // Update the behavior's position if it's moving
+                //
+                // Update state of entities (e.g., the behavior's position if it's moving)
+                //
+
                 if (behavior.state === 'MOVING') {
 
                     currentMouseX = (behavior.interface.processing.screenWidth * (behavior.interface.processing.deviceCount + 1) + behavior.interface.processing.mouseX) - (behavior.interface.processing.screenWidth / 2);
@@ -1196,7 +1206,10 @@ function BehaviorPalette (options) {
 
                         var distanceFromLoop = this.processing.lineDistance (this.x, this.y, this.xTarget, this.yTarget);
 
-                        if (distanceFromLoop < 110) { // ENTANGLED
+                        if (distanceFromLoop < looper.loop.entanglingDistance) { // ENTANGLED
+
+                            navigator.vibrate (5);
+
                             this.processing.stroke(200, 200, 200)
                             this.processing.line (this.x, this.y, this.xTarget, this.yTarget);
 
@@ -1217,6 +1230,9 @@ function BehaviorPalette (options) {
                                 behavior.interface.x = this.xTarget;
                                 behavior.interface.y = this.yTarget;
                             }
+
+                            // Set loop state to entangled
+                            looper.loop.entangled = true;
                         }
                     }
 
@@ -1224,24 +1240,25 @@ function BehaviorPalette (options) {
 
                     // Update list of behavior (interfaces)
                     var found = false;
-                    for (var i = 0; i < looper.loop.behaviors.length; i++) {
-                        if (behavior === looper.loop.behaviors[i]) {
+                    for (var i = 0; i < looper.behaviors.length; i++) {
+                        if (behavior === looper.behaviors[i]) {
                             found = true;
                         }
                     }
                     if (found === false) {
-                        looper.loop.behaviors.push (behavior);
+                        //looper.loop.behaviors.push (behavior);
+                        looper.behaviors.push (behavior);
                     }
 
                     // get index of current behavior (interface)
                     var behaviorIndex = -1;
-                    for (var i = 0; i < looper.loop.behaviors.length; i++) {
-                        if (behavior === looper.loop.behaviors[i]) {
+                    for (var i = 0; i < looper.behaviors.length; i++) {
+                        if (behavior === looper.behaviors[i]) {
                             behaviorIndex = i;
                             break;
                         }
                     }
-                    currentBehavior = looper.loop.behaviors[behaviorIndex];
+                    currentBehavior = looper.behaviors[behaviorIndex];
 
                     // Update current behavior's geometry
                     // TODO: Move this elsewhere to make faster
@@ -1275,6 +1292,8 @@ function BehaviorPalette (options) {
                     //
 
                     if (behavior.state === 'ENGAGED') {
+
+                        behaviorIndex = looper.loop.behaviors.indexOf (behavior);
 
                         //
                         // Draw the condition segment
@@ -1524,7 +1543,7 @@ function BehaviorPalette (options) {
                         behavior.condition.endAngleOffset = 0.35;
                         behavior.condition.startAngleOffset = 0.6;
 
-                        looper.loop.behaviors.push (behavior);
+                        looper.behaviors.push (behavior);
 
                         console.log ("Added behavior");
 
@@ -1560,7 +1579,7 @@ function BehaviorPalette (options) {
 
                         var distance = behavior.interface.processing.getDistanceFromEventLoop (behavior.interface);
 
-                        if (distance < 110) {
+                        if (distance < looper.loop.entanglingDistance) {
 
                             // TODO: Green
                             // TODO: Update position of the event node and set as "sequenced"
@@ -1570,14 +1589,59 @@ function BehaviorPalette (options) {
                             behavior.interface.y = behavior.interface.yTarget;
                             behavior.state = 'ENGAGED';
 
+
+
                             // Update loop ordering
                             // device.processing.loopSequence.updateOrdering();
+
+                            //
+                            // Update behavior coordinate system orientation
+                            // Tags: #draw-behavior
+                            //
+
+                            looper.loop.behaviors.push (behavior);
+
+                            // Sort the list by angle
+                            // Note: This should only be done when a behavior is added or removed from the loop.
+                            for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                                for (var j = i; j < looper.loop.behaviors.length; j++) {
+                                    if (looper.loop.behaviors[i].geometry.angle > looper.loop.behaviors[j].geometry.angle) {
+                                        var tmp = looper.loop.behaviors[i];
+                                        looper.loop.behaviors[i] = looper.loop.behaviors[j];
+                                        looper.loop.behaviors[j] = tmp;
+                                    }
+                                }
+                            }
+
+                            //
+                            // Update the behavior geometry
+                            //
+                            for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                                currentBehavior = looper.loop.behaviors[i];
+
+                                currentBehavior.condition.endAngle = currentBehavior.geometry.angle - currentBehavior.condition.endAngleOffset;
+
+                                // Set condition start angle
+                                if (i > 0) {
+                                    var previousBehavior = looper.loop.behaviors[i - 1];
+                                    currentBehavior.condition.startAngle = previousBehavior.geometry.angle + previousBehavior.condition.endAngleOffset;
+                                } else {
+                                    currentBehavior.condition.startAngle = 0;
+                                }
+
+
+                                if (currentBehavior.conditionType === undefined) {
+                                    currentBehavior.conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
+                                }
+                            }
+
+                            // TODO: Automatically optimize position (reposition) on the loop (relative the latest inserted)
+                            // TODO: Automatically look for recognizable patterns based on updated loop and refactor if possible
 
                             // TODO: Upload/Submit/Push/Send the update to MCU.
 
                             // Callback to server to update the program
-                            // DEBUG: console.log(behavior);
-                            behavior.procedure(behavior.options);
+                            behavior.procedure (behavior.options);
 
                         } else {
 
@@ -1587,6 +1651,25 @@ function BehaviorPalette (options) {
 
                             // Update position of the event node and set as "disengaged"
                             behavior.state = 'DISENGAGED';
+
+                            //
+                            // Update behavior coordinate system orientation
+                            // Tags: #draw-behavior
+                            //
+
+                            looper.loop.behaviors.splice (looper.loop.behaviors.indexOf (behavior), 1); // Delete behavior from the loop
+
+                            // Sort the list by angle
+                            // Note: This should only be done when a behavior is added or removed from the loop.
+                            for (var i = 0; i < looper.loop.behaviors.length; i++) {
+                                for (var j = i; j < looper.loop.behaviors.length; j++) {
+                                    if (looper.loop.behaviors[i].geometry.angle > looper.loop.behaviors[j].geometry.angle) {
+                                        var tmp = looper.loop.behaviors[i];
+                                        looper.loop.behaviors[i] = looper.loop.behaviors[j];
+                                        looper.loop.behaviors[j] = tmp;
+                                    }
+                                }
+                            }
 
                             // DEBUG: console.log(behavior);
 
@@ -2233,6 +2316,37 @@ function LooperInstance (options) {
 
             processing.scaleFactor = 1.0;
             processing.zoomFactor = 0.6;
+
+            //
+            // Initialize data structures
+            //
+
+            if (looper.geometry === undefined) { looper.geometry = {}; }
+            if (looper.geometry.loop === undefined) { looper.geometry.loop = {}; } // i.e., the containing loop
+            if (looper.geometry.loop.position === undefined) { looper.geometry.loop.position = {}; }
+            if (looper.geometry.behavior === undefined) { looper.geometry.behavior = {}; } // i.e., the current behavior
+            if (looper.geometry.behavior.position === undefined) { looper.geometry.behavior.position = {}; }
+            if (looper.geometry.condition === undefined) { looper.geometry.condition = {}; } // i.e., the current behavior's condition
+
+            if (looper.loop === undefined) { looper.loop = {}; }
+            if (looper.loop.behaviors === undefined) { looper.loop.behaviors = []; }
+            if (looper.behaviors === undefined) { looper.behaviors = []; }
+
+            looper.loop.entanglingDistance = 120;
+
+            looper.geometry.loop.position = { x: 0, y: 0 };
+            looper.geometry.loop.radius = 200;
+            looper.geometry.loop.emptyScaleFactor = 0.9; // if the loop is empty, scale the radius by this amount (i.e., the radius will be emptyScaleFactor * radius)
+            looper.geometry.loop.startAngle = 0;
+            looper.geometry.loop.startAngleOffset = 0.15;
+            looper.geometry.loop.endAngle = 2 * this.PI;
+            looper.geometry.loop.endAngleOffset = 0.15;
+            looper.geometry.loop.arrowSegmentLength = 12;
+
+            if (looper.loop.style === undefined) { looper.loop.style = {}; }
+
+            looper.loop.style.strokeWeight = 2.0;
+            looper.loop.style.strokeColor = { red: 200, green: 200, blue: 200 };
         }
 
         processing.drawLoop = function() {
@@ -2249,40 +2363,39 @@ function LooperInstance (options) {
             // // console.log ((((this.screenWidth * scale) - this.screenWidth) / 2));
             // this.translate (((this.screenWidth - (this.screenWidth * scale)) / 2), 0);
 
-            this.pushMatrix();
+            //
+            // Draw the loop arc
+            //
 
-            // Draw the loop
-            this.strokeWeight (2.0);
-            this.stroke (200, 200, 200);
+            this.pushMatrix ();
+            this.strokeWeight (looper.loop.style.strokeWeight);
+            this.stroke (looper.loop.style.strokeColor.red, looper.loop.style.strokeColor.green, looper.loop.style.strokeColor.blue);
             this.noFill ();
-            this.smooth ();
-            this.arc (0, 0, 400, 400, (-this.PI / 2) + 0.05 * this.PI, 1.45 * this.PI);
+            var loopScale = (looper.loop.behaviors.length > 0 || looper.loop.entangled === true) ? 1.0 : looper.geometry.loop.emptyScaleFactor;
+            this.arc (0, 0, loopScale * (looper.geometry.loop.radius * 2), loopScale * (looper.geometry.loop.radius * 2), (-this.PI / 2) + looper.geometry.loop.startAngle + looper.geometry.loop.startAngleOffset, (-this.PI / 2) + looper.geometry.loop.endAngle - looper.geometry.loop.endAngleOffset);
+            this.popMatrix ();
 
-            this.popMatrix();
-
-            // Highlight a section of the arc
-            /*
-            processing.strokeWeight(8.0);
-            processing.stroke(65, 65, 65);
-            processing.noFill();
-            processing.smooth();
-            var offset = 0.0;
-            var length = 0.15;
-            processing.arc(processing.screenWidth / 2, processing.screenHeight / 2, 400, 400, (-processing.PI/2) + ((offset + 0.05) * processing.PI), (-processing.PI/2) + ((offset + 0.05 + length) * processing.PI));
-            */
-
-            this.pushMatrix();
-
+            //
             // Draw the loop's arrowhead to indicate its sequence order
-            this.strokeWeight(2.0);
-            this.stroke (200, 200, 200); // (65, 65, 65);
-            // this.translate(this.screenWidth / 2, this.screenHeight / 2);
-            this.translate(-29, -198);
-            this.rotate(-0.05 * this.PI);
-            this.line(0, 0, -16, 16);
-            this.line(0, 0, -16, -16);
+            //
 
-            this.popMatrix();
+            this.pushMatrix ();
+            this.stroke (looper.loop.style.strokeColor.red, looper.loop.style.strokeColor.green, looper.loop.style.strokeColor.blue);
+            this.rotate (-1 * looper.geometry.loop.endAngleOffset);
+            this.translate (0, loopScale * -1 * looper.geometry.loop.radius);
+            this.line (0, 0, -1 * looper.geometry.loop.arrowSegmentLength, looper.geometry.loop.arrowSegmentLength);
+            this.line (0, 0, -1 * looper.geometry.loop.arrowSegmentLength, -1 * looper.geometry.loop.arrowSegmentLength);
+            this.popMatrix ();
+        }
+
+        //
+        // Draw behaviors
+        //
+        processing.drawBehaviors = function () {
+
+            if (looper.hasCurrentDevice () === true) {
+                processing.looperInstance.draw ();
+            }
         }
 
         /**
@@ -2303,24 +2416,11 @@ function LooperInstance (options) {
             //     this.yOffset = currentMouseY - this.mouse_y + this.yOffsetPrevious;
             // }
 
-
-
-
-            this.pushMatrix();
-
-            // Everything must be drawn relative to center
-            this.translate (this.xOffsetOrigin, this.yOffsetOrigin);
-            // Use scale for 2D "zoom"
-            this.scale (this.zoomFactor);
-            // The offset (note how we scale according to the zoom)
-            this.translate (this.xOffset/this.zoomFactor, this.yOffset/this.zoomFactor);
-
             // // Update the previous touch state history
             // console.log (looper.getCurrentDevice().touch.touch);
             // console.log (looper.getCurrentDevice().touch.current);
             // // console.log (looper.getCurrentDevice().touch.release);
             // console.log ("\n");
-
 
             // Update the position that was last touched in the user is touching
             if (looper.hasCurrentDevice () === true) {
@@ -2331,414 +2431,321 @@ function LooperInstance (options) {
                 }
             }
 
-            /**
-             * Draw behaviors.
-             */
-            function drawInterfaces () {
-
-                if (looper.hasCurrentDevice () === true) {
-
-                    // processing.pushMatrix();
-
-                    // console.log (processing.looperInstance.interfaces);
-
-                    // Draw based on latest state
-                    //for (var i = 0; i < this.interfaces.length; i++) {
-                    // for (var i = 0; i < looper.getCurrentDevice ().interfaces.length; i++) {
-                    //     processing.looperInstance.interfaces[i].draw();
-                    //     //this.interfaces[i].draw();
-                    // }
-
-                    processing.looperInstance.draw ();
-
-                    // processing.popMatrix();
-                }
-            }
-
-            /**
-             * Returns the sequence of behaviors in the event queue.
-             */
-            processing.getBehaviorSequence = function () {
-                var behaviorSequence = [];
-
-                var eventCount = processing.loopSequence.behaviors.length;
-
-                // Populate array for sorting
-                for (var i = 0; i < eventCount; i++) {
-                    var loopBehavior = processing.loopSequence.behaviors[i];
-                    if (loopBehavior.state === 'ENGAGED') {
-                        
-                        behaviorSequence.push({
-                            event: loopBehavior,
-                            angle: processing.getAngle(loopBehavior.x, loopBehavior.y)
-                        });
-                    }
-                }
-
-                // Perform insertion sort
-                var i, j;
-                var loopBehavior;
-                eventCount = behaviorSequence.length;
-                for (var i = 0; i < eventCount; i++) {
-                    loopBehavior = behaviorSequence[i];
-
-                    for (j = i-1; j > -1 && behaviorSequence[j].angle > loopBehavior.angle; j--) {
-                        behaviorSequence[j+1] = behaviorSequence[j];
-                    }
-
-                    behaviorSequence[j+1] = loopBehavior;
-                }
-
-                console.log(behaviorSequence);
-
-                for (var i = 0; i < behaviorSequence.length; i++) {
-                    loopBehavior = behaviorSequence[i];
-
-                    console.log(loopBehavior);
-
-                    var behaviorScript = loopBehavior.event.procedure;
-                }
-
-                return behaviorSequence;
-            }
-
-            /**
-             * Returns the distance between the two specified points.
-             */
-            processing.lineDistance = function(x1, y1, x2, y2) {
-                // console.log("lineDistance");
-
-                var xs = 0;
-                var ys = 0;
-
-                xs = x2 - x1;
-                xs = xs * xs;
-
-                ys = y2 - y1;
-                ys = ys * ys;
-
-                return Math.sqrt(xs + ys);
-            }
-
-            /**
-             * Get the (x,y) point on the loop.
-             */
-            function getPointOnCircle(radius, originX, originY, angle) {
-
-                x = originX + radius * Math.cos(angle);
-                y = originY + radius * Math.sin(angle);
-
-                var result = { x: x, y: y };
-
-                return result;
-            }
-
-            /**
-             * Get the (x,y) point on the loop at the specified angle (in radians).
-             */
-            function getPosition (angle, radius) {
-
-                radius = typeof radius !== 'undefined' ? radius : 400;
-
-                var nearestX = (radius / 2) * Math.cos(angle);
-                var nearestY = (radius / 2) * Math.sin(angle);
-
-                var nearestPosition = {
-                    x: nearestX,
-                    y: nearestY
-                };
-                return nearestPosition;
-            }
-            processing.getPosition = getPosition;
-
-            /**
-             * Get the angle.
-             */
-            function getAngle (x, y) {
-                var deltaX = x - (processing.screenWidth / 2);
-                var deltaY = y - (processing.screenHeight / 2);
-                var angleInRadians = Math.atan2(deltaY, deltaX); // * 180 / PI;
-                if (angleInRadians < 0) {
-                    angleInRadians = Math.PI + (Math.PI + angleInRadians);
-                }
-                angleInRadians = angleInRadians + (Math.PI / 2); // Offset by (PI / 2) radians
-                if (angleInRadians > (2 * Math.PI)) {
-                    angleInRadians = angleInRadians - (2 * Math.PI);
-                }
-                return angleInRadians;
-            }
-            processing.getAngle = getAngle;
-
-            /**
-             * Get the angle.
-             */
-            function getAngleFixed (x, y) {
-                var deltaX = x; // - (processing.screenWidth / 2);
-                var deltaY = y; // - (processing.screenHeight / 2);
-                var angleInRadians = Math.atan2(deltaY, deltaX); // * 180 / PI;
-                angleInRadians = angleInRadians + (processing.PI / 2);
-                // if (angleInRadians < 0) {
-                //     angleInRadians = Math.PI + (Math.PI + angleInRadians);
-                // }
-                // angleInRadians = angleInRadians + (Math.PI / 2); // Offset by (PI / 2) radians
-                // if (angleInRadians > (2 * Math.PI)) {
-                //     angleInRadians = angleInRadians - (2 * Math.PI);
-                // }
-                if (angleInRadians < 0) {
-                    angleInRadians = processing.PI + (processing.PI + angleInRadians);
-                }
-                return angleInRadians;
-            }
-            processing.getAngleFixed = getAngleFixed;
-
-            /**
-             * Pans the perspective to the specified (x,y) position on the canvas.
-             */
-            function panTo (x, y) {
-
-                // Store previous offset
-                processing.xOffset = -x;
-                processing.yOffset = y;
-            }
-            processing.panTo = panTo;
-
-            /**
-             * Pans the perspective by the specified increments along the x and y axes.
-             */
-            function panBy (x, y) {
-
-                // Store previous offset
-                processing.xOffset = processing.xOffset - x;
-                processing.yOffset = processing.yOffset + y;
-            }
-            processing.panBy = panBy;
-
-            function scaleTo (factor) {
-
-                processing.zoomFactor = factor;
-            }
-            processing.scaleTo = scaleTo;
-
-            function panScale (x, y, factor) {
-
-                console.log ('PANSCALE');
-
-                // Store previous offset
-                processing.xOffset = -x;
-                processing.yOffset = y;
-
-                processing.zoomFactor = factor;
-            }
-            processing.panScale = panScale;
-
-            /**
-             * Returns the coordinates for the point on the loop nearest to the specified point.
-             */
-            processing.getNearestPositionOnEventLoop = function (x, y) {
-                // x = x + processing.screenWidth;
-                // DEBUG: console.log ("Get nearest to: " + x + ", " + y);
-
-                var xPositionOfLoop = 0; // - processing.xOffset;
-                var yPositionOfLoop = 0; // - processing.yOffset;
-                // DEBUG: console.log ("LOOP(x,y) = " + xPositionOfLoop + ", " + yPositionOfLoop);
-                var deltaX = x - xPositionOfLoop; // x difference between specified point and center of loop
-                var deltaY = y - yPositionOfLoop; // y difference between specified point and center of loop
-                // DEBUG: console.log ("deltaX: " + deltaX);
-                // DEBUG: console.log ("deltaY: " + deltaY);
-                var angleInDegrees = Math.atan2 (deltaY, deltaX); // * 180 / PI;
-                // DEBUG: console.log ("angleInDegrees: " + angleInDegrees);
-
-                // var nearestX = processing.screenWidth / 2 + (400 / 2) * Math.cos (angleInDegrees);
-                // var nearestY = processing.screenHeight / 2 + (400 / 2) * Math.sin (angleInDegrees);
-                var nearestX = 0 + (400 / 2) * Math.cos (angleInDegrees);
-                var nearestY = 0 + (400 / 2) * Math.sin (angleInDegrees);
-
-                var nearestPosition = {
-                    x: nearestX,
-                    y: nearestY
-                };
-                return nearestPosition;
-            }
-
-            /**
-             * Get the distance to the loop from the given node.
-             */
-            processing.getDistanceFromEventLoop = function (loopBehavior) {
-                var distance = processing.lineDistance(loopBehavior.x, loopBehavior.y, loopBehavior.xTarget, loopBehavior.yTarget);
-                // DEBUG: console.log ("Distance from loop: " + distance)
-                return distance;
-            }
-
-            // TODO: Rename to processScreenGesture
-            // TODO: Consider renaming to senseScreenGesture or something else replacing the word "process" to something more appropriate
-            processing.processGesture = function (event) {
-                // DEBUG: console.log ("processGesture");
-
-                // TODO:
-                // Ensure the following exist:
-                //    processing.view = {}
-                //    processing.interactions
-
-                var touches = event.gesture.touches;
-
-                // console.log ("Processing (mouseX, mouseY): " + processing.mouseX + ", " + processing.mouseY);
-
-                // console.log (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
-                // console.log (processing.mouseY);
-
-                // { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() }
-                processing.screenMouseX = event.gesture.center.pageX; // ((looper.getCurrentPane() + 1) * processing.screenWidth) + processing.mouseX;
-                processing.screenMouseY = event.gesture.center.pageY; // processing.mouseY;
-                // DEBUG: console.log ("Screen (mouseX, mouseY), calculated: " + processing.screenMouseX + ", " + processing.screenMouseY);
-
-                processing.canvasMouseX = processing.screenMouseX - processing.xOffsetOrigin; // ((looper.getCurrentPane()) * processing.screenWidth) + processing.mouseX + (processing.xOffsetOrigin);
-                processing.canvasMouseY = processing.screenMouseY - processing.yOffsetOrigin; // processing.mouseY - (processing.yOffsetOrigin);
-                // DEBUG: console.log ("Canvas (mouseX, mouseY), calculated: " + processing.canvasMouseX + ", " + processing.canvasMouseY);
-
-                // console.log ("zoomFactor: " + processing.zoomFactor);
-                processing.pannedCanvasMouseX = processing.canvasMouseX - processing.xOffset; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
-                processing.pannedCanvasMouseY = processing.canvasMouseY - processing.yOffset; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
-                // DEBUG: console.log ("Panned canvas (mouseX, mouseY), calculated (no zooming): " + processing.pannedCanvasMouseX + ", " + processing.pannedCanvasMouseY);
-
-                // Calculate canvas coordinates of panned and zoomed point
-                // var inverseZoom = (1 + (1 - processing.zoomFactor));
-                // console.log ("inverseZoom: " + inverseZoom);
-                processing.zoomedCanvasMouseX = (processing.canvasMouseX - processing.xOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
-                processing.zoomedCanvasMouseY = (processing.canvasMouseY - processing.yOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
-                // DEBUG: console.log ("Zoomed and panned canvas (mouseX, mouseY), calculated: " + processing.zoomedCanvasMouseX + ", " + processing.zoomedCanvasMouseY);
-
-                // if (processing.draggingCanvas == true) {
-                //     //touch.draggingCanvas = true;
-                //     processing.draggingCanvas = false;
-
-                //     // Save mouse touch location
-                //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
-                //     var currentMouseY = processing.mouseY;
-
-                //     // Store previous offset
-                //     processing.xOffset = currentMouseX - processing.mouse_x + processing.xOffsetPrevious;
-                //     processing.yOffset = currentMouseY - processing.mouse_y + processing.yOffsetPrevious;
-                // }
-
-            }
-
-
-
-
             //
-            // TODO: Update behavior coordinate system orientation #draw-behavior
+            // Update behavior coordinate system orientation
+            // Tags: #draw-behavior
             //
 
-            if (looper.geometry === undefined) { looper.geometry = {}; }
-            if (looper.geometry.loop === undefined) { looper.geometry.loop = {}; } // i.e., the containing loop
-            if (looper.geometry.loop.position === undefined) { looper.geometry.loop.position = {}; }
-            if (looper.geometry.behavior === undefined) { looper.geometry.behavior = {}; } // i.e., the current behavior
-            if (looper.geometry.behavior.position === undefined) { looper.geometry.behavior.position = {}; }
-            if (looper.geometry.condition === undefined) { looper.geometry.condition = {}; } // i.e., the current behavior's condition
-
-            if (looper.loop === undefined) { looper.loop = {}; }
-            if (looper.loop.behaviors === undefined) { looper.loop.behaviors = []; }
-            // if (looper.loop.behaviors2 === undefined) { looper.loop.behaviors2 = []; }
-
-            looper.geometry.loop.position = { x: 0, y: 0 };
-            looper.geometry.loop.radius = 200;
-
-            // Sort the list by angle
-            // TODO: Only do this when a new interaction occurs
-            // console.log (looper.loop.behaviors);
-            for (var i = 0; i < looper.loop.behaviors.length; i++) {
-                for (var j = i; j < looper.loop.behaviors.length; j++) {
-                    if (looper.loop.behaviors[i].geometry.angle > looper.loop.behaviors[j].geometry.angle) {
-                        var tmp = looper.loop.behaviors[i];
-                        looper.loop.behaviors[i] = looper.loop.behaviors[j];
-                        looper.loop.behaviors[j] = tmp;
-                    }
-                }
-            }
-
-            // Find the current behavior
-            // behaviorIndex = -1;
+            // // Sort the list by angle
+            // // TODO: Only do this when a new interaction occurs
+            // // console.log (looper.loop.behaviors);
             // for (var i = 0; i < looper.loop.behaviors.length; i++) {
-            //     if (behavior === looper.loop.behaviors[i]) {
-            //         behaviorIndex = i;
-            //         break;
+            //     for (var j = i; j < looper.loop.behaviors.length; j++) {
+            //         if (looper.loop.behaviors[i].geometry.angle > looper.loop.behaviors[j].geometry.angle) {
+            //             var tmp = looper.loop.behaviors[i];
+            //             looper.loop.behaviors[i] = looper.loop.behaviors[j];
+            //             looper.loop.behaviors[j] = tmp;
+            //         }
             //     }
             // }
-            // currentBehavior = looper.loop.behaviors[behaviorIndex];
 
-            // Update the behavior
-            for (var i = 0; i < looper.loop.behaviors.length; i++) {
-                currentBehavior = looper.loop.behaviors[i];
+            // //
+            // // Update the behavior geometry
+            // //
+            // for (var i = 0; i < looper.behaviors.length; i++) {
+            //     currentBehavior = looper.behaviors[i];
 
-                currentBehavior.condition.endAngle = currentBehavior.geometry.angle - currentBehavior.condition.endAngleOffset;
+            //     currentBehavior.condition.endAngle = currentBehavior.geometry.angle - currentBehavior.condition.endAngleOffset;
 
-                // Set condition start angle
-                if (i > 0) {
-                    var previousBehavior = looper.loop.behaviors[i - 1];
-                    currentBehavior.condition.startAngle = previousBehavior.geometry.angle + previousBehavior.condition.endAngleOffset;;
-                } else {
-                    currentBehavior.condition.startAngle = 0;
-                }
-
-
-
-                // var distanceFromCenter = Math.sqrt (processing.zoomedCanvasMouseX * processing.zoomedCanvasMouseX + processing.zoomedCanvasMouseY * processing.zoomedCanvasMouseY);
-                // var touchAngle = processing.getAngleFixed (processing.zoomedCanvasMouseX, processing.zoomedCanvasMouseY);
-
-                if (currentBehavior.conditionType === undefined) {
-                    currentBehavior.conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
-                }
-
-                // // TODO: Move this to the click handler, so it's only executed once
-                // if (looper.hasCurrentDevice () === true) {
-                //     if (looper.getCurrentDevice ().touch.touching === true) {
-                //         if (distanceFromCenter > 175 && distanceFromCenter < 225) {
-
-                //             if (touchAngle > currentBehavior.condition.startAngle && touchAngle < currentBehavior.condition.endAngle) {
-
-                //                 if (currentBehavior.conditionType === "none") {
-                //                     currentBehavior.conditionType = "stimulus";
-                //                 } else if (currentBehavior.conditionType === "stimulus") {
-                //                     currentBehavior.conditionType = "message";
-                //                 } else if (currentBehavior.conditionType === "message") {
-                //                     currentBehavior.conditionType = "gesture";
-                //                 } else if (currentBehavior.conditionType === "gesture") {
-                //                     currentBehavior.conditionType = "none";
-                //                 }
-
-                //             }
-                //         }
-                //     }
-                // }
-            }
+            //     // Set condition start angle
+            //     if (i > 0) {
+            //         var previousBehavior = looper.behaviors[i - 1];
+            //         currentBehavior.condition.startAngle = previousBehavior.geometry.angle + previousBehavior.condition.endAngleOffset;
+            //     } else {
+            //         currentBehavior.condition.startAngle = 0;
+            //     }
 
 
+            //     if (currentBehavior.conditionType === undefined) {
+            //         currentBehavior.conditionType = "none"; // i.e., "none", "stimulus", "message", "gesture")
+            //     }
+            // }
 
-
-
-
-            // var sequence = behavior.interface.processing.getBehaviorSequence();
-            //var sequence = processing.loopSequence.behaviors;
-
-            // console.log (looper.loop.behaviors2);
-
-            // looper.geometry.behavior.position = { x: this.x, y: this.y };
-            // looper.geometry.behavior.diameter = 120;
-            // looper.geometry.behavior.angle = processing.getAngleFixed (looper.geometry.behavior.position.x, looper.geometry.behavior.position.y);
-
-            /**
-             * Start of actual loop instructions. The things above are definitions.
-             */
+            // Everything must be drawn relative to center
+            this.pushMatrix();
+            this.translate (this.xOffsetOrigin, this.yOffsetOrigin);
+            this.scale (this.zoomFactor); // Use scale for 2D "zoom"
+            this.translate (this.xOffset / this.zoomFactor, this.yOffset / this.zoomFactor); // The offset (note how we scale according to the zoom)
 
             // erase background
             processing.background (backgroundColor);
 
             this.drawLoop (); // TODO: Make Interface for this! Then remove!
-
-            drawInterfaces ();
+            this.drawBehaviors ();
 
             this.popMatrix ();
         };
+
+        /**
+         * Returns the sequence of behaviors in the event queue.
+         */
+        processing.getBehaviorSequence = function () {
+            var behaviorSequence = [];
+
+            var eventCount = processing.loopSequence.behaviors.length;
+
+            // Populate array for sorting
+            for (var i = 0; i < eventCount; i++) {
+                var loopBehavior = processing.loopSequence.behaviors[i];
+                if (loopBehavior.state === 'ENGAGED') {
+                    
+                    behaviorSequence.push({
+                        event: loopBehavior,
+                        angle: processing.getAngle(loopBehavior.x, loopBehavior.y)
+                    });
+                }
+            }
+
+            // Perform insertion sort
+            var i, j;
+            var loopBehavior;
+            eventCount = behaviorSequence.length;
+            for (var i = 0; i < eventCount; i++) {
+                loopBehavior = behaviorSequence[i];
+
+                for (j = i-1; j > -1 && behaviorSequence[j].angle > loopBehavior.angle; j--) {
+                    behaviorSequence[j+1] = behaviorSequence[j];
+                }
+
+                behaviorSequence[j+1] = loopBehavior;
+            }
+
+            console.log(behaviorSequence);
+
+            for (var i = 0; i < behaviorSequence.length; i++) {
+                loopBehavior = behaviorSequence[i];
+
+                console.log(loopBehavior);
+
+                var behaviorScript = loopBehavior.event.procedure;
+            }
+
+            return behaviorSequence;
+        }
+
+        /**
+         * Returns the distance between the two specified points.
+         */
+        processing.lineDistance = function (x1, y1, x2, y2) {
+            // console.log("lineDistance");
+
+            var xs = 0;
+            var ys = 0;
+
+            xs = x2 - x1;
+            xs = xs * xs;
+
+            ys = y2 - y1;
+            ys = ys * ys;
+
+            return Math.sqrt(xs + ys);
+        }
+
+        /**
+         * Get the (x,y) point on the loop.
+         */
+        processing.getPointOnCircle = function (radius, originX, originY, angle) {
+
+            x = originX + radius * Math.cos(angle);
+            y = originY + radius * Math.sin(angle);
+
+            var result = { x: x, y: y };
+
+            return result;
+        }
+
+        /**
+         * Get the (x,y) point on the loop at the specified angle (in radians).
+         */
+        processing.getPosition = function (angle, radius) {
+
+            radius = typeof radius !== 'undefined' ? radius : 400;
+
+            var nearestX = (radius / 2) * Math.cos(angle);
+            var nearestY = (radius / 2) * Math.sin(angle);
+
+            var nearestPosition = {
+                x: nearestX,
+                y: nearestY
+            };
+            return nearestPosition;
+        }
+
+        /**
+         * Get the angle.
+         */
+        processing.getAngle = function (x, y) {
+            var deltaX = x - (processing.screenWidth / 2);
+            var deltaY = y - (processing.screenHeight / 2);
+            var angleInRadians = Math.atan2(deltaY, deltaX); // * 180 / PI;
+            if (angleInRadians < 0) {
+                angleInRadians = Math.PI + (Math.PI + angleInRadians);
+            }
+            angleInRadians = angleInRadians + (Math.PI / 2); // Offset by (PI / 2) radians
+            if (angleInRadians > (2 * Math.PI)) {
+                angleInRadians = angleInRadians - (2 * Math.PI);
+            }
+            return angleInRadians;
+        }
+
+        /**
+         * Get the angle.
+         */
+        processing.getAngleFixed = function (x, y) {
+            var deltaX = x; // - (processing.screenWidth / 2);
+            var deltaY = y; // - (processing.screenHeight / 2);
+            var angleInRadians = Math.atan2(deltaY, deltaX); // * 180 / PI;
+            angleInRadians = angleInRadians + (processing.PI / 2);
+            // if (angleInRadians < 0) {
+            //     angleInRadians = Math.PI + (Math.PI + angleInRadians);
+            // }
+            // angleInRadians = angleInRadians + (Math.PI / 2); // Offset by (PI / 2) radians
+            // if (angleInRadians > (2 * Math.PI)) {
+            //     angleInRadians = angleInRadians - (2 * Math.PI);
+            // }
+            if (angleInRadians < 0) {
+                angleInRadians = processing.PI + (processing.PI + angleInRadians);
+            }
+            return angleInRadians;
+        }
+
+        /**
+         * Pans the perspective to the specified (x,y) position on the canvas.
+         */
+        processing.panTo = function (x, y) {
+
+            // Store previous offset
+            processing.xOffset = -x;
+            processing.yOffset = y;
+        }
+
+        /**
+         * Pans the perspective by the specified increments along the x and y axes.
+         */
+        processing.panBy = function (x, y) {
+
+            // Store previous offset
+            processing.xOffset = processing.xOffset - x;
+            processing.yOffset = processing.yOffset + y;
+        }
+
+        processing.scaleTo = function (factor) {
+
+            processing.zoomFactor = factor;
+        }
+
+        processing.panScale = function (x, y, factor) {
+
+            console.log ('PANSCALE');
+
+            // Store previous offset
+            processing.xOffset = -x;
+            processing.yOffset = y;
+
+            processing.zoomFactor = factor;
+        }
+
+        /**
+         * Returns the coordinates for the point on the loop nearest to the specified point.
+         */
+        processing.getNearestPositionOnEventLoop = function (x, y) {
+            // x = x + processing.screenWidth;
+            // DEBUG: console.log ("Get nearest to: " + x + ", " + y);
+
+            var xPositionOfLoop = 0; // - processing.xOffset;
+            var yPositionOfLoop = 0; // - processing.yOffset;
+            // DEBUG: console.log ("LOOP(x,y) = " + xPositionOfLoop + ", " + yPositionOfLoop);
+            var deltaX = x - xPositionOfLoop; // x difference between specified point and center of loop
+            var deltaY = y - yPositionOfLoop; // y difference between specified point and center of loop
+            // DEBUG: console.log ("deltaX: " + deltaX);
+            // DEBUG: console.log ("deltaY: " + deltaY);
+            var angleInDegrees = Math.atan2 (deltaY, deltaX); // * 180 / PI;
+            // DEBUG: console.log ("angleInDegrees: " + angleInDegrees);
+
+            // var nearestX = processing.screenWidth / 2 + (400 / 2) * Math.cos (angleInDegrees);
+            // var nearestY = processing.screenHeight / 2 + (400 / 2) * Math.sin (angleInDegrees);
+            var nearestX = 0 + (400 / 2) * Math.cos (angleInDegrees);
+            var nearestY = 0 + (400 / 2) * Math.sin (angleInDegrees);
+
+            var nearestPosition = {
+                x: nearestX,
+                y: nearestY
+            };
+            return nearestPosition;
+        }
+
+        /**
+         * Get the distance to the loop from the given node.
+         */
+        processing.getDistanceFromEventLoop = function (loopBehavior) {
+            var distance = processing.lineDistance(loopBehavior.x, loopBehavior.y, loopBehavior.xTarget, loopBehavior.yTarget);
+            // DEBUG: console.log ("Distance from loop: " + distance)
+            return distance;
+        }
+
+        // TODO: Rename to processScreenGesture
+        // TODO: Consider renaming to senseScreenGesture or something else replacing the word "process" to something more appropriate
+        processing.processGesture = function (event) {
+            // DEBUG: console.log ("processGesture");
+
+            // TODO:
+            // Ensure the following exist:
+            //    processing.view = {}
+            //    processing.interactions
+
+            var touches = event.gesture.touches;
+
+            // console.log ("Processing (mouseX, mouseY): " + processing.mouseX + ", " + processing.mouseY);
+
+            // console.log (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
+            // console.log (processing.mouseY);
+
+            // { x: ev.gesture.center.pageX, y: ev.gesture.center.pageY, t: (new Date()).getTime() }
+            processing.screenMouseX = event.gesture.center.pageX; // ((looper.getCurrentPane() + 1) * processing.screenWidth) + processing.mouseX;
+            processing.screenMouseY = event.gesture.center.pageY; // processing.mouseY;
+            // DEBUG: console.log ("Screen (mouseX, mouseY), calculated: " + processing.screenMouseX + ", " + processing.screenMouseY);
+
+            processing.canvasMouseX = processing.screenMouseX - processing.xOffsetOrigin; // ((looper.getCurrentPane()) * processing.screenWidth) + processing.mouseX + (processing.xOffsetOrigin);
+            processing.canvasMouseY = processing.screenMouseY - processing.yOffsetOrigin; // processing.mouseY - (processing.yOffsetOrigin);
+            // DEBUG: console.log ("Canvas (mouseX, mouseY), calculated: " + processing.canvasMouseX + ", " + processing.canvasMouseY);
+
+            // console.log ("zoomFactor: " + processing.zoomFactor);
+            processing.pannedCanvasMouseX = processing.canvasMouseX - processing.xOffset; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
+            processing.pannedCanvasMouseY = processing.canvasMouseY - processing.yOffset; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
+            // DEBUG: console.log ("Panned canvas (mouseX, mouseY), calculated (no zooming): " + processing.pannedCanvasMouseX + ", " + processing.pannedCanvasMouseY);
+
+            // Calculate canvas coordinates of panned and zoomed point
+            // var inverseZoom = (1 + (1 - processing.zoomFactor));
+            // console.log ("inverseZoom: " + inverseZoom);
+            processing.zoomedCanvasMouseX = (processing.canvasMouseX - processing.xOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) * (((looper.getCurrentPane()) * processing.screenWidth) + (processing.mouseX + processing.xOffsetOrigin - processing.xOffset));
+            processing.zoomedCanvasMouseY = (processing.canvasMouseY - processing.yOffset) / processing.zoomFactor; // * processing.zoomFactor; // (1 + (1 - processing.zoomFactor)) *  (processing.mouseY - (processing.yOffsetOrigin) - (processing.yOffset));
+            // DEBUG: console.log ("Zoomed and panned canvas (mouseX, mouseY), calculated: " + processing.zoomedCanvasMouseX + ", " + processing.zoomedCanvasMouseY);
+
+            // if (processing.draggingCanvas == true) {
+            //     //touch.draggingCanvas = true;
+            //     processing.draggingCanvas = false;
+
+            //     // Save mouse touch location
+            //     var currentMouseX = (((looper.getCurrentPane() + 1) * $(window).width()) + processing.mouseX);
+            //     var currentMouseY = processing.mouseY;
+
+            //     // Store previous offset
+            //     processing.xOffset = currentMouseX - processing.mouse_x + processing.xOffsetPrevious;
+            //     processing.yOffset = currentMouseY - processing.mouse_y + processing.yOffsetPrevious;
+            // }
+
+        }
+
     });
 
     // sketch.options.crispLines = true;
