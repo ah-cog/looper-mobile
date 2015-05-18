@@ -31,7 +31,7 @@
         <link type="text/css" rel="stylesheet" href="css/style.css" />
 
         <head profile="http://www.w3.org/2005/10/profile">
-        <link rel="icon" type="image/png" href="/favicon.png">
+        <!-- <link rel="icon" type="image/png" href="/favicon.png"> -->
     </head>
 
     <body onload="onLoad()">
@@ -304,11 +304,11 @@
                   'Timestamp: '      + acceleration.timestamp;
         };
 
-        function onError() {
-            alert('onError!');
+        function onError () {
+            alert ('onError!');
         };
 
-        navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
+        navigator.accelerometer.getCurrentAcceleration (onSuccess, onError);
     }
 
     </script>
@@ -322,13 +322,13 @@
 
     <!-- Set up carousel -->
     <div id="carousel">
-        <ul id="panes">
+        <!-- <ul id="panes">
 
-            <li class="pane1">
+            <li class="pane1"> -->
                 <canvas id="looperCanvas" style="width: 100%; height: 100%;"></canvas>
-            </li>
+            <!-- </li>
 
-        </ul>
+        </ul> -->
     </div>
 
     <!-- Include Hammer.js (for gesture recognition) -->
@@ -863,19 +863,28 @@
 
         looper.processGesture ({ x: mouseX, y: mouseY });
 
+        background (#ffffff);
+
         // Everything must be drawn relative to center
         pushMatrix ();
+
+        //
+        // Translate and scale the canvas
+        //
+
         translate (looper.xOffsetOrigin, looper.yOffsetOrigin);
         scale (looper.zoomFactor); // Use scale for 2D "zoom"
         translate (looper.xOffset / looper.zoomFactor, looper.yOffset / looper.zoomFactor); // The offset (note how we scale according to the zoom)
 
+        //
+        // Draw centered "pixel" text
+        //
 
-        background (#ffffff);
-        primaryFont = createFont ("Comfortaa-Regular.ttf", 32);
-        textFont (primaryFont, 40);
-        textAlign (CENTER);
-        fill (65, 65, 65);
-        text ("pixeI", 0, 0 + 10);
+        // primaryFont = createFont ("Comfortaa-Regular.ttf", 32);
+        // textFont (primaryFont, 40);
+        // textAlign (CENTER);
+        // fill (65, 65, 65);
+        // text ("pixeI", 0, 0 + 10);
 
         //
         // Draw loop
@@ -1104,10 +1113,14 @@
 
                 this.processing.pushMatrix();
 
+                this.processing.stroke (200, 200, 200);
+                this.processing.strokeWeight (2.0);
+
                 // Draw background of widget
                 this.processing.line (this.xOrigin + this.min, this.yOrigin + this.y, this.xOrigin + this.max, this.yOrigin + this.y);
 
                 // Draw the behavior
+                this.processing.noStroke ();
                 this.processing.fill (66, 214, 146);
                 // this.processing.ellipse (this.xOrigin + this.x, this.yOrigin + this.y, 30, 30);
                 this.processing.ellipse (this.xOrigin + this.x, this.yOrigin + this.y, 30, 30);
